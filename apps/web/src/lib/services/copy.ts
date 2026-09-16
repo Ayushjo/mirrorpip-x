@@ -7,6 +7,7 @@ import type {
   CreateFollowInput,
   UpdateFollowInput,
   RegisterLeaderInput,
+  ApplyLeaderInput,
 } from '../validation.js';
 
 const MAX_CREDENTIALS_PER_USER = 5;
@@ -269,6 +270,29 @@ export async function updateFollow(userId: string, id: string, input: UpdateFoll
 
   await prisma.follow.update({ where: { id }, data });
   return { id };
+}
+
+// A user applies to list one of their own accounts as a leader (PENDING until
+// an admin verifies). Ownership of the credential is enforced.
+export async function applyAsLeader(userId: string, input: ApplyLeaderInput) {
+  const cred = await prisma.exchangeCredential.findFirst({
+    where: { id: input.credentialId, userId },
+    include: { leaderProfile: true },
+  });
+  if (!cred) throw new ApiError(404, 'Connected account not found.');
+  if (cred.leaderProfile) throw new ApiError(409, 'That account is already listed as a leader.');
+
+  const leader = await prisma.leader.create({
+    data: {
+      userId,
+      credentialId: cred.id,
+      exchange: cred.exchange,
+      displayName: input.displayName,
+      bio: input.bio ?? null,
+      status: 'PENDING',
+    },
+  });
+  return { id: leader.id, status: leader.status };
 }
 
 // ─── Admin ──────────────────────────────────────────────────────────────────

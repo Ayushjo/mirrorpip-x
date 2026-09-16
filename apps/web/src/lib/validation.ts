@@ -36,6 +36,14 @@ export const registerLeaderSchema = z.object({
 });
 export type RegisterLeaderInput = z.infer<typeof registerLeaderSchema>;
 
+// A user applying to have one of their own accounts listed as a leader.
+export const applyLeaderSchema = z.object({
+  credentialId: z.string().min(1),
+  displayName: z.string().trim().min(2).max(60),
+  bio: z.string().trim().max(500).optional(),
+});
+export type ApplyLeaderInput = z.infer<typeof applyLeaderSchema>;
+
 export const leaderStatusSchema = z.object({
   status: z.enum(['PENDING', 'VERIFIED', 'PAUSED', 'DELISTED']),
 });

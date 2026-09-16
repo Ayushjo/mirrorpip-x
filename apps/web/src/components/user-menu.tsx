@@ -1,0 +1,71 @@
+'use client';
+
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { signOut } from '@/lib/auth-client';
+import { Button, LinkButton } from './ui';
+
+export function UserMenu({ user }: { user: { name: string; email: string } | null }) {
+  const router = useRouter();
+  const [open, setOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+
+  if (!user) {
+    return (
+      <div className="flex items-center gap-2">
+        <Link href="/login" className="rounded-lg px-3 py-2 text-sm text-[--color-muted] hover:text-[--color-fg]">
+          Sign in
+        </Link>
+        <LinkButton href="/register" className="px-3.5 py-2">
+          Get started
+        </LinkButton>
+      </div>
+    );
+  }
+
+  const initials = user.name.slice(0, 1).toUpperCase();
+
+  async function handleSignOut() {
+    setBusy(true);
+    await signOut();
+    router.push('/');
+    router.refresh();
+  }
+
+  return (
+    <div className="relative">
+      <button
+        onClick={() => setOpen((v) => !v)}
+        className="grid h-9 w-9 place-items-center rounded-full border border-[--color-border] bg-[--color-surface-2] text-sm font-semibold"
+        aria-label="Account menu"
+      >
+        {initials}
+      </button>
+      {open && (
+        <>
+          <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
+          <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-[--color-border] bg-[--color-surface] p-2 shadow-xl">
+            <div className="px-3 py-2">
+              <div className="truncate text-sm font-medium">{user.name}</div>
+              <div className="truncate text-xs text-[--color-muted]">{user.email}</div>
+            </div>
+            <div className="my-1 h-px bg-[--color-border]" />
+            <Link href="/dashboard" className="block rounded-lg px-3 py-2 text-sm hover:bg-[--color-surface-2]" onClick={() => setOpen(false)}>
+              Dashboard
+            </Link>
+            <Link href="/connect" className="block rounded-lg px-3 py-2 text-sm hover:bg-[--color-surface-2]" onClick={() => setOpen(false)}>
+              Connected accounts
+            </Link>
+            <div className="my-1 h-px bg-[--color-border]" />
+            <div className="px-1 pt-1">
+              <Button variant="ghost" className="w-full" onClick={handleSignOut} disabled={busy}>
+                {busy ? 'Signing out…' : 'Sign out'}
+              </Button>
+            </div>
+          </div>
+        </>
+      )}
+    </div>
+  );
+}
