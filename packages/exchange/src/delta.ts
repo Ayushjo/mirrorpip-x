@@ -19,8 +19,11 @@ import {
 //   HMAC_SHA256(secret, method + timestamp(sec) + path + query + body) -> hex
 // placed in the `signature` header alongside `api-key` and `timestamp`.
 
-const REST_URL = process.env.DELTA_REST_URL ?? 'https://api.india.delta.exchange';
-const WS_URL = process.env.DELTA_WS_URL ?? 'wss://socket.india.delta.exchange';
+// Read endpoint config lazily (per call) rather than at module load — otherwise
+// ESM import hoisting can freeze these before dotenv runs, silently pinning the
+// production default even when .env selects testnet.
+const restUrl = (): string => process.env.DELTA_REST_URL ?? 'https://api.india.delta.exchange';
+const wsUrl = (): string => process.env.DELTA_WS_URL ?? 'wss://socket.india.delta.exchange';
 const USER_AGENT = 'mirrorpip-x/0.1';
 
 function nowSec(): string {
@@ -41,7 +44,7 @@ interface DeltaEnvelope<T> {
 }
 
 async function publicGet<T>(path: string): Promise<T> {
-  const res = await fetch(`${REST_URL}${path}`, {
+  const res = await fetch(`${restUrl()}${path}`, {
     headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
   });
   const json = (await res.json().catch(() => null)) as DeltaEnvelope<T> | null;
@@ -67,7 +70,7 @@ async function signedRequest<T>(
 
   const { signature, timestamp } = sign(creds.apiSecret, method, path, queryString, bodyString);
 
-  const res = await fetch(`${REST_URL}${path}${queryString}`, {
+  const res = await fetch(`${restUrl()}${path}${queryString}`, {
     method,
     headers: {
       'api-key': creds.apiKey,
@@ -242,7 +245,7 @@ export class DeltaIndiaExchange implements Exchange {
     creds: ApiCredentials,
     handlers: { onFill: (fill: FillEvent) => void; onError?: (err: Error) => void },
   ): Promise<FillStream> {
-    const ws = new WebSocket(WS_URL, { headers: { 'User-Agent': USER_AGENT } });
+    const ws = new WebSocket(wsUrl(), { headers: { 'User-Agent': USER_AGENT } });
 
     const closeStream = () => {
       try {
