@@ -20,16 +20,16 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
 
   return (
     <div className="mx-auto max-w-lg space-y-6">
-      <Link href={`/leaders/${leader.id}`} className="text-sm text-[--color-muted] hover:text-[--color-fg]">
+      <Link href={`/leaders/${leader.id}`} className="text-sm text-muted hover:text-fg">
         ← {leader.displayName}
       </Link>
       <div>
         <h1 className="text-2xl font-bold">Follow {leader.displayName}</h1>
-        <p className="mt-1 text-sm text-[--color-muted]">Choose how their trades are sized into your account.</p>
+        <p className="mt-1 text-sm text-muted">Choose how their trades are sized into your account.</p>
       </div>
 
-      <Card className="bg-[--color-surface-2] text-sm text-[--color-muted]">
-        <strong className="text-[--color-fg]">Heads up:</strong> copy-trading carries real risk. Start small, set a
+      <Card className="bg-surface-2 text-sm text-muted">
+        <strong className="text-fg">Heads up:</strong> copy-trading carries real risk. Start small, set a
         daily loss limit, and never copy with funds you can’t afford to lose.
       </Card>
 

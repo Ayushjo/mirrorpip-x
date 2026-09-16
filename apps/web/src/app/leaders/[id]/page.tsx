@@ -14,21 +14,21 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="space-y-6">
-      <Link href="/leaders" className="text-sm text-[--color-muted] hover:text-[--color-fg]">
+      <Link href="/leaders" className="text-sm text-muted hover:text-fg">
         ← Leaderboard
       </Link>
 
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-4">
           <div className="flex items-center gap-4">
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-[--color-surface-2] text-2xl font-bold">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-surface-2 text-2xl font-bold">
               {leader.displayName.slice(0, 1)}
             </div>
             <div>
               <h1 className="text-2xl font-bold">{leader.displayName}</h1>
               <div className="mt-1 flex items-center gap-2">
                 <Badge tone="brand">Verified</Badge>
-                <span className="text-xs text-[--color-faint]">Delta Exchange India</span>
+                <span className="text-xs text-faint">Delta Exchange India</span>
               </div>
             </div>
           </div>
@@ -42,7 +42,7 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
             </LinkButton>
           )}
         </div>
-        {leader.bio && <p className="mt-5 max-w-2xl text-sm text-[--color-muted]">{leader.bio}</p>}
+        {leader.bio && <p className="mt-5 max-w-2xl text-sm text-muted">{leader.bio}</p>}
       </Card>
 
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
@@ -63,12 +63,12 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
       <Card>
         <h2 className="mb-4 text-base font-semibold">Recent trades</h2>
         {leader.recentTrades.length === 0 ? (
-          <p className="py-6 text-center text-sm text-[--color-muted]">No trades captured yet.</p>
+          <p className="py-6 text-center text-sm text-muted">No trades captured yet.</p>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
-              <thead className="text-left text-xs text-[--color-muted]">
-                <tr className="border-b border-[--color-border-soft]">
+              <thead className="text-left text-xs text-muted">
+                <tr className="border-b border-border-soft">
                   <th className="pb-2 font-medium">Time</th>
                   <th className="pb-2 font-medium">Symbol</th>
                   <th className="pb-2 font-medium">Side</th>
@@ -78,8 +78,8 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
               </thead>
               <tbody>
                 {leader.recentTrades.map((t) => (
-                  <tr key={t.id} className="border-b border-[--color-border-soft] last:border-0">
-                    <td className="py-2.5 text-[--color-muted]">{t.at ? new Date(t.at).toLocaleString() : '—'}</td>
+                  <tr key={t.id} className="border-b border-border-soft last:border-0">
+                    <td className="py-2.5 text-muted">{t.at ? new Date(t.at).toLocaleString() : '—'}</td>
                     <td className="py-2.5 font-medium">{t.symbol}</td>
                     <td className="py-2.5">
                       <Badge tone={t.side === 'BUY' ? 'up' : 'down'}>
@@ -96,7 +96,7 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
           </div>
         )}
         {leader.stats.roiPct === 0 && (
-          <p className="mt-3 text-xs text-[--color-faint]">
+          <p className="mt-3 text-xs text-faint">
             ROI and drawdown are shown once enough equity history is recorded — we don't display estimated figures.
           </p>
         )}

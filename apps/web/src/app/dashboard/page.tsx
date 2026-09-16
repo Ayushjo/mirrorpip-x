@@ -16,7 +16,7 @@ export default async function DashboardPage() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold">Dashboard</h1>
-          <p className="mt-1 text-sm text-[--color-muted]">Your active copies and live P&L.</p>
+          <p className="mt-1 text-sm text-muted">Your active copies and live P&L.</p>
         </div>
         <LinkButton href="/leaders" variant="ghost">
           Find leaders

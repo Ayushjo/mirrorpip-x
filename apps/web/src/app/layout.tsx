@@ -25,31 +25,31 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body>
-        <header className="sticky top-0 z-40 border-b border-[--color-border] bg-[rgba(7,11,20,0.72)] backdrop-blur-xl">
+        <header className="sticky top-0 z-40 border-b border-border bg-[rgba(7,11,20,0.72)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-6xl items-center justify-between px-5">
             <Link href="/" className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-lg bg-[--color-brand] font-bold text-black">M</span>
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-brand font-bold text-black">M</span>
               <span className="text-[15px] font-bold tracking-tight">
-                MirrorPip<span className="text-[--color-brand]">X</span>
+                MirrorPip<span className="text-brand">X</span>
               </span>
             </Link>
 
-            <nav className="hidden items-center gap-1 text-sm text-[--color-muted] sm:flex">
-              <Link href="/leaders" className="rounded-lg px-3 py-2 hover:text-[--color-fg]">
+            <nav className="hidden items-center gap-1 text-sm text-muted sm:flex">
+              <Link href="/leaders" className="rounded-lg px-3 py-2 hover:text-fg">
                 Leaderboard
               </Link>
               {user && (
                 <>
-                  <Link href="/dashboard" className="rounded-lg px-3 py-2 hover:text-[--color-fg]">
+                  <Link href="/dashboard" className="rounded-lg px-3 py-2 hover:text-fg">
                     Dashboard
                   </Link>
-                  <Link href="/connect" className="rounded-lg px-3 py-2 hover:text-[--color-fg]">
+                  <Link href="/connect" className="rounded-lg px-3 py-2 hover:text-fg">
                     Accounts
                   </Link>
                 </>
               )}
               {admin && (
-                <Link href="/admin" className="rounded-lg px-3 py-2 text-[--color-brand] hover:brightness-125">
+                <Link href="/admin" className="rounded-lg px-3 py-2 text-brand hover:brightness-125">
                   Admin
                 </Link>
               )}
@@ -61,7 +61,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         <main className="mx-auto max-w-6xl px-5 py-8">{children}</main>
 
-        <footer className="mx-auto max-w-6xl px-5 py-10 text-xs text-[--color-faint]">
+        <footer className="mx-auto max-w-6xl px-5 py-10 text-xs text-faint">
           <p>
             MirrorPip-X · Copy-trading is high risk. You keep custody of your funds; the platform only places orders via
             your own API keys. Not investment advice.

@@ -14,7 +14,7 @@ export default async function ConnectPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Connected accounts</h1>
-        <p className="mt-1 text-sm text-[--color-muted]">Manage the exchange accounts you use to follow leaders.</p>
+        <p className="mt-1 text-sm text-muted">Manage the exchange accounts you use to follow leaders.</p>
       </div>
       <ConnectManager initial={creds} />
     </div>

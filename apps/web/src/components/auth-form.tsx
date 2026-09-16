@@ -41,7 +41,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
     <div className="mx-auto max-w-md pt-8">
       <div className="mb-6 text-center">
         <h1 className="text-2xl font-bold">{isRegister ? 'Create your account' : 'Welcome back'}</h1>
-        <p className="mt-1 text-sm text-[--color-muted]">
+        <p className="mt-1 text-sm text-muted">
           {isRegister ? 'Start copying verified traders in minutes.' : 'Sign in to your dashboard.'}
         </p>
       </div>
@@ -74,16 +74,16 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             />
           </Field>
 
-          {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-[--color-down]">{error}</p>}
+          {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
 
           <Button type="submit" className="w-full" disabled={busy}>
             {busy ? 'Please wait…' : isRegister ? 'Create account' : 'Sign in'}
           </Button>
         </form>
       </Card>
-      <p className="mt-4 text-center text-sm text-[--color-muted]">
+      <p className="mt-4 text-center text-sm text-muted">
         {isRegister ? 'Already have an account? ' : "Don't have an account? "}
-        <Link href={isRegister ? '/login' : '/register'} className="text-[--color-brand] hover:brightness-125">
+        <Link href={isRegister ? '/login' : '/register'} className="text-brand hover:brightness-125">
           {isRegister ? 'Sign in' : 'Sign up'}
         </Link>
       </p>

@@ -12,15 +12,15 @@ export default async function LandingPage() {
     <div className="space-y-24">
       {/* Hero */}
       <section className="animate-in pt-8 text-center">
-        <div className="mx-auto mb-5 flex w-fit items-center gap-2 rounded-full border border-[--color-border] bg-[--color-surface] px-3 py-1 text-xs text-[--color-muted]">
-          <span className="h-1.5 w-1.5 rounded-full bg-[--color-brand]" />
+        <div className="mx-auto mb-5 flex w-fit items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
+          <span className="h-1.5 w-1.5 rounded-full bg-brand" />
           Live on Delta Exchange India
         </div>
         <h1 className="mx-auto max-w-3xl text-4xl font-extrabold leading-[1.1] tracking-tight sm:text-6xl">
           Copy the best crypto traders,
-          <span className="text-[--color-brand]"> automatically.</span>
+          <span className="text-brand"> automatically.</span>
         </h1>
-        <p className="mx-auto mt-5 max-w-xl text-base text-[--color-muted] sm:text-lg">
+        <p className="mx-auto mt-5 max-w-xl text-base text-muted sm:text-lg">
           Connect your own exchange account, pick a verified leader, and every trade they make is mirrored into your
           account in real time. Your funds never leave your exchange.
         </p>
@@ -28,7 +28,7 @@ export default async function LandingPage() {
           <LinkButton href={primaryHref} className="px-6 py-3 text-base">
             {user ? 'Browse leaders' : 'Start copying free'}
           </LinkButton>
-          <Link href="/leaders" className="rounded-xl px-5 py-3 text-sm text-[--color-muted] hover:text-[--color-fg]">
+          <Link href="/leaders" className="rounded-xl px-5 py-3 text-sm text-muted hover:text-fg">
             See the leaderboard →
           </Link>
         </div>
@@ -40,9 +40,9 @@ export default async function LandingPage() {
             { k: 'Control', v: 'Pause anytime', s: 'Risk limits on every follow' },
           ].map((x) => (
             <Card key={x.k} className="p-4">
-              <div className="text-xs text-[--color-muted]">{x.k}</div>
+              <div className="text-xs text-muted">{x.k}</div>
               <div className="mt-1 text-lg font-bold">{x.v}</div>
-              <div className="mt-0.5 text-xs text-[--color-faint]">{x.s}</div>
+              <div className="mt-0.5 text-xs text-faint">{x.s}</div>
             </Card>
           ))}
         </div>
@@ -70,9 +70,9 @@ export default async function LandingPage() {
             },
           ].map((s) => (
             <Card key={s.n}>
-              <div className="text-sm font-bold text-[--color-brand]">{s.n}</div>
+              <div className="text-sm font-bold text-brand">{s.n}</div>
               <div className="mt-2 text-base font-semibold">{s.t}</div>
-              <p className="mt-2 text-sm text-[--color-muted]">{s.d}</p>
+              <p className="mt-2 text-sm text-muted">{s.d}</p>
             </Card>
           ))}
         </div>
@@ -82,22 +82,22 @@ export default async function LandingPage() {
       <section>
         <div className="mb-6 flex items-end justify-between">
           <h2 className="text-2xl font-bold">Top leaders</h2>
-          <Link href="/leaders" className="text-sm text-[--color-brand] hover:brightness-125">
+          <Link href="/leaders" className="text-sm text-brand hover:brightness-125">
             View all →
           </Link>
         </div>
         {leaders.length === 0 ? (
-          <Card className="py-10 text-center text-sm text-[--color-muted]">
+          <Card className="py-10 text-center text-sm text-muted">
             No verified leaders yet — check back soon.
           </Card>
         ) : (
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {leaders.slice(0, 6).map((l) => (
               <Link key={l.id} href={`/leaders/${l.id}`}>
-                <Card className="transition hover:border-[--color-brand]">
+                <Card className="transition hover:border-brand">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-[--color-surface-2] font-semibold">
+                      <div className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 font-semibold">
                         {l.displayName.slice(0, 1)}
                       </div>
                       <div className="font-semibold">{l.displayName}</div>
@@ -106,11 +106,11 @@ export default async function LandingPage() {
                   </div>
                   <div className="mt-4 grid grid-cols-2 gap-3 text-sm">
                     <div>
-                      <div className="text-xs text-[--color-muted]">Win rate</div>
+                      <div className="text-xs text-muted">Win rate</div>
                       <div className="font-semibold tabular-nums">{l.stats.winRatePct.toFixed(1)}%</div>
                     </div>
                     <div>
-                      <div className="text-xs text-[--color-muted]">Volume copied</div>
+                      <div className="text-xs text-muted">Volume copied</div>
                       <div className="font-semibold tabular-nums">{fmtUsd(l.stats.totalCopiedUsd, 0)}</div>
                     </div>
                   </div>
@@ -123,9 +123,9 @@ export default async function LandingPage() {
 
       {/* CTA */}
       <section>
-        <Card className="flex flex-col items-center gap-4 bg-gradient-to-b from-[--color-surface] to-[--color-brand-soft] py-14 text-center">
+        <Card className="flex flex-col items-center gap-4 bg-gradient-to-b from-surface to-brand-soft py-14 text-center">
           <h2 className="text-2xl font-bold">Ready to trade on autopilot?</h2>
-          <p className="max-w-md text-sm text-[--color-muted]">
+          <p className="max-w-md text-sm text-muted">
             It takes two minutes to connect an account and start mirroring a leader.
           </p>
           <LinkButton href={primaryHref} className="px-6 py-3 text-base">

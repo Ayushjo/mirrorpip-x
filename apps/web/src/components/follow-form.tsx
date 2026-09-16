@@ -62,7 +62,7 @@ export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; 
   if (creds.length === 0) {
     return (
       <Card className="py-10 text-center">
-        <p className="text-sm text-[--color-muted]">You need a connected account before you can follow a leader.</p>
+        <p className="text-sm text-muted">You need a connected account before you can follow a leader.</p>
         <div className="mt-4">
           <Button onClick={() => router.push('/connect')}>Connect an account</Button>
         </div>
@@ -93,8 +93,8 @@ export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; 
                 className={cx(
                   'rounded-xl border px-3 py-2.5 text-sm transition',
                   sizingMode === s.value
-                    ? 'border-[--color-brand] bg-[--color-brand-soft] text-[--color-brand]'
-                    : 'border-[--color-border] text-[--color-muted] hover:text-[--color-fg]',
+                    ? 'border-brand bg-brand-soft text-brand'
+                    : 'border-border text-muted hover:text-fg',
                 )}
               >
                 {s.label}
@@ -123,20 +123,20 @@ export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; 
           </Field>
         </div>
 
-        <label className="flex items-center gap-3 rounded-xl border border-[--color-border] px-4 py-3 text-sm">
-          <input type="checkbox" checked={copyReverse} onChange={(e) => setCopyReverse(e.target.checked)} className="h-4 w-4 accent-[--color-brand]" />
+        <label className="flex items-center gap-3 rounded-xl border border-border px-4 py-3 text-sm">
+          <input type="checkbox" checked={copyReverse} onChange={(e) => setCopyReverse(e.target.checked)} className="h-4 w-4 accent-brand" />
           <span>
             <span className="font-medium">Reverse copy</span>
-            <span className="ml-2 text-[--color-muted]">Do the opposite of this leader (short when they go long).</span>
+            <span className="ml-2 text-muted">Do the opposite of this leader (short when they go long).</span>
           </span>
         </label>
 
-        {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-[--color-down]">{error}</p>}
+        {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={busy || !credentialId}>
           {busy ? 'Starting…' : `Start following ${leaderName}`}
         </Button>
-        <p className="text-center text-xs text-[--color-faint]">
+        <p className="text-center text-xs text-faint">
           Only trades placed after you start are copied. You can pause or stop anytime.
         </p>
       </form>

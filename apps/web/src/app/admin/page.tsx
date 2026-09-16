@@ -16,7 +16,7 @@ export default async function AdminPage() {
     <div className="space-y-6">
       <div>
         <h1 className="text-2xl font-bold">Admin</h1>
-        <p className="mt-1 text-sm text-[--color-muted]">Verify leaders and control the copy engine.</p>
+        <p className="mt-1 text-sm text-muted">Verify leaders and control the copy engine.</p>
       </div>
       <AdminPanel initialLeaders={leaders} initialKill={kill} />
     </div>

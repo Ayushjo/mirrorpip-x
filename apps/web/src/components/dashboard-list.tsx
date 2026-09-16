@@ -62,19 +62,19 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
         <Card>
-          <div className="text-xs text-[--color-muted]">Open P&L (unrealized)</div>
-          <div className={cx('mt-1 text-xl font-bold tabular-nums', totalOpen >= 0 ? 'text-[--color-up]' : 'text-[--color-down]')}>
+          <div className="text-xs text-muted">Open P&L (unrealized)</div>
+          <div className={cx('mt-1 text-xl font-bold tabular-nums', totalOpen >= 0 ? 'text-up' : 'text-down')}>
             {fmtUsd(totalOpen)}
           </div>
         </Card>
         <Card>
-          <div className="text-xs text-[--color-muted]">Realized P&L</div>
-          <div className={cx('mt-1 text-xl font-bold tabular-nums', totalRealized >= 0 ? 'text-[--color-up]' : 'text-[--color-down]')}>
+          <div className="text-xs text-muted">Realized P&L</div>
+          <div className={cx('mt-1 text-xl font-bold tabular-nums', totalRealized >= 0 ? 'text-up' : 'text-down')}>
             {fmtUsd(totalRealized)}
           </div>
         </Card>
         <Card className="hidden sm:block">
-          <div className="text-xs text-[--color-muted]">Active follows</div>
+          <div className="text-xs text-muted">Active follows</div>
           <div className="mt-1 text-xl font-bold tabular-nums">{rows.filter((r) => r.status === 'ACTIVE').length}</div>
         </Card>
       </div>
@@ -84,14 +84,14 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
           <Card key={r.id}>
             <div className="flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="grid h-11 w-11 place-items-center rounded-full bg-[--color-surface-2] font-semibold">
+                <div className="grid h-11 w-11 place-items-center rounded-full bg-surface-2 font-semibold">
                   {r.leader.displayName.slice(0, 1)}
                 </div>
                 <div>
-                  <Link href={`/dashboard/${r.id}`} className="font-semibold hover:text-[--color-brand]">
+                  <Link href={`/dashboard/${r.id}`} className="font-semibold hover:text-brand">
                     {r.leader.displayName}
                   </Link>
-                  <div className="text-xs text-[--color-faint]">
+                  <div className="text-xs text-faint">
                     {r.account.label} · {r.sizingMode.toLowerCase()} ×{r.sizingValue}
                   </div>
                 </div>
@@ -100,14 +100,14 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
 
               <div className="flex items-center gap-6">
                 <div className="text-right">
-                  <div className="text-xs text-[--color-muted]">Open</div>
-                  <div className={cx('font-semibold tabular-nums', r.openPnl >= 0 ? 'text-[--color-up]' : 'text-[--color-down]')}>
+                  <div className="text-xs text-muted">Open</div>
+                  <div className={cx('font-semibold tabular-nums', r.openPnl >= 0 ? 'text-up' : 'text-down')}>
                     {fmtUsd(r.openPnl)}
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="text-xs text-[--color-muted]">Realized</div>
-                  <div className={cx('font-semibold tabular-nums', r.realizedPnl >= 0 ? 'text-[--color-up]' : 'text-[--color-down]')}>
+                  <div className="text-xs text-muted">Realized</div>
+                  <div className={cx('font-semibold tabular-nums', r.realizedPnl >= 0 ? 'text-up' : 'text-down')}>
                     {fmtUsd(r.realizedPnl)}
                   </div>
                 </div>
@@ -131,7 +131,7 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
           </Card>
         ))}
       </div>
-      <p className="text-center text-xs text-[--color-faint]">Live P&L refreshes every few seconds.</p>
+      <p className="text-center text-xs text-faint">Live P&L refreshes every few seconds.</p>
     </div>
   );
 }

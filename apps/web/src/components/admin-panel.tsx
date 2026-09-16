@@ -59,12 +59,12 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
 
   return (
     <div className="space-y-6">
-      <Card className={cx('flex items-center justify-between', kill && 'border-[--color-down]')}>
+      <Card className={cx('flex items-center justify-between', kill && 'border-down')}>
         <div>
           <div className="flex items-center gap-2 font-semibold">
             Global kill-switch {kill ? <Badge tone="down">ENGAGED</Badge> : <Badge tone="up">Off</Badge>}
           </div>
-          <p className="mt-1 text-sm text-[--color-muted]">
+          <p className="mt-1 text-sm text-muted">
             When engaged, the engine halts all new copy orders immediately across every follower.
           </p>
         </div>
@@ -76,7 +76,7 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
       <div>
         <h2 className="mb-3 text-base font-semibold">Leaders</h2>
         {leaders.length === 0 ? (
-          <Card className="py-10 text-center text-sm text-[--color-muted]">
+          <Card className="py-10 text-center text-sm text-muted">
             No leader applications yet. Users apply from their Accounts page.
           </Card>
         ) : (
@@ -89,11 +89,11 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
                       <span className="font-semibold">{l.displayName}</span>
                       <Badge tone={statusTone[l.status] ?? 'neutral'}>{l.status}</Badge>
                     </div>
-                    <div className="mt-1 text-xs text-[--color-faint]">
+                    <div className="mt-1 text-xs text-faint">
                       {l.account.label} ••••{l.account.keyLast4} · {l.stats.followerCount} followers · {l.stats.tradeCount} trades ·{' '}
                       {fmtUsd(l.stats.totalCopiedUsd, 0)} copied
                     </div>
-                    {l.bio && <p className="mt-2 max-w-xl text-sm text-[--color-muted]">{l.bio}</p>}
+                    {l.bio && <p className="mt-2 max-w-xl text-sm text-muted">{l.bio}</p>}
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {l.status !== 'VERIFIED' && (

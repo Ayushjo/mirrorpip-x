@@ -17,14 +17,14 @@ export default async function FollowDetailPage({ params }: { params: Promise<{ i
 
   return (
     <div className="space-y-6">
-      <Link href="/dashboard" className="text-sm text-[--color-muted] hover:text-[--color-fg]">
+      <Link href="/dashboard" className="text-sm text-muted hover:text-fg">
         ← Dashboard
       </Link>
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-bold">{detail.leader.displayName}</h1>
-            <p className="mt-1 text-sm text-[--color-muted]">
+            <p className="mt-1 text-sm text-muted">
               Copying into {detail.account.label} (••••{detail.account.keyLast4}) · {detail.sizingMode.toLowerCase()} ×
               {detail.sizingValue}
             </p>

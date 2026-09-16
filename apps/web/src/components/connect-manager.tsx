@@ -91,9 +91,9 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
       <div>
         <Card>
           <h2 className="text-base font-semibold">Connect a Delta India account</h2>
-          <p className="mt-1 text-sm text-[--color-muted]">
-            Create an API key in Delta with <span className="text-[--color-fg]">Trading enabled</span> and{' '}
-            <span className="text-[--color-fg]">Withdrawals disabled</span>. We verify it, encrypt it, and never show it
+          <p className="mt-1 text-sm text-muted">
+            Create an API key in Delta with <span className="text-fg">Trading enabled</span> and{' '}
+            <span className="text-fg">Withdrawals disabled</span>. We verify it, encrypt it, and never show it
             again.
           </p>
           <form onSubmit={add} className="mt-5 space-y-4">
@@ -113,8 +113,8 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                 autoComplete="off"
               />
             </Field>
-            {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-[--color-down]">{error}</p>}
-            {msg && <p className="rounded-lg bg-[--color-brand-soft] px-3 py-2 text-sm text-[--color-brand]">{msg}</p>}
+            {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
+            {msg && <p className="rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand">{msg}</p>}
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? 'Verifying with exchange…' : 'Connect account'}
             </Button>
@@ -125,7 +125,7 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
       <div>
         <h2 className="mb-3 text-base font-semibold">Connected accounts</h2>
         {creds.length === 0 ? (
-          <Card className="py-10 text-center text-sm text-[--color-muted]">No accounts connected yet.</Card>
+          <Card className="py-10 text-center text-sm text-muted">No accounts connected yet.</Card>
         ) : (
           <div className="space-y-3">
             {creds.map((c) => (
@@ -137,7 +137,7 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                       <Badge tone={c.status === 'ACTIVE' ? 'up' : 'down'}>{c.status}</Badge>
                       {c.isLeader && <Badge tone="brand">Leader</Badge>}
                     </div>
-                    <div className="mt-1 text-xs text-[--color-faint]">
+                    <div className="mt-1 text-xs text-faint">
                       Delta India · key ••••{c.keyLast4}
                       {c.equityUsd != null && <> · {fmtUsd(c.equityUsd)}</>}
                     </div>
@@ -146,21 +146,21 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                     {!c.isLeader && c.status === 'ACTIVE' && (
                       <button
                         onClick={() => setApplyId(applyId === c.id ? null : c.id)}
-                        className="rounded-lg px-3 py-1.5 text-xs text-[--color-brand] hover:bg-[--color-brand-soft]"
+                        className="rounded-lg px-3 py-1.5 text-xs text-brand hover:bg-brand-soft"
                       >
                         Become a leader
                       </button>
                     )}
                     <button
                       onClick={() => remove(c.id)}
-                      className={cx('rounded-lg px-3 py-1.5 text-xs text-[--color-down] hover:bg-[rgba(244,63,94,0.1)]')}
+                      className={cx('rounded-lg px-3 py-1.5 text-xs text-down hover:bg-[rgba(244,63,94,0.1)]')}
                     >
                       Remove
                     </button>
                   </div>
                 </div>
                 {applyId === c.id && (
-                  <div className="mt-3 flex gap-2 border-t border-[--color-border-soft] pt-3">
+                  <div className="mt-3 flex gap-2 border-t border-border-soft pt-3">
                     <Input
                       value={applyName}
                       onChange={(e) => setApplyName(e.target.value)}
