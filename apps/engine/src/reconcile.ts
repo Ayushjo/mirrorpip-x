@@ -1,5 +1,7 @@
 import { prisma } from '@mirrorpip/db';
 import { getExchange } from '@mirrorpip/exchange';
+import { toApiCreds } from './creds.js';
+import { curveStats, WINDOWS } from './stats.js';
 import { log } from './log.js';
 
 /**
@@ -59,14 +61,37 @@ async function recomputeLeaderStats(): Promise<void> {
     const wins = closedPositions.filter((p) => Number(p.realizedPnl) > 0).length;
     const winRatePct = closedPositions.length > 0 ? (wins / closedPositions.length) * 100 : 0;
 
-    // ROI / drawdown need an equity-curve history we don't yet track — left at 0
-    // until that pipeline lands, rather than shown as a fabricated figure.
-    await prisma.leaderStat
-      .upsert({
-        where: { leaderId_window: { leaderId: leader.id, window: 'all' } },
-        update: { followerCount, tradeCount, totalCopiedUsd, winRatePct },
-        create: { leaderId: leader.id, window: 'all', followerCount, tradeCount, totalCopiedUsd, winRatePct },
+    // Snapshot the leader's current account equity so ROI/drawdown become real.
+    try {
+      const cred = await prisma.exchangeCredential.findUnique({ where: { id: leader.credentialId } });
+      if (cred) {
+        const { equityUsd } = await getExchange(leader.exchange).getAccount(toApiCreds(cred));
+        if (Number.isFinite(equityUsd)) {
+          await prisma.leaderEquityPoint.create({ data: { leaderId: leader.id, equityUsd } });
+        }
+      }
+    } catch (err) {
+      log.debug('equity snapshot failed', { leaderId: leader.id, err: String(err) });
+    }
+
+    // Compute ROI + drawdown per window from the equity curve.
+    const points = (
+      await prisma.leaderEquityPoint.findMany({
+        where: { leaderId: leader.id },
+        orderBy: { ts: 'asc' },
+        select: { equityUsd: true, ts: true },
       })
-      .catch((err) => log.warn('leader stat upsert failed', { leaderId: leader.id, err: String(err) }));
+    ).map((p) => ({ equityUsd: Number(p.equityUsd), ts: p.ts }));
+
+    for (const [window, span] of Object.entries(WINDOWS)) {
+      const { roiPct, maxDrawdownPct } = curveStats(points, span ? Date.now() - span : 0);
+      await prisma.leaderStat
+        .upsert({
+          where: { leaderId_window: { leaderId: leader.id, window } },
+          update: { followerCount, tradeCount, totalCopiedUsd, winRatePct, roiPct, maxDrawdownPct },
+          create: { leaderId: leader.id, window, followerCount, tradeCount, totalCopiedUsd, winRatePct, roiPct, maxDrawdownPct },
+        })
+        .catch((err) => log.warn('leader stat upsert failed', { leaderId: leader.id, window, err: String(err) }));
+    }
   }
 }

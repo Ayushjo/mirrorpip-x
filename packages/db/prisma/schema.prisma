@@ -183,12 +183,26 @@ model Leader {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  stats   LeaderStat[]
-  follows Follow[]
-  fills   LeaderFill[]
+  stats        LeaderStat[]
+  follows      Follow[]
+  fills        LeaderFill[]
+  equityPoints LeaderEquityPoint[]
 
   @@index([status])
   @@map("leader")
+}
+
+// Time series of a leader's account equity — the source for ROI + drawdown.
+model LeaderEquityPoint {
+  id       String @id @default(cuid())
+  leaderId String
+  leader   Leader @relation(fields: [leaderId], references: [id], onDelete: Cascade)
+
+  equityUsd Decimal  @db.Decimal(20, 2)
+  ts        DateTime @default(now())
+
+  @@index([leaderId, ts])
+  @@map("leader_equity_point")
 }
 
 // Rolling performance snapshot, recomputed by the engine.
