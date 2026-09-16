@@ -1,0 +1,325 @@
+import { prisma } from '@mirrorpip/db';
+import { encryptSecret, getExchange, last4, ExchangeAuthError } from '@mirrorpip/exchange';
+import { ApiError } from '../api.js';
+import { dec, decOr0, iso } from '../serialize.js';
+import type {
+  ConnectCredentialInput,
+  CreateFollowInput,
+  UpdateFollowInput,
+  RegisterLeaderInput,
+} from '../validation.js';
+
+const MAX_CREDENTIALS_PER_USER = 5;
+
+// ─── Credentials ───────────────────────────────────────────────────────────
+
+export async function addCredential(userId: string, input: ConnectCredentialInput) {
+  const count = await prisma.exchangeCredential.count({ where: { userId } });
+  if (count >= MAX_CREDENTIALS_PER_USER) {
+    throw new ApiError(409, `You can connect up to ${MAX_CREDENTIALS_PER_USER} accounts.`);
+  }
+
+  const exchange = getExchange(input.exchange);
+  let verified;
+  try {
+    verified = await exchange.verify({ apiKey: input.apiKey, apiSecret: input.apiSecret });
+  } catch (err) {
+    if (err instanceof ExchangeAuthError) throw new ApiError(400, 'Those API keys were rejected by the exchange. Check the key, secret, and that it has trade permission.');
+    throw new ApiError(502, `Could not reach the exchange to verify the key: ${String(err)}`);
+  }
+
+  const cred = await prisma.exchangeCredential.create({
+    data: {
+      userId,
+      exchange: input.exchange,
+      label: input.label,
+      apiKeyEnc: encryptSecret(input.apiKey),
+      apiSecretEnc: encryptSecret(input.apiSecret),
+      keyLast4: last4(input.apiKey),
+      baseCurrency: verified.baseCurrency,
+      status: 'ACTIVE',
+      verifiedAt: new Date(),
+    },
+  });
+  return serializeCredential(cred, verified.equityUsd);
+}
+
+export async function listCredentials(userId: string) {
+  const creds = await prisma.exchangeCredential.findMany({
+    where: { userId },
+    orderBy: { createdAt: 'desc' },
+    include: { leaderProfile: { select: { id: true } } },
+  });
+  return creds.map((c) => serializeCredential(c));
+}
+
+export async function deleteCredential(userId: string, id: string) {
+  const cred = await prisma.exchangeCredential.findFirst({
+    where: { id, userId },
+    include: { leaderProfile: true, follows: { where: { status: 'ACTIVE' } } },
+  });
+  if (!cred) throw new ApiError(404, 'Account not found.');
+  if (cred.leaderProfile) throw new ApiError(409, 'This account is registered as a leader. Delist it first.');
+  if (cred.follows.length > 0) throw new ApiError(409, 'Stop your active follows on this account before removing it.');
+  await prisma.exchangeCredential.delete({ where: { id } });
+}
+
+function serializeCredential(
+  c: { id: string; exchange: string; label: string; keyLast4: string; baseCurrency: string; status: string; verifiedAt: Date | null; createdAt: Date; leaderProfile?: { id: string } | null },
+  equityUsd?: number,
+) {
+  return {
+    id: c.id,
+    exchange: c.exchange,
+    label: c.label,
+    keyLast4: c.keyLast4,
+    baseCurrency: c.baseCurrency,
+    status: c.status,
+    isLeader: Boolean(c.leaderProfile),
+    verifiedAt: iso(c.verifiedAt),
+    createdAt: iso(c.createdAt),
+    equityUsd: equityUsd ?? null,
+  };
+}
+
+// ─── Leaderboard (public) ─────────────────────────────────────────────────────
+
+export async function listLeaders() {
+  const leaders = await prisma.leader.findMany({
+    where: { status: 'VERIFIED' },
+    include: { stats: { where: { window: 'all' } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  return leaders.map(serializeLeaderCard);
+}
+
+export async function getLeaderPublic(id: string) {
+  const leader = await prisma.leader.findFirst({
+    where: { id, status: { in: ['VERIFIED', 'PAUSED'] } },
+    include: { stats: { where: { window: 'all' } }, fills: { orderBy: { exchTs: 'desc' }, take: 20 } },
+  });
+  if (!leader) throw new ApiError(404, 'Leader not found.');
+  return {
+    ...serializeLeaderCard(leader),
+    bio: leader.bio,
+    recentTrades: leader.fills.map((f) => ({
+      id: f.id,
+      symbol: f.symbol,
+      side: f.side,
+      qty: decOr0(f.qty),
+      price: decOr0(f.price),
+      reduceOnly: f.reduceOnly,
+      at: iso(f.exchTs),
+    })),
+  };
+}
+
+function serializeLeaderCard(l: {
+  id: string;
+  displayName: string;
+  bio: string | null;
+  avatarUrl: string | null;
+  status: string;
+  exchange: string;
+  stats: Array<{ roiPct: unknown; winRatePct: unknown; maxDrawdownPct: unknown; totalCopiedUsd: unknown; tradeCount: number; followerCount: number }>;
+}) {
+  const s = l.stats[0];
+  return {
+    id: l.id,
+    displayName: l.displayName,
+    avatarUrl: l.avatarUrl,
+    status: l.status,
+    exchange: l.exchange,
+    stats: {
+      roiPct: dec(s?.roiPct) ?? 0,
+      winRatePct: dec(s?.winRatePct) ?? 0,
+      maxDrawdownPct: dec(s?.maxDrawdownPct) ?? 0,
+      totalCopiedUsd: dec(s?.totalCopiedUsd) ?? 0,
+      tradeCount: s?.tradeCount ?? 0,
+      followerCount: s?.followerCount ?? 0,
+    },
+  };
+}
+
+// ─── Follows ──────────────────────────────────────────────────────────────────
+
+export async function createFollow(userId: string, input: CreateFollowInput) {
+  const [leader, cred] = await Promise.all([
+    prisma.leader.findUnique({ where: { id: input.leaderId } }),
+    prisma.exchangeCredential.findFirst({ where: { id: input.credentialId, userId } }),
+  ]);
+  if (!leader || leader.status !== 'VERIFIED') throw new ApiError(404, 'Leader not available.');
+  if (!cred) throw new ApiError(404, 'Connected account not found.');
+  if (cred.status !== 'ACTIVE') throw new ApiError(409, 'That account is not active.');
+  if (leader.credentialId === cred.id) throw new ApiError(409, 'You cannot follow yourself with the same account.');
+
+  const existing = await prisma.follow.findUnique({
+    where: { followerUserId_leaderId: { followerUserId: userId, leaderId: leader.id } },
+  });
+  if (existing && existing.status !== 'STOPPED') throw new ApiError(409, 'You already follow this leader.');
+
+  const data = {
+    credentialId: cred.id,
+    sizingMode: input.sizingMode,
+    sizingValue: input.sizingValue,
+    maxPositionUsd: input.maxPositionUsd ?? null,
+    dailyLossLimitUsd: input.dailyLossLimitUsd ?? null,
+    copyReverse: input.copyReverse,
+    status: 'ACTIVE' as const,
+    startedAt: new Date(),
+    pausedAt: null,
+    stoppedAt: null,
+  };
+
+  const follow = existing
+    ? await prisma.follow.update({ where: { id: existing.id }, data })
+    : await prisma.follow.create({ data: { followerUserId: userId, leaderId: leader.id, ...data } });
+
+  return { id: follow.id };
+}
+
+export async function listFollows(userId: string) {
+  const follows = await prisma.follow.findMany({
+    where: { followerUserId: userId, status: { not: 'STOPPED' } },
+    include: {
+      leader: { include: { stats: { where: { window: 'all' } } } },
+      credential: { select: { label: true, keyLast4: true } },
+      copyPositions: true,
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  return follows.map((f) => ({
+    id: f.id,
+    status: f.status,
+    sizingMode: f.sizingMode,
+    sizingValue: decOr0(f.sizingValue),
+    maxPositionUsd: dec(f.maxPositionUsd),
+    dailyLossLimitUsd: dec(f.dailyLossLimitUsd),
+    copyReverse: f.copyReverse,
+    account: { label: f.credential.label, keyLast4: f.credential.keyLast4 },
+    leader: serializeLeaderCard(f.leader),
+    openPnl: f.copyPositions.filter((p) => !p.closedAt).reduce((s, p) => s + decOr0(p.unrealizedPnl), 0),
+    realizedPnl: f.copyPositions.reduce((s, p) => s + decOr0(p.realizedPnl), 0),
+    startedAt: iso(f.startedAt),
+  }));
+}
+
+export async function getFollowDetail(userId: string, id: string) {
+  const follow = await prisma.follow.findFirst({
+    where: { id, followerUserId: userId },
+    include: {
+      leader: { include: { stats: { where: { window: 'all' } } } },
+      credential: { select: { label: true, keyLast4: true } },
+      copyPositions: { orderBy: { updatedAt: 'desc' } },
+      copyOrders: { orderBy: { requestedAt: 'desc' }, take: 50 },
+    },
+  });
+  if (!follow) throw new ApiError(404, 'Follow not found.');
+  return {
+    id: follow.id,
+    status: follow.status,
+    sizingMode: follow.sizingMode,
+    sizingValue: decOr0(follow.sizingValue),
+    maxPositionUsd: dec(follow.maxPositionUsd),
+    dailyLossLimitUsd: dec(follow.dailyLossLimitUsd),
+    copyReverse: follow.copyReverse,
+    account: { label: follow.credential.label, keyLast4: follow.credential.keyLast4 },
+    leader: serializeLeaderCard(follow.leader),
+    positions: follow.copyPositions.map((p) => ({
+      id: p.id,
+      symbol: p.symbol,
+      side: p.side,
+      qty: decOr0(p.qty),
+      avgEntry: decOr0(p.avgEntry),
+      markPrice: dec(p.markPrice),
+      unrealizedPnl: decOr0(p.unrealizedPnl),
+      realizedPnl: decOr0(p.realizedPnl),
+      closedAt: iso(p.closedAt),
+    })),
+    orders: follow.copyOrders.map((o) => ({
+      id: o.id,
+      symbol: o.symbol,
+      side: o.side,
+      qty: decOr0(o.qty),
+      status: o.status,
+      filledQty: decOr0(o.filledQty),
+      avgPrice: dec(o.avgPrice),
+      slippageBps: dec(o.slippageBps),
+      error: o.error,
+      at: iso(o.requestedAt),
+    })),
+  };
+}
+
+export async function updateFollow(userId: string, id: string, input: UpdateFollowInput) {
+  const follow = await prisma.follow.findFirst({ where: { id, followerUserId: userId } });
+  if (!follow) throw new ApiError(404, 'Follow not found.');
+
+  const data: Record<string, unknown> = {};
+  if (input.status) {
+    data.status = input.status;
+    data.pausedAt = input.status === 'PAUSED' ? new Date() : null;
+    data.stoppedAt = input.status === 'STOPPED' ? new Date() : null;
+  }
+  if (input.sizingMode) data.sizingMode = input.sizingMode;
+  if (input.sizingValue !== undefined) data.sizingValue = input.sizingValue;
+  if (input.maxPositionUsd !== undefined) data.maxPositionUsd = input.maxPositionUsd;
+  if (input.dailyLossLimitUsd !== undefined) data.dailyLossLimitUsd = input.dailyLossLimitUsd;
+  if (input.copyReverse !== undefined) data.copyReverse = input.copyReverse;
+
+  await prisma.follow.update({ where: { id }, data });
+  return { id };
+}
+
+// ─── Admin ──────────────────────────────────────────────────────────────────
+
+export async function registerLeader(input: RegisterLeaderInput) {
+  const cred = await prisma.exchangeCredential.findUnique({ where: { id: input.credentialId }, include: { leaderProfile: true } });
+  if (!cred) throw new ApiError(404, 'Credential not found.');
+  if (cred.leaderProfile) throw new ApiError(409, 'That account is already a leader.');
+
+  const leader = await prisma.leader.create({
+    data: {
+      userId: cred.userId,
+      credentialId: cred.id,
+      exchange: cred.exchange,
+      displayName: input.displayName,
+      bio: input.bio ?? null,
+      status: 'PENDING',
+    },
+  });
+  return { id: leader.id };
+}
+
+export async function listLeadersAdmin() {
+  const leaders = await prisma.leader.findMany({
+    include: { stats: { where: { window: 'all' } }, credential: { select: { label: true, keyLast4: true, userId: true } } },
+    orderBy: { createdAt: 'desc' },
+  });
+  return leaders.map((l) => ({
+    ...serializeLeaderCard(l),
+    bio: l.bio,
+    account: { label: l.credential.label, keyLast4: l.credential.keyLast4 },
+  }));
+}
+
+export async function setLeaderStatus(id: string, status: 'PENDING' | 'VERIFIED' | 'PAUSED' | 'DELISTED') {
+  const leader = await prisma.leader.findUnique({ where: { id } });
+  if (!leader) throw new ApiError(404, 'Leader not found.');
+  await prisma.leader.update({ where: { id }, data: { status } });
+  return { id, status };
+}
+
+export async function getKillSwitch(): Promise<boolean> {
+  const row = await prisma.systemSetting.findUnique({ where: { key: 'killSwitch' } });
+  return Boolean((row?.value as { enabled?: boolean } | undefined)?.enabled);
+}
+
+export async function setKillSwitch(enabled: boolean): Promise<boolean> {
+  await prisma.systemSetting.upsert({
+    where: { key: 'killSwitch' },
+    update: { value: { enabled } },
+    create: { key: 'killSwitch', value: { enabled } },
+  });
+  return enabled;
+}
