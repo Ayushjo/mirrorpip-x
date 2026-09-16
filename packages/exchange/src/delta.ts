@@ -231,7 +231,10 @@ export class DeltaIndiaExchange implements Exchange {
 
   async placeMarketOrder(creds: ApiCredentials, order: OrderRequest): Promise<OrderResult> {
     const productId = await productIdFor(order.symbol);
-    const size = Math.max(0, Math.floor(order.qty)); // Delta size is integer contracts
+    // Delta size is integer contracts. Round to nearest (not floor) so a computed
+    // size like 0.997 becomes 1 — otherwise near-whole sizes floor to 0 and the
+    // trade (including the matching close) is dropped.
+    const size = Math.max(0, Math.round(order.qty));
     if (size === 0) {
       return { exchOrderId: '', status: 'REJECTED', filledQty: 0, avgPrice: null };
     }
