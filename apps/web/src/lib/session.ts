@@ -11,10 +11,16 @@ export interface SessionUser {
 
 /** Resolve the current signed-in user (server-side), or null. */
 export async function getSessionUser(): Promise<SessionUser | null> {
-  const session = await auth.api.getSession({ headers: await headers() });
-  if (!session?.user) return null;
-  const u = session.user as { id: string; name: string; email: string; role?: string };
-  return { id: u.id, name: u.name, email: u.email, role: u.role ?? 'user' };
+  try {
+    const session = await auth.api.getSession({ headers: await headers() });
+    if (!session?.user) return null;
+    const u = session.user as { id: string; name: string; email: string; role?: string };
+    return { id: u.id, name: u.name, email: u.email, role: u.role ?? 'user' };
+  } catch {
+    // DB/auth transport unavailable — treat as logged-out rather than 500 the
+    // whole app (every page reads the session in the root layout).
+    return null;
+  }
 }
 
 /** Admin check: DB role === "admin" OR email in ADMIN_EMAILS. */

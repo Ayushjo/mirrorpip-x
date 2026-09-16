@@ -1,15 +1,13 @@
-import type { Prisma } from '@mirrorpip/db';
-
 // Prisma Decimal serializes to a string; normalize to number for the client.
-type Decimalish = Prisma.Decimal | number | string | null | undefined;
-
-export function dec(v: Decimalish): number | null {
+// Accepts unknown because Prisma's Decimal columns widen to unknown in some
+// select shapes; anything not number-like becomes null.
+export function dec(v: unknown): number | null {
   if (v === null || v === undefined) return null;
-  const n = typeof v === 'number' ? v : Number(v.toString());
+  const n = typeof v === 'number' ? v : Number(String(v));
   return Number.isFinite(n) ? n : null;
 }
 
-export function decOr0(v: Decimalish): number {
+export function decOr0(v: unknown): number {
   return dec(v) ?? 0;
 }
 
