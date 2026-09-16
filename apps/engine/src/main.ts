@@ -1,4 +1,11 @@
-import 'dotenv/config';
+import path from 'node:path';
+import { fileURLToPath } from 'node:url';
+import { config as loadEnv } from 'dotenv';
+
+// Load the monorepo-root .env regardless of where the engine is launched from.
+const __dirname = path.dirname(fileURLToPath(import.meta.url));
+loadEnv({ path: path.resolve(__dirname, '../../../.env') });
+
 import { prisma } from '@mirrorpip/db';
 import { syncWatchers, stopAllWatchers, watcherCount } from './watchers.js';
 import { reconcile } from './reconcile.js';

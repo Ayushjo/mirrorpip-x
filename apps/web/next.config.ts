@@ -1,4 +1,10 @@
+import path from 'node:path';
+import { config as loadEnv } from 'dotenv';
 import type { NextConfig } from 'next';
+
+// Single source of truth for env is the monorepo root .env. Next only loads env
+// from the app dir, so pull the root file in explicitly (cwd is apps/web).
+loadEnv({ path: path.resolve(process.cwd(), '../../.env') });
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
