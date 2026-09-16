@@ -7,6 +7,7 @@
     "dev": "tsx watch src/main.ts",
     "start": "tsx src/main.ts",
     "probe": "tsx src/probe.ts",
+    "setup-test": "tsx src/setup-test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {

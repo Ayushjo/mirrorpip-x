@@ -265,13 +265,8 @@ export class DeltaIndiaExchange implements Exchange {
           payload: { 'api-key': creds.apiKey, signature, timestamp },
         }),
       );
-      // Subscribe to our own fills across all symbols.
-      ws.send(
-        JSON.stringify({
-          type: 'subscribe',
-          payload: { channels: [{ name: 'v2/user_trades', symbols: ['all'] }] },
-        }),
-      );
+      // NOTE: subscribe only AFTER the "Authenticated" success arrives (below),
+      // otherwise the private subscription races auth and delivers nothing.
     });
 
     ws.on('message', (raw: WebSocket.RawData) => {
@@ -281,16 +276,30 @@ export class DeltaIndiaExchange implements Exchange {
       } catch {
         return;
       }
-      // Delta emits fills on the user_trades channel. Field names are defensive:
-      // validate against docs on testnet, but the shape below matches v2.
-      const type = String(msg.type ?? '');
-      if (type !== 'v2/user_trades' && type !== 'user_trades') return;
 
-      const fillId = msg.fill_id ?? msg.id ?? msg.trade_id;
-      const symbol = msg.symbol ?? msg.product_symbol;
+      // Once authenticated, subscribe to the *verbose* user_trades channel.
+      // (The compact "v2/user_trades" channel uses single-letter keys.)
+      if (msg.type === 'success' && msg.message === 'Authenticated') {
+        ws.send(
+          JSON.stringify({
+            type: 'subscribe',
+            payload: { channels: [{ name: 'user_trades', symbols: ['all'] }] },
+          }),
+        );
+        return;
+      }
+
+      // Verified fill shape (Delta testnet user_trades):
+      // { type:"user_trades", action:"fill", symbol:"BTCUSD", side:"buy",
+      //   size:1, price:"75560", fill_id:"…", timestamp:<microseconds> }
+      if (msg.type !== 'user_trades' || msg.action !== 'fill') return;
+
+      const fillId = msg.fill_id;
+      const symbol = msg.symbol;
       const sideRaw = String(msg.side ?? '').toUpperCase();
-      const size = num(msg.size as string);
-      const price = num((msg.price ?? msg.fill_price) as string);
+      const size = num(msg.size as number);
+      const price = num(msg.price as string);
+      // timestamp is in microseconds.
       const ts = msg.timestamp ? new Date(Number(msg.timestamp) / 1000) : new Date();
 
       if (!fillId || !symbol || (sideRaw !== 'BUY' && sideRaw !== 'SELL') || size <= 0) return;

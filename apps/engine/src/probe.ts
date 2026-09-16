@@ -63,18 +63,27 @@ async function main() {
     const ts = Math.floor(Date.now() / 1000).toString();
     const signature = createHmac('sha256', apiSecret).update('GET' + ts + '/live').digest('hex');
     ws.send(JSON.stringify({ type: 'auth', payload: { 'api-key': apiKey, signature, timestamp: ts } }));
-    ws.send(JSON.stringify({ type: 'subscribe', payload: { channels: [{ name: 'v2/user_trades', symbols: ['all'] }] } }));
-    console.log('WS open — authed + subscribed to v2/user_trades. Waiting for messages…');
+    console.log('WS open — sent auth, waiting for Authenticated before subscribing…');
   });
-  ws.on('message', (raw: WebSocket.RawData) => console.log('WS <<', raw.toString()));
+  ws.on('message', (raw: WebSocket.RawData) => {
+    const text = raw.toString();
+    console.log('WS <<', text);
+    // Subscribe to private channels only AFTER auth is confirmed.
+    if (text.includes('"Authenticated"')) {
+      ws.send(JSON.stringify({ type: 'subscribe', payload: { channels: [{ name: 'v2/user_trades', symbols: ['all'] }] } }));
+      ws.send(JSON.stringify({ type: 'subscribe', payload: { channels: [{ name: 'user_trades', symbols: ['all'] }] } }));
+      console.log('>> subscribed to v2/user_trades + user_trades');
+    }
+  });
   ws.on('error', (err) => console.error('WS error:', err.message));
   ws.on('close', () => console.log('WS closed'));
 
+  const seconds = Number(process.env.PROBE_SECONDS ?? 30);
   setTimeout(() => {
     ws.close();
     console.log('\nProbe done.');
     process.exit(0);
-  }, 30_000);
+  }, seconds * 1000);
 }
 
 main().catch((err) => {
