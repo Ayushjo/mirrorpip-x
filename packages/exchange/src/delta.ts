@@ -277,6 +277,8 @@ export class DeltaIndiaExchange implements Exchange {
         return;
       }
 
+      if (process.env.DELTA_DEBUG) console.error('[delta ws]', raw.toString().slice(0, 160));
+
       // Once authenticated, subscribe to the *verbose* user_trades channel.
       // (The compact "v2/user_trades" channel uses single-letter keys.)
       if (msg.type === 'success' && msg.message === 'Authenticated') {
