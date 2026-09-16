@@ -1,0 +1,23 @@
+{
+  "name": "mirrorpip-x",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Crypto copy-trading platform — watch verified leaders, mirror their trades into follower accounts.",
+  "packageManager": "pnpm@11.9.0",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "pnpm --parallel --filter ./apps/* dev",
+    "dev:web": "pnpm --filter @mirrorpip/web dev",
+    "dev:engine": "pnpm --filter @mirrorpip/engine dev",
+    "build": "pnpm --filter @mirrorpip/db build && pnpm --filter @mirrorpip/exchange build && pnpm --filter @mirrorpip/web build",
+    "db:generate": "pnpm --filter @mirrorpip/db generate",
+    "db:migrate": "pnpm --filter @mirrorpip/db migrate",
+    "db:deploy": "pnpm --filter @mirrorpip/db deploy",
+    "db:studio": "pnpm --filter @mirrorpip/db studio",
+    "db:seed": "pnpm --filter @mirrorpip/db seed",
+    "lint": "pnpm --filter @mirrorpip/web lint",
+    "typecheck": "pnpm --recursive --if-present typecheck"
+  }
+}
