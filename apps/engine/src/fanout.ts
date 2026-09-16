@@ -2,6 +2,7 @@ import { prisma, type Follow, type ExchangeCredential, type Leader } from '@mirr
 import { type FillEvent, getExchange } from '@mirrorpip/exchange';
 import { toApiCreds } from './creds.js';
 import { computeSize } from './sizing.js';
+import { applyFill } from './position.js';
 import { isKillSwitchOn } from './killswitch.js';
 import { log } from './log.js';
 
@@ -226,56 +227,23 @@ async function applyToPosition(
   qty: number,
   price: number,
 ): Promise<void> {
-  const signed = side === 'BUY' ? qty : -qty;
   const existing = await prisma.copyPosition.findUnique({ where: { followId_symbol: { followId, symbol } } });
+  const current =
+    existing && Number(existing.qty) !== 0
+      ? { side: existing.side as 'LONG' | 'SHORT', qty: Number(existing.qty), avgEntry: Number(existing.avgEntry) }
+      : null;
 
-  if (!existing || Number(existing.qty) === 0) {
-    await prisma.copyPosition.upsert({
-      where: { followId_symbol: { followId, symbol } },
-      update: {
-        side: signed >= 0 ? 'LONG' : 'SHORT',
-        qty: Math.abs(signed),
-        avgEntry: price,
-        closedAt: null,
-      },
-      create: {
-        followId,
-        symbol,
-        side: signed >= 0 ? 'LONG' : 'SHORT',
-        qty: Math.abs(signed),
-        avgEntry: price,
-      },
-    });
-    return;
-  }
+  const r = applyFill(current, side, qty, price);
 
-  const curSigned = existing.side === 'LONG' ? Number(existing.qty) : -Number(existing.qty);
-  const newSigned = curSigned + signed;
-  const avgEntry = Number(existing.avgEntry);
-  let realizedDelta = 0;
-
-  if (Math.sign(curSigned) === Math.sign(signed) || curSigned === 0) {
-    // Adding to the position — weighted average entry.
-    const totalAbs = Math.abs(curSigned) + Math.abs(signed);
-    const newEntry = totalAbs > 0 ? (avgEntry * Math.abs(curSigned) + price * Math.abs(signed)) / totalAbs : price;
-    await prisma.copyPosition.update({
-      where: { followId_symbol: { followId, symbol } },
-      data: { qty: Math.abs(newSigned), avgEntry: newEntry, side: newSigned >= 0 ? 'LONG' : 'SHORT' },
-    });
-  } else {
-    // Reducing / flipping — realize P&L on the closed quantity.
-    const closedQty = Math.min(Math.abs(curSigned), Math.abs(signed));
-    realizedDelta = curSigned > 0 ? (price - avgEntry) * closedQty : (avgEntry - price) * closedQty;
-    const newEntry = Math.sign(newSigned) === Math.sign(curSigned) || newSigned === 0 ? avgEntry : price;
-    await prisma.copyPosition.update({
-      where: { followId_symbol: { followId, symbol } },
-      data: {
-        qty: Math.abs(newSigned),
-        avgEntry: newEntry,
-        side: newSigned >= 0 ? 'LONG' : 'SHORT',
-        realizedPnl: { increment: realizedDelta },
-        closedAt: newSigned === 0 ? new Date() : null,
-      },
-    });
-  }
+  await prisma.copyPosition.upsert({
+    where: { followId_symbol: { followId, symbol } },
+    update: {
+      side: r.side,
+      qty: r.qty,
+      avgEntry: r.avgEntry,
+      realizedPnl: r.realizedDelta !== 0 ? { increment: r.realizedDelta } : undefined,
+      closedAt: r.closed ? new Date() : null,
+    },
+    create: { followId, symbol, side: r.side, qty: r.qty, avgEntry: r.avgEntry },
+  });
 }
