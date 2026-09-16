@@ -80,6 +80,11 @@ async function copyToFollower(
   fill: FillEvent,
   leaderEquityUsd: number,
 ): Promise<void> {
+  // Copy-from-now: never copy a fill that happened before the follow started.
+  // This also makes reconnect backfill safe — replaying recent leader fills can't
+  // open positions the follower never opted into.
+  if (follow.startedAt.getTime() > fill.timestamp.getTime()) return;
+
   const coid = clientOrderId(follow.id, fill.externalId);
 
   // Idempotency: bail if we already created a copy order for this pair.

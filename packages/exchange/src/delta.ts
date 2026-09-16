@@ -195,6 +195,40 @@ export class DeltaIndiaExchange implements Exchange {
       }));
   }
 
+  async getRecentFills(creds: ApiCredentials, limit = 50): Promise<FillEvent[]> {
+    // GET /v2/fills — recent user fills (newest first).
+    const rows = await signedRequest<Array<Record<string, unknown>>>(creds, 'GET', '/v2/fills', {
+      query: { page_size: limit },
+    }).catch(() => [] as Array<Record<string, unknown>>);
+    const out: FillEvent[] = [];
+    for (const f of rows) {
+      const side = String(f.side ?? '').toUpperCase();
+      const symbol = (f.product_symbol ?? f.symbol) as string | undefined;
+      const id = f.id ?? f.fill_id;
+      const size = num(f.size as number);
+      if (!id || !symbol || (side !== 'BUY' && side !== 'SELL') || size <= 0) continue;
+      // created_at may be ISO or microseconds.
+      const rawTs = f.created_at ?? f.timestamp;
+      const ts =
+        typeof rawTs === 'string'
+          ? new Date(rawTs)
+          : rawTs
+            ? new Date(Number(rawTs) / 1000)
+            : new Date();
+      out.push({
+        externalId: String(id),
+        symbol: String(symbol),
+        side: side as 'BUY' | 'SELL',
+        qty: size,
+        price: num(f.price as string),
+        reduceOnly: Boolean(f.reduce_only),
+        positionKey: String(symbol),
+        timestamp: ts,
+      });
+    }
+    return out;
+  }
+
   async placeMarketOrder(creds: ApiCredentials, order: OrderRequest): Promise<OrderResult> {
     const productId = await productIdFor(order.symbol);
     const size = Math.max(0, Math.floor(order.qty)); // Delta size is integer contracts

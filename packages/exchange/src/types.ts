@@ -76,6 +76,9 @@ export interface Exchange {
 
   getPositions(creds: ApiCredentials): Promise<PositionInfo[]>;
 
+  /** Most recent account fills (newest first), for reconnect backfill. */
+  getRecentFills(creds: ApiCredentials, limit?: number): Promise<FillEvent[]>;
+
   placeMarketOrder(creds: ApiCredentials, order: OrderRequest): Promise<OrderResult>;
 
   /** Latest mark price for a symbol (public — no auth). */

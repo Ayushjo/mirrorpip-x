@@ -78,6 +78,14 @@ async function startWatcher(leader: Leader): Promise<void> {
     state.starting = false;
     state.failUntil = 0;
     log.info('started leader watcher', { leaderId: leader.id, displayName: leader.displayName });
+
+    // Backfill: replay recent fills so anything placed while we were disconnected
+    // is copied. fanout is idempotent (unique fill + clientOrderId) and copy-from-now
+    // skips fills older than each follow, so replay is safe.
+    exchange
+      .getRecentFills(toApiCreds(cred), 50)
+      .then((fills) => Promise.allSettled(fills.map((f) => fanoutLeaderFill(leader, f))))
+      .catch((err) => log.debug('backfill failed', { leaderId: leader.id, err: String(err) }));
   } catch (err) {
     state.stream = null;
     state.starting = false;
