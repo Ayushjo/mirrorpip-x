@@ -27,8 +27,29 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
   }, []);
 
   useEffect(() => {
-    const t = setInterval(refresh, 5000);
-    return () => clearInterval(t);
+    let es: EventSource | null = null;
+    let poll: ReturnType<typeof setInterval> | null = null;
+    try {
+      es = new EventSource('/api/follows/stream');
+      es.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data);
+          if (Array.isArray(d)) setRows(d);
+        } catch {
+          /* ignore */
+        }
+      };
+      es.onerror = () => {
+        es?.close();
+        if (!poll) poll = setInterval(refresh, 5000);
+      };
+    } catch {
+      poll = setInterval(refresh, 5000);
+    }
+    return () => {
+      es?.close();
+      if (poll) clearInterval(poll);
+    };
   }, [refresh]);
 
   async function setStatus(id: string, status: 'ACTIVE' | 'PAUSED' | 'STOPPED') {

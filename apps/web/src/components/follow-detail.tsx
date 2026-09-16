@@ -53,9 +53,30 @@ export function FollowDetail({ initial }: { initial: Detail }) {
   }, [initial.id]);
 
   useEffect(() => {
-    const t = setInterval(refresh, 4000);
-    return () => clearInterval(t);
-  }, [refresh]);
+    let es: EventSource | null = null;
+    let poll: ReturnType<typeof setInterval> | null = null;
+    try {
+      es = new EventSource(`/api/follows/${initial.id}/stream`);
+      es.onmessage = (e) => {
+        try {
+          const d = JSON.parse(e.data);
+          if (d && d.id) setD(d);
+        } catch {
+          /* ignore */
+        }
+      };
+      es.onerror = () => {
+        es?.close();
+        if (!poll) poll = setInterval(refresh, 4000);
+      };
+    } catch {
+      poll = setInterval(refresh, 4000);
+    }
+    return () => {
+      es?.close();
+      if (poll) clearInterval(poll);
+    };
+  }, [refresh, initial.id]);
 
   const openPositions = d.positions.filter((p) => !p.closedAt);
 
