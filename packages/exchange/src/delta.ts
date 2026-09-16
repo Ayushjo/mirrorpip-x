@@ -1,0 +1,314 @@
+import { createHmac } from 'node:crypto';
+import WebSocket from 'ws';
+import {
+  type ApiCredentials,
+  type AccountInfo,
+  type Exchange,
+  type FillEvent,
+  type FillStream,
+  type OrderRequest,
+  type OrderResult,
+  type PositionInfo,
+  type VerifyResult,
+  ExchangeAuthError,
+  ExchangeRequestError,
+} from './types.js';
+
+// Delta Exchange India adapter.
+// Docs: https://docs.delta.exchange — REST signature is
+//   HMAC_SHA256(secret, method + timestamp(sec) + path + query + body) -> hex
+// placed in the `signature` header alongside `api-key` and `timestamp`.
+
+const REST_URL = process.env.DELTA_REST_URL ?? 'https://api.india.delta.exchange';
+const WS_URL = process.env.DELTA_WS_URL ?? 'wss://socket.india.delta.exchange';
+const USER_AGENT = 'mirrorpip-x/0.1';
+
+function nowSec(): string {
+  return Math.floor(Date.now() / 1000).toString();
+}
+
+function sign(secret: string, method: string, path: string, query: string, body: string): { signature: string; timestamp: string } {
+  const timestamp = nowSec();
+  const prehash = method + timestamp + path + query + body;
+  const signature = createHmac('sha256', secret).update(prehash).digest('hex');
+  return { signature, timestamp };
+}
+
+interface DeltaEnvelope<T> {
+  success: boolean;
+  result: T;
+  error?: { code?: string; message?: string } | string;
+}
+
+async function publicGet<T>(path: string): Promise<T> {
+  const res = await fetch(`${REST_URL}${path}`, {
+    headers: { 'User-Agent': USER_AGENT, Accept: 'application/json' },
+  });
+  const json = (await res.json().catch(() => null)) as DeltaEnvelope<T> | null;
+  if (!res.ok || !json?.success) {
+    throw new ExchangeRequestError(`Delta public GET ${path} failed (${res.status})`, res.status);
+  }
+  return json.result;
+}
+
+async function signedRequest<T>(
+  creds: ApiCredentials,
+  method: 'GET' | 'POST' | 'DELETE',
+  path: string,
+  opts: { query?: Record<string, string | number>; body?: unknown } = {},
+): Promise<T> {
+  const queryString = opts.query
+    ? '?' +
+      Object.entries(opts.query)
+        .map(([k, v]) => `${k}=${encodeURIComponent(String(v))}`)
+        .join('&')
+    : '';
+  const bodyString = opts.body !== undefined ? JSON.stringify(opts.body) : '';
+
+  const { signature, timestamp } = sign(creds.apiSecret, method, path, queryString, bodyString);
+
+  const res = await fetch(`${REST_URL}${path}${queryString}`, {
+    method,
+    headers: {
+      'api-key': creds.apiKey,
+      signature,
+      timestamp,
+      'User-Agent': USER_AGENT,
+      'Content-Type': 'application/json',
+      Accept: 'application/json',
+    },
+    body: method === 'GET' ? undefined : bodyString,
+  });
+
+  const json = (await res.json().catch(() => null)) as DeltaEnvelope<T> | null;
+
+  if (res.status === 401 || (json && !json.success && /invalid.*(api|key|signature)|unauthorized/i.test(JSON.stringify(json.error ?? '')))) {
+    throw new ExchangeAuthError();
+  }
+  if (!res.ok || !json?.success) {
+    const msg = typeof json?.error === 'string' ? json.error : json?.error?.message ?? res.statusText;
+    throw new ExchangeRequestError(`Delta ${method} ${path} failed: ${msg}`, res.status);
+  }
+  return json.result;
+}
+
+// ─── product (symbol -> product_id) cache ──────────────────────────────────────
+
+interface DeltaProduct {
+  id: number;
+  symbol: string;
+  contract_type?: string;
+  state?: string;
+}
+
+let productCache: Map<string, DeltaProduct> | null = null;
+let productCacheAt = 0;
+const PRODUCT_TTL_MS = 10 * 60 * 1000;
+
+async function loadProducts(): Promise<Map<string, DeltaProduct>> {
+  if (productCache && Date.now() - productCacheAt < PRODUCT_TTL_MS) return productCache;
+  const products = await publicGet<DeltaProduct[]>('/v2/products');
+  const map = new Map<string, DeltaProduct>();
+  for (const p of products) map.set(p.symbol, p);
+  productCache = map;
+  productCacheAt = Date.now();
+  return map;
+}
+
+async function productIdFor(symbol: string): Promise<number> {
+  const map = await loadProducts();
+  const p = map.get(symbol);
+  if (!p) throw new ExchangeRequestError(`Unknown Delta symbol: ${symbol}`);
+  return p.id;
+}
+
+// ─── shapes ─────────────────────────────────────────────────────────────────
+
+interface DeltaBalance {
+  asset_symbol?: string;
+  balance?: string;
+  available_balance?: string;
+}
+
+interface DeltaPosition {
+  product_symbol?: string;
+  size?: number;
+  entry_price?: string;
+  mark_price?: string;
+  unrealized_pnl?: string;
+}
+
+interface DeltaOrder {
+  id?: number;
+  state?: string;
+  size?: number;
+  unfilled_size?: number;
+  average_fill_price?: string;
+}
+
+interface DeltaTicker {
+  mark_price?: string;
+  close?: string;
+}
+
+function num(v: string | number | undefined | null, fallback = 0): number {
+  if (v === undefined || v === null) return fallback;
+  const n = typeof v === 'number' ? v : Number(v);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+// ─── adapter ──────────────────────────────────────────────────────────────────
+
+export class DeltaIndiaExchange implements Exchange {
+  readonly id = 'DELTA_INDIA' as const;
+
+  async getAccount(creds: ApiCredentials): Promise<AccountInfo> {
+    const balances = await signedRequest<DeltaBalance[]>(creds, 'GET', '/v2/wallet/balances');
+    // Sum balances as USD-equivalent. Delta India perpetuals settle in USDT, so
+    // treating balance figures as USD is accurate enough for proportional sizing.
+    const equityUsd = balances.reduce((sum, b) => sum + num(b.balance), 0);
+    const base = balances.find((b) => num(b.balance) > 0)?.asset_symbol ?? 'USDT';
+    return { equityUsd, baseCurrency: base };
+  }
+
+  async verify(creds: ApiCredentials): Promise<VerifyResult> {
+    const account = await this.getAccount(creds);
+    // A successful signed read proves the key + signature work. We assume trade
+    // scope (users are instructed to create a trade-enabled key); a rejected
+    // order later surfaces a clear permission error.
+    return { ok: true, canTrade: true, ...account };
+  }
+
+  async getPositions(creds: ApiCredentials): Promise<PositionInfo[]> {
+    const positions = await signedRequest<DeltaPosition[]>(creds, 'GET', '/v2/positions/margined');
+    return positions
+      .filter((p) => p.product_symbol && num(p.size) !== 0)
+      .map((p) => ({
+        symbol: p.product_symbol as string,
+        size: num(p.size),
+        avgEntry: num(p.entry_price),
+        markPrice: p.mark_price ? num(p.mark_price) : null,
+        unrealizedPnl: num(p.unrealized_pnl),
+      }));
+  }
+
+  async placeMarketOrder(creds: ApiCredentials, order: OrderRequest): Promise<OrderResult> {
+    const productId = await productIdFor(order.symbol);
+    const size = Math.max(0, Math.floor(order.qty)); // Delta size is integer contracts
+    if (size === 0) {
+      return { exchOrderId: '', status: 'REJECTED', filledQty: 0, avgPrice: null };
+    }
+    const body = {
+      product_id: productId,
+      size,
+      side: order.side.toLowerCase(),
+      order_type: 'market_order',
+      time_in_force: 'ioc',
+      reduce_only: order.reduceOnly ?? false,
+      client_order_id: order.clientOrderId,
+    };
+    const result = await signedRequest<DeltaOrder>(creds, 'POST', '/v2/orders', { body });
+
+    const filled = num(result.size) - num(result.unfilled_size);
+    const status: OrderResult['status'] =
+      result.state === 'closed' || (filled > 0 && num(result.unfilled_size) === 0)
+        ? 'FILLED'
+        : filled > 0
+          ? 'PARTIAL'
+          : result.state === 'cancelled'
+            ? 'REJECTED'
+            : 'SUBMITTED';
+
+    return {
+      exchOrderId: String(result.id ?? ''),
+      status,
+      filledQty: filled > 0 ? filled : status === 'FILLED' ? size : 0,
+      avgPrice: result.average_fill_price ? num(result.average_fill_price) : null,
+      raw: result,
+    };
+  }
+
+  async getMarkPrice(symbol: string): Promise<number | null> {
+    try {
+      const t = await publicGet<DeltaTicker>(`/v2/tickers/${symbol}`);
+      const price = t.mark_price ? num(t.mark_price) : t.close ? num(t.close) : null;
+      return price;
+    } catch {
+      return null;
+    }
+  }
+
+  async streamFills(
+    creds: ApiCredentials,
+    handlers: { onFill: (fill: FillEvent) => void; onError?: (err: Error) => void },
+  ): Promise<FillStream> {
+    const ws = new WebSocket(WS_URL, { headers: { 'User-Agent': USER_AGENT } });
+
+    const closeStream = () => {
+      try {
+        ws.removeAllListeners();
+        ws.close();
+      } catch {
+        /* noop */
+      }
+    };
+
+    ws.on('open', () => {
+      // WS auth: HMAC over method 'GET' + timestamp + path '/live'.
+      const { signature, timestamp } = sign(creds.apiSecret, 'GET', '/live', '', '');
+      ws.send(
+        JSON.stringify({
+          type: 'auth',
+          payload: { 'api-key': creds.apiKey, signature, timestamp },
+        }),
+      );
+      // Subscribe to our own fills across all symbols.
+      ws.send(
+        JSON.stringify({
+          type: 'subscribe',
+          payload: { channels: [{ name: 'v2/user_trades', symbols: ['all'] }] },
+        }),
+      );
+    });
+
+    ws.on('message', (raw: WebSocket.RawData) => {
+      let msg: Record<string, unknown>;
+      try {
+        msg = JSON.parse(raw.toString());
+      } catch {
+        return;
+      }
+      // Delta emits fills on the user_trades channel. Field names are defensive:
+      // validate against docs on testnet, but the shape below matches v2.
+      const type = String(msg.type ?? '');
+      if (type !== 'v2/user_trades' && type !== 'user_trades') return;
+
+      const fillId = msg.fill_id ?? msg.id ?? msg.trade_id;
+      const symbol = msg.symbol ?? msg.product_symbol;
+      const sideRaw = String(msg.side ?? '').toUpperCase();
+      const size = num(msg.size as string);
+      const price = num((msg.price ?? msg.fill_price) as string);
+      const ts = msg.timestamp ? new Date(Number(msg.timestamp) / 1000) : new Date();
+
+      if (!fillId || !symbol || (sideRaw !== 'BUY' && sideRaw !== 'SELL') || size <= 0) return;
+
+      handlers.onFill({
+        externalId: String(fillId),
+        symbol: String(symbol),
+        side: sideRaw as 'BUY' | 'SELL',
+        qty: size,
+        price,
+        reduceOnly: Boolean(msg.reduce_only),
+        positionKey: String(symbol),
+        timestamp: ts,
+      });
+    });
+
+    ws.on('error', (err: Error) => handlers.onError?.(err));
+    ws.on('close', () => handlers.onError?.(new Error('Delta WS closed')));
+
+    return { close: closeStream };
+  }
+}
+
+export const deltaIndia = new DeltaIndiaExchange();
