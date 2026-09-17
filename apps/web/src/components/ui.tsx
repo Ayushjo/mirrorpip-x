@@ -160,19 +160,25 @@ export function Stat({ label, value, tone }: { label: string; value: ReactNode; 
 
 export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return (
-    <Card className="flex flex-col items-center gap-3 py-14 text-center">
+    <div
+      className="relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-border px-6 py-16 text-center"
+      style={{
+        background:
+          'radial-gradient(600px 260px at 50% -10%, rgba(43,38,68,0.10), transparent 60%), linear-gradient(160deg, #f0eef7 0%, #ffffff 55%, #f2f0f8 100%)',
+      }}
+    >
       <div
-        className="mb-1 h-20 w-20 rounded-full border border-border"
+        className="h-28 w-28 rounded-full border border-border shadow-sm"
         style={{
-          backgroundImage: 'url("/media/halo-object.png"), radial-gradient(circle at 50% 42%, #e7e3f3, #f5f5f5)',
+          backgroundImage: 'url("/media/halo-object.png"), radial-gradient(circle at 50% 40%, #e7e3f3, #ffffff)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}
       />
-      <div className="text-base font-medium">{title}</div>
-      <p className="max-w-sm text-sm text-muted">{body}</p>
-      {action}
-    </Card>
+      <div className="mt-1 text-xl font-medium tracking-tight">{title}</div>
+      <p className="max-w-sm text-sm leading-relaxed text-muted">{body}</p>
+      {action && <div className="mt-1">{action}</div>}
+    </div>
   );
 }
 

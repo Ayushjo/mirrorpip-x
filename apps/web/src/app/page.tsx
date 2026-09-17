@@ -210,7 +210,10 @@ export default async function LandingPage() {
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section>
-        <div className="flex flex-col items-center gap-5 rounded-3xl p-14 text-center" style={{ background: '#2B2644' }}>
+        <div
+          className="flex flex-col items-center gap-5 rounded-3xl p-14 text-center"
+          style={{ background: 'url("/media/cta-band.png") center/cover no-repeat, #2B2644' }}
+        >
           <h2 className="text-3xl text-white sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Ready to trade on autopilot?
           </h2>

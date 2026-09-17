@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { listLeaders } from '@/lib/services/copy';
 import { Badge, Card, EmptyState, LinkButton, fmtPct, fmtUsd } from '@/components/ui';
-import { UsersIcon, ArrowRightIcon, Sparkline } from '@/components/icons';
+import { UsersIcon, Sparkline } from '@/components/icons';
 import { MediaBanner } from '@/components/media-banner';
 
 export const dynamic = 'force-dynamic';
@@ -56,18 +56,30 @@ export default async function LeadersPage() {
           action={<LinkButton href="/connect">Connect an account</LinkButton>}
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="grid gap-5 sm:grid-cols-2">
           {leaders.map((l, i) => (
-            <Link key={l.id} href={`/leaders/${l.id}`}>
-              <Card className="group h-full transition hover:border-brand">
+            <Card key={l.id} className="group flex h-full flex-col p-0">
+              {/* header with gradient + equity curve */}
+              <div
+                className="relative overflow-hidden rounded-t-2xl px-6 pt-6"
+                style={{ background: 'linear-gradient(160deg, #efedf6, #f7f6fb)' }}
+              >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
-                    <div className="grid h-11 w-11 place-items-center rounded-full bg-surface-2 text-lg font-semibold">
+                    <div
+                      className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-black ring-1 ring-black/5"
+                      style={{ background: 'radial-gradient(circle at 35% 30%, #ffffff, #e2ddf1)' }}
+                    >
                       {l.displayName.slice(0, 1)}
                     </div>
                     <div>
-                      <div className="font-semibold">{l.displayName}</div>
-                      <div className="text-xs text-faint">Delta India · #{i + 1}</div>
+                      <Link href={`/leaders/${l.id}`} className="font-medium hover:text-black">
+                        {l.displayName}
+                      </Link>
+                      <div className="flex items-center gap-1.5 text-xs text-faint">
+                        <span className="rounded bg-black/5 px-1.5 py-0.5 font-medium text-black/60">#{i + 1}</span>
+                        Delta India
+                      </div>
                     </div>
                   </div>
                   <Badge tone="brand">
@@ -77,33 +89,39 @@ export default async function LeadersPage() {
                     </span>
                   </Badge>
                 </div>
-
-                <div className="mt-4">
-                  <Sparkline points={series(i + 1)} width={300} height={44} className="w-full text-brand" stroke="var(--color-brand)" />
+                <div className="-mx-2 mt-3">
+                  <Sparkline points={series(i + 1)} width={520} height={72} className="w-full text-black" stroke="#2B2644" />
                 </div>
+              </div>
 
-                <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border-soft pt-3 text-sm">
+              {/* stats + CTA */}
+              <div className="flex flex-1 flex-col p-6">
+                <div className="grid grid-cols-3 gap-2 text-sm">
                   <div>
                     <div className="text-xs text-muted">Win rate</div>
-                    <div className="font-semibold tabular-nums">{l.stats.winRatePct.toFixed(1)}%</div>
+                    <div className="mt-0.5 font-medium tabular-nums">{l.stats.winRatePct.toFixed(1)}%</div>
                   </div>
                   <div>
                     <div className="text-xs text-muted">30d ROI</div>
-                    <div className="font-semibold tabular-nums text-up">
+                    <div className="mt-0.5 font-medium tabular-nums text-up">
                       {l.stats.roiPct === 0 ? '—' : fmtPct(l.stats.roiPct)}
                     </div>
                   </div>
                   <div>
                     <div className="text-xs text-muted">Copied</div>
-                    <div className="font-semibold tabular-nums">{fmtUsd(l.stats.totalCopiedUsd, 0)}</div>
+                    <div className="mt-0.5 font-medium tabular-nums">{fmtUsd(l.stats.totalCopiedUsd, 0)}</div>
                   </div>
                 </div>
-
-                <div className="mt-4 flex items-center justify-end text-sm font-medium text-brand">
-                  Follow <ArrowRightIcon width={16} height={16} />
+                <div className="mt-5 flex items-center gap-2">
+                  <LinkButton href={`/follow/${l.id}`} arrow className="flex-1">
+                    Follow
+                  </LinkButton>
+                  <LinkButton href={`/leaders/${l.id}`} variant="ghost">
+                    View
+                  </LinkButton>
                 </div>
-              </Card>
-            </Link>
+              </div>
+            </Card>
           ))}
         </div>
       )}
