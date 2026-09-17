@@ -25,7 +25,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           rel="stylesheet"
         />
       </head>
-      <body>
+      <body className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-40 border-b border-border bg-[rgba(245,245,245,0.8)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between px-6">
             <Link href="/" className="flex items-center gap-2">
@@ -58,9 +58,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           </div>
         </header>
 
-        <main className="mx-auto max-w-[88rem] px-6 py-10">{children}</main>
+        <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">{children}</main>
 
-        <footer className="mx-auto max-w-[88rem] px-6 py-12 text-xs text-faint">
+        <footer className="mx-auto w-full max-w-[88rem] border-t border-border px-6 py-10 text-xs text-faint">
           <div className="flex items-center gap-2 text-black">
             <LogoIcon className="h-5 w-5" />
             <span className="font-medium">MirrorPip</span>
