@@ -131,6 +131,15 @@ export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; 
           </span>
         </label>
 
+        <div className="rounded-xl border border-border-soft bg-surface-2 px-4 py-3 text-sm text-muted">
+          <strong className="text-black">What will be copied:</strong> every fill {leaderName} makes after you start —
+          sized with your method above
+          {copyReverse ? ', reversed' : ''}
+          {maxPositionUsd ? `, capped at $${maxPositionUsd} per position` : ''}
+          {dailyLossLimitUsd ? `, auto-paused after $${dailyLossLimitUsd} daily loss` : ''}. Past trades are not
+          backfilled.
+        </div>
+
         {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={busy || !credentialId}>

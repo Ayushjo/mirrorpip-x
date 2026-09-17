@@ -1,6 +1,6 @@
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
-import { listFollows } from '@/lib/services/copy';
+import { countTodayCopies, listFollows } from '@/lib/services/copy';
 import { LinkButton } from '@/components/ui';
 import { MediaBanner } from '@/components/media-banner';
 import { DashboardList } from '@/components/dashboard-list';
@@ -10,7 +10,7 @@ export const dynamic = 'force-dynamic';
 export default async function DashboardPage() {
   const user = await getSessionUser();
   if (!user) redirect('/login');
-  const follows = await listFollows(user.id);
+  const [follows, todayCopies] = await Promise.all([listFollows(user.id), countTodayCopies(user.id)]);
 
   return (
     <div className="space-y-6">
@@ -28,6 +28,7 @@ export default async function DashboardPage() {
         </div>
       </MediaBanner>
       <DashboardList
+        todayCopies={todayCopies}
         initial={follows.map((f) => ({
           id: f.id,
           status: f.status as 'ACTIVE' | 'PAUSED' | 'STOPPED',

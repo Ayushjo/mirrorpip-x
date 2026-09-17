@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Badge, Button, Card, EmptyState, LinkButton, cx, fmtUsd } from './ui';
-import { ChartIcon, UsersIcon, BoltIcon } from './icons';
+import { ChartIcon, BoltIcon } from './icons';
 
 interface FollowRow {
   id: string;
@@ -18,7 +18,13 @@ interface FollowRow {
 
 const statusTone = { ACTIVE: 'up', PAUSED: 'warn', STOPPED: 'down' } as const;
 
-export function DashboardList({ initial }: { initial: FollowRow[] }) {
+export function DashboardList({
+  initial,
+  todayCopies = 0,
+}: {
+  initial: FollowRow[];
+  todayCopies?: number;
+}) {
   const [rows, setRows] = useState<FollowRow[]>(initial);
   const [busyId, setBusyId] = useState<string | null>(null);
 
@@ -69,27 +75,46 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
 
   if (rows.length === 0) {
     return (
-      <EmptyState
-        title="You're not following anyone yet"
-        body="Browse the leaderboard, pick a verified trader, and start mirroring their trades."
-        action={<LinkButton href="/leaders">Browse leaders</LinkButton>}
-      />
+      <div className="overflow-hidden rounded-3xl border border-border bg-white">
+        <div className="grid gap-0 md:grid-cols-2">
+          <div className="flex flex-col justify-center p-8 sm:p-10">
+            <EmptyState
+              title="You're not following anyone yet"
+              body="Browse the leaderboard, pick a verified trader, and start mirroring their trades."
+              action={<LinkButton href="/leaders">Browse leaders</LinkButton>}
+            />
+          </div>
+          <div
+            className="relative min-h-56 overflow-hidden"
+            style={{
+              background:
+                'radial-gradient(500px 280px at 60% 30%, rgba(43,38,68,0.12), transparent 55%), linear-gradient(160deg, #ecebf4, #f5f5f5)',
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/media/halo-object.png" alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
+          </div>
+        </div>
+      </div>
     );
   }
 
   const totalOpen = rows.reduce((s, r) => s + r.openPnl, 0);
   const totalRealized = rows.reduce((s, r) => s + r.realizedPnl, 0);
   const active = rows.filter((r) => r.status === 'ACTIVE').length;
+  const openRisk = Math.abs(totalOpen);
 
   const summary = [
-    { I: ChartIcon, label: 'Open P&L (unrealized)', value: fmtUsd(totalOpen), tone: totalOpen >= 0 },
+    { I: BoltIcon, label: "Today's copies", value: String(todayCopies), tone: null as boolean | null },
+    { I: ChartIcon, label: 'Open risk (abs. P&L)', value: fmtUsd(openRisk), tone: null },
+    { I: ChartIcon, label: 'Open P&L', value: fmtUsd(totalOpen), tone: totalOpen >= 0 },
     { I: ChartIcon, label: 'Realized P&L', value: fmtUsd(totalRealized), tone: totalRealized >= 0 },
-    { I: BoltIcon, label: 'Active follows', value: String(active), tone: null as boolean | null },
+    { I: BoltIcon, label: 'Active follows', value: String(active), tone: null },
   ];
 
   return (
     <div className="space-y-6">
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
+      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {summary.map((c) => (
           <Card key={c.label}>
             <div className="mb-2 text-brand">

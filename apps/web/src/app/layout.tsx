@@ -4,6 +4,7 @@ import './globals.css';
 import { getSessionUser, isAdmin } from '@/lib/session';
 import { UserMenu } from '@/components/user-menu';
 import { LogoIcon } from '@/components/icons';
+import { MobileNav } from '@/components/mobile-nav';
 
 export const metadata: Metadata = {
   title: 'MirrorPip-X — Copy the best crypto traders',
@@ -14,6 +15,17 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
   const admin = await isAdmin(user);
+
+  const navLinks = [
+    { href: '/leaders', label: 'Leaderboard' },
+    ...(user
+      ? [
+          { href: '/dashboard', label: 'Dashboard' },
+          { href: '/connect', label: 'Accounts' },
+        ]
+      : []),
+    ...(admin ? [{ href: '/admin', label: 'Admin' }] : []),
+  ];
 
   return (
     <html lang="en">
@@ -27,34 +39,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="flex min-h-screen flex-col">
         <header className="sticky top-0 z-40 border-b border-border bg-[rgba(245,245,245,0.8)] backdrop-blur-xl">
-          <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between px-6">
+          <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
             <Link href="/" className="flex items-center gap-2">
               <LogoIcon className="h-6 w-6 text-black" />
               <span className="text-xl font-medium tracking-tight text-black">MirrorPip</span>
             </Link>
 
             <nav className="hidden items-center gap-8 text-base font-medium text-gray-700 md:flex">
-              <Link href="/leaders" className="transition-colors duration-200 hover:text-black">
-                Leaderboard
-              </Link>
-              {user && (
-                <>
-                  <Link href="/dashboard" className="transition-colors duration-200 hover:text-black">
-                    Dashboard
-                  </Link>
-                  <Link href="/connect" className="transition-colors duration-200 hover:text-black">
-                    Accounts
-                  </Link>
-                </>
-              )}
-              {admin && (
-                <Link href="/admin" className="transition-colors duration-200 hover:text-black">
-                  Admin
+              {navLinks.map((l) => (
+                <Link key={l.href} href={l.href} className="transition-colors duration-200 hover:text-black">
+                  {l.label}
                 </Link>
-              )}
+              ))}
             </nav>
 
-            <UserMenu user={user ? { name: user.name, email: user.email } : null} />
+            <div className="flex items-center gap-2">
+              <MobileNav links={navLinks} />
+              <UserMenu user={user ? { name: user.name, email: user.email } : null} />
+            </div>
           </div>
         </header>
 

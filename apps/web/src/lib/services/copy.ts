@@ -49,7 +49,7 @@ export async function listCredentials(userId: string) {
   const creds = await prisma.exchangeCredential.findMany({
     where: { userId },
     orderBy: { createdAt: 'desc' },
-    include: { leaderProfile: { select: { id: true } } },
+    include: { leaderProfile: { select: { id: true, status: true } } },
   });
   return creds.map((c) => serializeCredential(c));
 }
@@ -66,7 +66,17 @@ export async function deleteCredential(userId: string, id: string) {
 }
 
 function serializeCredential(
-  c: { id: string; exchange: string; label: string; keyLast4: string; baseCurrency: string; status: string; verifiedAt: Date | null; createdAt: Date; leaderProfile?: { id: string } | null },
+  c: {
+    id: string;
+    exchange: string;
+    label: string;
+    keyLast4: string;
+    baseCurrency: string;
+    status: string;
+    verifiedAt: Date | null;
+    createdAt: Date;
+    leaderProfile?: { id: string; status?: string } | null;
+  },
   equityUsd?: number,
 ) {
   return {
@@ -77,6 +87,7 @@ function serializeCredential(
     baseCurrency: c.baseCurrency,
     status: c.status,
     isLeader: Boolean(c.leaderProfile),
+    leaderStatus: c.leaderProfile?.status ?? null,
     verifiedAt: iso(c.verifiedAt),
     createdAt: iso(c.createdAt),
     equityUsd: equityUsd ?? null,
@@ -88,7 +99,10 @@ function serializeCredential(
 export async function listLeaders() {
   const leaders = await prisma.leader.findMany({
     where: { status: 'VERIFIED' },
-    include: { stats: { where: { window: 'all' } } },
+    include: {
+      stats: { where: { window: 'all' } },
+      equityPoints: { orderBy: { ts: 'desc' }, take: 60 },
+    },
     orderBy: { createdAt: 'desc' },
   });
   return leaders.map(serializeLeaderCard);
@@ -97,7 +111,11 @@ export async function listLeaders() {
 export async function getLeaderPublic(id: string) {
   const leader = await prisma.leader.findFirst({
     where: { id, status: { in: ['VERIFIED', 'PAUSED'] } },
-    include: { stats: { where: { window: 'all' } }, fills: { orderBy: { exchTs: 'desc' }, take: 20 } },
+    include: {
+      stats: { where: { window: 'all' } },
+      equityPoints: { orderBy: { ts: 'desc' }, take: 90 },
+      fills: { orderBy: { exchTs: 'desc' }, take: 20 },
+    },
   });
   if (!leader) throw new ApiError(404, 'Leader not found.');
   return {
@@ -123,8 +141,13 @@ function serializeLeaderCard(l: {
   status: string;
   exchange: string;
   stats: Array<{ roiPct: unknown; winRatePct: unknown; maxDrawdownPct: unknown; totalCopiedUsd: unknown; tradeCount: number; followerCount: number }>;
+  equityPoints?: Array<{ equityUsd: unknown }>;
 }) {
   const s = l.stats[0];
+  const equitySeries = (l.equityPoints ?? [])
+    .slice()
+    .reverse()
+    .map((p) => decOr0(p.equityUsd));
   return {
     id: l.id,
     displayName: l.displayName,
@@ -139,6 +162,7 @@ function serializeLeaderCard(l: {
       tradeCount: s?.tradeCount ?? 0,
       followerCount: s?.followerCount ?? 0,
     },
+    equitySeries,
   };
 }
 
@@ -293,6 +317,20 @@ export async function applyAsLeader(userId: string, input: ApplyLeaderInput) {
     },
   });
   return { id: leader.id, status: leader.status };
+}
+
+
+/** Count copy orders for a follower since local midnight (for dashboard summary). */
+export async function countTodayCopies(userId: string) {
+  const start = new Date();
+  start.setHours(0, 0, 0, 0);
+  return prisma.copyOrder.count({
+    where: {
+      follow: { followerUserId: userId },
+      requestedAt: { gte: start },
+      status: { in: ['FILLED', 'SUBMITTED', 'PARTIAL'] },
+    },
+  });
 }
 
 // ─── Admin ──────────────────────────────────────────────────────────────────

@@ -8,14 +8,9 @@ import { FollowForm } from '@/components/follow-form';
 
 export const dynamic = 'force-dynamic';
 
-function series(seed: number, n = 30): number[] {
-  const out: number[] = [];
-  let v = 0.45;
-  for (let i = 0; i < n; i++) {
-    v = Math.max(0.05, Math.min(0.97, v + Math.sin((i + seed) * 0.8) * 0.045 + 0.011));
-    out.push(v);
-  }
-  return out;
+function sparkPoints(series: number[]): number[] {
+  if (series.length >= 2) return series;
+  return [0.45, 0.46, 0.455, 0.47, 0.465, 0.48];
 }
 
 export default async function FollowPage({ params }: { params: Promise<{ leaderId: string }> }) {
@@ -73,7 +68,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
                 </div>
               </div>
               <div className="-mx-2 mt-3">
-                <Sparkline points={series(2)} width={520} height={64} className="w-full text-black" stroke="#2B2644" />
+                <Sparkline points={sparkPoints(leader.equitySeries)} width={520} height={64} className="w-full text-black" stroke="#2B2644" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 p-6 text-sm">

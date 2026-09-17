@@ -23,6 +23,7 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
   const [leaders, setLeaders] = useState(initialLeaders);
   const [kill, setKill] = useState(initialKill);
   const [busy, setBusy] = useState<string | null>(null);
+  const [confirmKill, setConfirmKill] = useState(false);
 
   const refresh = useCallback(async () => {
     const res = await fetch('/api/admin/leaders');
@@ -52,6 +53,7 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
         body: JSON.stringify({ enabled: !kill }),
       });
       if (res.ok) setKill((await res.json()).data.enabled);
+      setConfirmKill(false);
     } finally {
       setBusy(null);
     }
@@ -59,7 +61,7 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
 
   return (
     <div className="space-y-6">
-      <Card className={cx('flex items-center justify-between', kill && 'border-down')}>
+      <Card className={cx('flex flex-wrap items-center justify-between gap-4', kill && 'border-down')}>
         <div>
           <div className="flex items-center gap-2 font-semibold">
             Global kill-switch {kill ? <Badge tone="down">ENGAGED</Badge> : <Badge tone="up">Off</Badge>}
@@ -67,10 +69,30 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
           <p className="mt-1 text-sm text-muted">
             When engaged, the engine halts all new copy orders immediately across every follower.
           </p>
+          {confirmKill && (
+            <p className="mt-2 text-sm text-down">
+              {kill
+                ? 'Resume copying for everyone?'
+                : 'This will stop every new copy order until you turn it off. Continue?'}
+            </p>
+          )}
         </div>
-        <Button variant={kill ? 'primary' : 'danger'} onClick={toggleKill} disabled={busy === 'kill'}>
-          {kill ? 'Resume copying' : 'Halt everything'}
-        </Button>
+        <div className="flex gap-2">
+          {confirmKill ? (
+            <>
+              <Button variant="ghost" onClick={() => setConfirmKill(false)} disabled={busy === 'kill'}>
+                Cancel
+              </Button>
+              <Button variant={kill ? 'primary' : 'danger'} onClick={toggleKill} disabled={busy === 'kill'}>
+                {kill ? 'Yes, resume' : 'Yes, halt everything'}
+              </Button>
+            </>
+          ) : (
+            <Button variant={kill ? 'primary' : 'danger'} onClick={() => setConfirmKill(true)} disabled={busy === 'kill'}>
+              {kill ? 'Resume copying' : 'Halt everything'}
+            </Button>
+          )}
+        </div>
       </Card>
 
       <div>
@@ -80,40 +102,67 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
             No leader applications yet. Users apply from their Accounts page.
           </Card>
         ) : (
-          <div className="space-y-3">
-            {leaders.map((l) => (
-              <Card key={l.id}>
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-semibold">{l.displayName}</span>
+          <Card className="overflow-x-auto p-0">
+            <table className="w-full text-sm">
+              <thead className="border-b border-border-soft text-left text-xs text-muted">
+                <tr>
+                  <th className="px-4 py-3 font-medium">Leader</th>
+                  <th className="px-4 py-3 font-medium">Status</th>
+                  <th className="px-4 py-3 font-medium">Account</th>
+                  <th className="px-4 py-3 text-right font-medium">Followers</th>
+                  <th className="px-4 py-3 text-right font-medium">Trades</th>
+                  <th className="px-4 py-3 text-right font-medium">Copied</th>
+                  <th className="px-4 py-3 text-right font-medium">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {leaders.map((l) => (
+                  <tr key={l.id} className="border-b border-border-soft last:border-0">
+                    <td className="px-4 py-3">
+                      <div className="font-medium">{l.displayName}</div>
+                      {l.bio && <div className="mt-0.5 max-w-xs truncate text-xs text-faint">{l.bio}</div>}
+                    </td>
+                    <td className="px-4 py-3">
                       <Badge tone={statusTone[l.status] ?? 'neutral'}>{l.status}</Badge>
-                    </div>
-                    <div className="mt-1 text-xs text-faint">
-                      {l.account.label} ••••{l.account.keyLast4} · {l.stats.followerCount} followers · {l.stats.tradeCount} trades ·{' '}
-                      {fmtUsd(l.stats.totalCopiedUsd, 0)} copied
-                    </div>
-                    {l.bio && <p className="mt-2 max-w-xl text-sm text-muted">{l.bio}</p>}
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {l.status !== 'VERIFIED' && (
-                      <Button onClick={() => setStatus(l.id, 'VERIFIED')} disabled={busy === l.id}>
-                        Verify
-                      </Button>
-                    )}
-                    {l.status === 'VERIFIED' && (
-                      <Button variant="subtle" onClick={() => setStatus(l.id, 'PAUSED')} disabled={busy === l.id}>
-                        Pause
-                      </Button>
-                    )}
-                    <Button variant="ghost" onClick={() => setStatus(l.id, 'DELISTED')} disabled={busy === l.id}>
-                      Delist
-                    </Button>
-                  </div>
-                </div>
-              </Card>
-            ))}
-          </div>
+                    </td>
+                    <td className="px-4 py-3 text-xs text-muted">
+                      {l.account.label} ••••{l.account.keyLast4}
+                    </td>
+                    <td className="px-4 py-3 text-right tabular-nums">{l.stats.followerCount}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{l.stats.tradeCount}</td>
+                    <td className="px-4 py-3 text-right tabular-nums">{fmtUsd(l.stats.totalCopiedUsd, 0)}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex flex-wrap justify-end gap-1.5">
+                        {l.status !== 'VERIFIED' && (
+                          <Button onClick={() => setStatus(l.id, 'VERIFIED')} disabled={busy === l.id} className="!px-2.5 !py-1 text-xs">
+                            Verify
+                          </Button>
+                        )}
+                        {l.status === 'VERIFIED' && (
+                          <Button
+                            variant="subtle"
+                            onClick={() => setStatus(l.id, 'PAUSED')}
+                            disabled={busy === l.id}
+                            className="!px-2.5 !py-1 text-xs"
+                          >
+                            Pause
+                          </Button>
+                        )}
+                        <Button
+                          variant="ghost"
+                          onClick={() => setStatus(l.id, 'DELISTED')}
+                          disabled={busy === l.id}
+                          className="!px-2.5 !py-1 text-xs"
+                        >
+                          Delist
+                        </Button>
+                      </div>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </Card>
         )}
       </div>
     </div>

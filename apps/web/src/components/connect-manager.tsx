@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { Badge, Button, Card, EmptyState, Field, Input, cx, fmtUsd } from './ui';
-import { ShieldIcon, LinkIcon, CheckIcon } from './icons';
+import { ShieldIcon, LinkIcon, CheckIcon, UsersIcon } from './icons';
 
 interface Credential {
   id: string;
@@ -12,6 +12,7 @@ interface Credential {
   baseCurrency: string;
   status: string;
   isLeader: boolean;
+  leaderStatus: string | null;
   equityUsd: number | null;
 }
 
@@ -138,6 +139,20 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
       </div>
 
       <div>
+        <Card className="mb-4 border-brand/20 bg-brand-soft/40">
+          <div className="flex items-start gap-3">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-brand">
+              <UsersIcon width={18} height={18} />
+            </div>
+            <div>
+              <h2 className="text-base font-semibold text-black">Become a leader</h2>
+              <p className="mt-1 text-sm text-muted">
+                Connect an account, apply below, and an admin verifies you before you appear on the leaderboard. Status
+                shows as Pending or Verified on each account.
+              </p>
+            </div>
+          </div>
+        </Card>
         <h2 className="mb-3 text-base font-semibold">Connected accounts</h2>
         {creds.length === 0 ? (
           <EmptyState
@@ -157,7 +172,10 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                       <div className="flex items-center gap-2">
                         <span className="font-medium">{c.label}</span>
                         <Badge tone={c.status === 'ACTIVE' ? 'up' : 'down'}>{c.status}</Badge>
-                        {c.isLeader && <Badge tone="brand">Leader</Badge>}
+                        {c.leaderStatus === 'PENDING' && <Badge tone="warn">Pending</Badge>}
+                        {c.leaderStatus === 'VERIFIED' && <Badge tone="brand">Verified leader</Badge>}
+                        {c.leaderStatus === 'PAUSED' && <Badge tone="neutral">Leader paused</Badge>}
+                        {c.leaderStatus === 'DELISTED' && <Badge tone="down">Delisted</Badge>}
                       </div>
                       <div className="mt-1 text-xs text-faint">
                         Delta India · key ••••{c.keyLast4}
@@ -166,7 +184,7 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
-                    {!c.isLeader && c.status === 'ACTIVE' && (
+                    {!c.leaderStatus && c.status === 'ACTIVE' && (
                       <button
                         onClick={() => setApplyId(applyId === c.id ? null : c.id)}
                         className="rounded-lg px-3 py-1.5 text-xs text-brand hover:bg-brand-soft"
