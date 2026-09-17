@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
 import { Badge, Button, Card, EmptyState, LinkButton, cx, fmtUsd } from './ui';
+import { ChartIcon, UsersIcon, BoltIcon } from './icons';
 
 interface FollowRow {
   id: string;
@@ -78,26 +79,33 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
 
   const totalOpen = rows.reduce((s, r) => s + r.openPnl, 0);
   const totalRealized = rows.reduce((s, r) => s + r.realizedPnl, 0);
+  const active = rows.filter((r) => r.status === 'ACTIVE').length;
+
+  const summary = [
+    { I: ChartIcon, label: 'Open P&L (unrealized)', value: fmtUsd(totalOpen), tone: totalOpen >= 0 },
+    { I: ChartIcon, label: 'Realized P&L', value: fmtUsd(totalRealized), tone: totalRealized >= 0 },
+    { I: BoltIcon, label: 'Active follows', value: String(active), tone: null as boolean | null },
+  ];
 
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3">
-        <Card>
-          <div className="text-xs text-muted">Open P&L (unrealized)</div>
-          <div className={cx('mt-1 text-xl font-bold tabular-nums', totalOpen >= 0 ? 'text-up' : 'text-down')}>
-            {fmtUsd(totalOpen)}
-          </div>
-        </Card>
-        <Card>
-          <div className="text-xs text-muted">Realized P&L</div>
-          <div className={cx('mt-1 text-xl font-bold tabular-nums', totalRealized >= 0 ? 'text-up' : 'text-down')}>
-            {fmtUsd(totalRealized)}
-          </div>
-        </Card>
-        <Card className="hidden sm:block">
-          <div className="text-xs text-muted">Active follows</div>
-          <div className="mt-1 text-xl font-bold tabular-nums">{rows.filter((r) => r.status === 'ACTIVE').length}</div>
-        </Card>
+        {summary.map((c) => (
+          <Card key={c.label}>
+            <div className="mb-2 text-brand">
+              <c.I width={18} height={18} />
+            </div>
+            <div className="text-xs text-muted">{c.label}</div>
+            <div
+              className={cx(
+                'mt-0.5 text-xl font-bold tabular-nums',
+                c.tone === true ? 'text-up' : c.tone === false ? 'text-down' : '',
+              )}
+            >
+              {c.value}
+            </div>
+          </Card>
+        ))}
       </div>
 
       <div className="space-y-3">
@@ -152,7 +160,9 @@ export function DashboardList({ initial }: { initial: FollowRow[] }) {
           </Card>
         ))}
       </div>
-      <p className="text-center text-xs text-faint">Live P&L refreshes every few seconds.</p>
+      <p className="flex items-center justify-center gap-1.5 text-center text-xs text-faint">
+        <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-brand" /> Live — updates stream in as trades copy
+      </p>
     </div>
   );
 }
