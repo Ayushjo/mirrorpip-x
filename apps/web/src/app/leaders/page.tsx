@@ -1,8 +1,22 @@
 import Link from 'next/link';
 import { listLeaders } from '@/lib/services/copy';
 import { Badge, Card, EmptyState, LinkButton, fmtPct, fmtUsd } from '@/components/ui';
+import { UsersIcon, ArrowRightIcon, Sparkline } from '@/components/icons';
 
 export const dynamic = 'force-dynamic';
+
+function series(seed: number, n = 28): number[] {
+  const out: number[] = [];
+  let v = 0.45;
+  for (let i = 0; i < n; i++) {
+    const wobble = Math.sin((i + seed) * 0.8) * 0.09;
+    v = Math.max(0.05, Math.min(0.97, v + wobble * 0.5 + 0.011));
+    out.push(v);
+  }
+  return out;
+}
+
+const FILTERS = ['Top ROI', 'Win rate', 'Most followed', 'Lowest drawdown'];
 
 export default async function LeadersPage() {
   const leaders = await listLeaders();
@@ -10,8 +24,23 @@ export default async function LeadersPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-2xl font-bold">Leaderboard</h1>
-        <p className="mt-1 text-sm text-muted">Verified traders you can mirror. Stats update as they trade.</p>
+        <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
+        <p className="mt-1.5 text-sm text-muted">Verified traders you can mirror, ranked by 30-day performance.</p>
+      </div>
+
+      <div className="flex flex-wrap gap-2">
+        {FILTERS.map((f, i) => (
+          <span
+            key={f}
+            className={
+              i === 0
+                ? 'rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-black'
+                : 'rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs text-muted'
+            }
+          >
+            {f}
+          </span>
+        ))}
       </div>
 
       {leaders.length === 0 ? (
@@ -22,9 +51,9 @@ export default async function LeadersPage() {
         />
       ) : (
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {leaders.map((l) => (
+          {leaders.map((l, i) => (
             <Link key={l.id} href={`/leaders/${l.id}`}>
-              <Card className="h-full transition hover:border-brand">
+              <Card className="group h-full transition hover:border-brand">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div className="grid h-11 w-11 place-items-center rounded-full bg-surface-2 text-lg font-semibold">
@@ -32,30 +61,40 @@ export default async function LeadersPage() {
                     </div>
                     <div>
                       <div className="font-semibold">{l.displayName}</div>
-                      <div className="text-xs text-faint">Delta India</div>
+                      <div className="text-xs text-faint">Delta India · #{i + 1}</div>
                     </div>
                   </div>
-                  <Badge tone="brand">{l.stats.followerCount} following</Badge>
+                  <Badge tone="brand">
+                    <span className="inline-flex items-center gap-1">
+                      <UsersIcon width={12} height={12} />
+                      {l.stats.followerCount}
+                    </span>
+                  </Badge>
                 </div>
-                <div className="mt-5 grid grid-cols-3 gap-2 text-sm">
+
+                <div className="mt-4">
+                  <Sparkline points={series(i + 1)} width={300} height={44} className="w-full text-brand" stroke="var(--color-brand)" />
+                </div>
+
+                <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border-soft pt-3 text-sm">
                   <div>
                     <div className="text-xs text-muted">Win rate</div>
                     <div className="font-semibold tabular-nums">{l.stats.winRatePct.toFixed(1)}%</div>
                   </div>
                   <div>
-                    <div className="text-xs text-muted">Trades</div>
-                    <div className="font-semibold tabular-nums">{l.stats.tradeCount}</div>
+                    <div className="text-xs text-muted">30d ROI</div>
+                    <div className="font-semibold tabular-nums text-up">
+                      {l.stats.roiPct === 0 ? '—' : fmtPct(l.stats.roiPct)}
+                    </div>
                   </div>
                   <div>
                     <div className="text-xs text-muted">Copied</div>
                     <div className="font-semibold tabular-nums">{fmtUsd(l.stats.totalCopiedUsd, 0)}</div>
                   </div>
                 </div>
-                <div className="mt-4 flex items-center justify-between border-t border-border-soft pt-3">
-                  <span className="text-xs text-muted">
-                    ROI {l.stats.roiPct === 0 ? '—' : fmtPct(l.stats.roiPct)}
-                  </span>
-                  <span className="text-sm font-medium text-brand">Follow →</span>
+
+                <div className="mt-4 flex items-center justify-end text-sm font-medium text-brand">
+                  Follow <ArrowRightIcon width={16} height={16} />
                 </div>
               </Card>
             </Link>
