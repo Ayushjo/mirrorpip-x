@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Badge, Button, Card, Field, Input, cx, fmtUsd } from './ui';
+import { ShieldIcon, LinkIcon, CheckIcon } from './icons';
 
 interface Credential {
   id: string;
@@ -26,6 +27,11 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
   const [applyId, setApplyId] = useState<string | null>(null);
   const [applyName, setApplyName] = useState('');
 
+  async function refresh() {
+    const res = await fetch('/api/credentials');
+    if (res.ok) setCreds((await res.json()).data);
+  }
+
   async function apply(id: string) {
     setError(null);
     setMsg(null);
@@ -43,11 +49,6 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
     setApplyId(null);
     setApplyName('');
     await refresh();
-  }
-
-  async function refresh() {
-    const res = await fetch('/api/credentials');
-    if (res.ok) setCreds((await res.json()).data);
   }
 
   async function add(e: React.FormEvent) {
@@ -90,12 +91,22 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
     <div className="grid gap-6 lg:grid-cols-2">
       <div>
         <Card>
-          <h2 className="text-base font-semibold">Connect a Delta India account</h2>
-          <p className="mt-1 text-sm text-muted">
-            Create an API key in Delta with <span className="text-fg">Trading enabled</span> and{' '}
-            <span className="text-fg">Withdrawals disabled</span>. We verify it, encrypt it, and never show it
-            again.
-          </p>
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand">
+              <LinkIcon />
+            </div>
+            <h2 className="text-base font-semibold">Connect a Delta India account</h2>
+          </div>
+          <div className="mt-4 flex items-start gap-2 rounded-xl border border-border-soft bg-surface-2 px-3.5 py-3 text-xs text-muted">
+            <span className="mt-0.5 text-brand">
+              <ShieldIcon width={16} height={16} />
+            </span>
+            <span>
+              Create an API key with <span className="text-fg">Trading enabled</span> and{' '}
+              <span className="text-fg">Withdrawals disabled</span>. We verify it, encrypt it with AES-256-GCM, and never
+              show it again.
+            </span>
+          </div>
           <form onSubmit={add} className="mt-5 space-y-4">
             <Field label="Label">
               <Input value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} required />
@@ -114,7 +125,11 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
               />
             </Field>
             {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
-            {msg && <p className="rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand">{msg}</p>}
+            {msg && (
+              <p className="flex items-center gap-1.5 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand">
+                <CheckIcon width={15} height={15} /> {msg}
+              </p>
+            )}
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? 'Verifying with exchange…' : 'Connect account'}
             </Button>
@@ -131,15 +146,20 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
             {creds.map((c) => (
               <Card key={c.id}>
                 <div className="flex items-center justify-between">
-                  <div>
-                    <div className="flex items-center gap-2">
-                      <span className="font-medium">{c.label}</span>
-                      <Badge tone={c.status === 'ACTIVE' ? 'up' : 'down'}>{c.status}</Badge>
-                      {c.isLeader && <Badge tone="brand">Leader</Badge>}
+                  <div className="flex items-center gap-3">
+                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-surface-2 text-muted">
+                      <LinkIcon width={18} height={18} />
                     </div>
-                    <div className="mt-1 text-xs text-faint">
-                      Delta India · key ••••{c.keyLast4}
-                      {c.equityUsd != null && <> · {fmtUsd(c.equityUsd)}</>}
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-medium">{c.label}</span>
+                        <Badge tone={c.status === 'ACTIVE' ? 'up' : 'down'}>{c.status}</Badge>
+                        {c.isLeader && <Badge tone="brand">Leader</Badge>}
+                      </div>
+                      <div className="mt-1 text-xs text-faint">
+                        Delta India · key ••••{c.keyLast4}
+                        {c.equityUsd != null && <> · {fmtUsd(c.equityUsd)}</>}
+                      </div>
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
