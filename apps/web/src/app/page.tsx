@@ -1,14 +1,13 @@
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
-import { ShieldIcon, BoltIcon, LinkIcon, SlidersIcon, UsersIcon, ChartIcon } from '@/components/icons';
+import { ShieldIcon, SlidersIcon, ChartIcon } from '@/components/icons';
 import { ArrowRight } from 'lucide-react';
 
 const HERO_VIDEO =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_161253_c72b1869-400f-45ed-ac0c-52f68c2ed5bd.mp4';
 const CARD_IMG =
   'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260423_164207_f243351d-ed59-48ec-83a0-a5e996bdbe3c.png&w=1280&q=85';
-const USECASE_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_183428_ab5e672a-f608-4dcb-b319-f3e040f02e2d.mp4';
+const FOLLOW_VIDEO = '/media/follow-temple.mp4';
 const LEAD_VIDEO = '/media/lighthouse.mp4';
 
 const STEPS = [
@@ -16,28 +15,23 @@ const STEPS = [
     n: '01',
     title: 'Connect your exchange',
     body: 'Link a trade-only Delta India API key. Withdrawal stays off — your funds never leave your account.',
-    Icon: LinkIcon,
+    image: '/media/variant-a.png',
   },
   {
     n: '02',
     title: 'Pick a verified leader',
     body: 'Browse the leaderboard, check ROI and drawdown, then set sizing and risk limits that fit you.',
-    Icon: UsersIcon,
+    image: '/media/variant-b.png',
   },
   {
     n: '03',
     title: 'Mirror on autopilot',
     body: 'When they fill, the engine sizes and places your copy within a second. Pause or stop anytime.',
-    Icon: BoltIcon,
+    image: '/media/variant-c.png',
   },
 ] as const;
 
-const TRUST = [
-  {
-    title: 'You keep custody',
-    body: 'Trade-enabled, withdrawal-disabled keys only. Secrets are AES-256-GCM encrypted at rest.',
-    Icon: ShieldIcon,
-  },
+const TRUST_SIDE = [
   {
     title: 'Live on Delta India',
     body: 'First venue is Delta Exchange India — the rails you already use, with a kill-switch if anything goes sideways.',
@@ -226,56 +220,25 @@ export default async function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3 lg:col-span-3">
-            {STEPS.map(({ n, title, body, Icon }) => (
-              <div
-                key={n}
-                className="flex flex-col rounded-3xl border border-border bg-white p-7 shadow-[0_1px_0_rgba(0,0,0,0.02)]"
-              >
-                <div className="mb-6 flex items-center justify-between">
-                  <span className="text-xs font-medium text-black/40">{n}</span>
-                  <span className="grid h-10 w-10 place-items-center rounded-full bg-[#efeef4] text-ink">
-                    <Icon className="h-5 w-5" />
-                  </span>
-                </div>
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
+          {STEPS.map(({ n, title, body, image }) => (
+            <div
+              key={n}
+              className="flex flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]"
+            >
+              <div className="relative aspect-[4/3] overflow-hidden bg-[#f0eef6]">
+                {/* eslint-disable-next-line @next/next/no-img-element */}
+                <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
+              </div>
+              <div className="flex flex-1 flex-col p-7">
+                <span className="mb-3 text-xs font-medium text-black/40">{n}</span>
                 <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
                   {title}
                 </h3>
                 <p className="text-sm leading-relaxed text-black/60">{body}</p>
               </div>
-            ))}
-          </div>
-
-          <div
-            className="relative min-h-72 overflow-hidden rounded-3xl border border-border lg:col-span-2"
-            style={{
-              background:
-                'radial-gradient(600px 320px at 70% 20%, rgba(43,38,68,0.12), transparent 55%), linear-gradient(160deg, #ecebf4, #f5f5f5)',
-            }}
-          >
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src="/media/halo-object.png"
-              alt=""
-              className="absolute inset-0 h-full w-full object-cover object-center"
-            />
-            <div
-              className="absolute inset-0"
-              style={{
-                background:
-                  'linear-gradient(180deg, rgba(245,245,245,0.15) 0%, rgba(245,245,245,0.55) 70%, rgba(245,245,245,0.85) 100%)',
-              }}
-            />
-            <div className="relative z-10 flex h-full flex-col justify-end p-8">
-              <div className="text-2xl font-medium text-black" style={{ letterSpacing: '-0.02em' }}>
-                Your keys stay linked to you.
-              </div>
-              <p className="mt-2 max-w-xs text-sm text-black/60">
-                The halo mark is the product idea in one shape — connection without custody.
-              </p>
             </div>
-          </div>
+          ))}
         </div>
       </section>
 
@@ -294,18 +257,44 @@ export default async function LandingPage() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {TRUST.map(({ title, body, Icon }) => (
-            <div key={title} className="rounded-3xl border border-border bg-white p-8">
-              <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-[#efeef4] text-ink">
-                <Icon className="h-5 w-5" />
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
+          <div className="relative min-h-[360px] overflow-hidden rounded-3xl border border-border lg:col-span-3">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/media/custody.png" alt="" className="absolute inset-0 h-full w-full object-cover object-right" />
+            <div
+              className="absolute inset-0"
+              style={{
+                background:
+                  'linear-gradient(90deg, rgba(245,245,245,0.94) 0%, rgba(245,245,245,0.72) 38%, rgba(245,245,245,0.08) 68%)',
+              }}
+            />
+            <div className="relative z-10 flex h-full max-w-md flex-col justify-center p-8 sm:p-12">
+              <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-white/80 text-ink backdrop-blur">
+                <ShieldIcon className="h-5 w-5" />
               </span>
-              <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
-                {title}
+              <h3 className="mb-3 text-3xl text-black" style={{ letterSpacing: '-0.03em' }}>
+                You keep custody
               </h3>
-              <p className="text-sm leading-relaxed text-black/60">{body}</p>
+              <p className="text-base leading-relaxed text-black/65">
+                Trade-enabled, withdrawal-disabled keys only. Secrets are AES-256-GCM encrypted at rest — and never shown
+                back to the client.
+              </p>
             </div>
-          ))}
+          </div>
+
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
+            {TRUST_SIDE.map(({ title, body, Icon }) => (
+              <div key={title} className="rounded-3xl border border-border bg-white p-8">
+                <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-[#efeef4] text-ink">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
+                  {title}
+                </h3>
+                <p className="text-sm leading-relaxed text-black/60">{body}</p>
+              </div>
+            ))}
+          </div>
         </div>
       </section>
 
@@ -327,7 +316,7 @@ export default async function LandingPage() {
             body="Pick a verified leader, set your sizing and risk limits, and let the engine mirror their every move into your account — pause or stop whenever you want."
             href={primaryHref}
             cta="Get started"
-            video={USECASE_VIDEO}
+            video={FOLLOW_VIDEO}
           />
           <ModeCard
             title="Lead"
