@@ -34,7 +34,7 @@ export default async function LeadersPage() {
             key={f}
             className={
               i === 0
-                ? 'rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-black'
+                ? 'rounded-full bg-black px-3.5 py-1.5 text-xs font-medium text-white'
                 : 'rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs text-muted'
             }
           >

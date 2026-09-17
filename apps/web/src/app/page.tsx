@@ -1,229 +1,198 @@
-import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
-import { listLeaders } from '@/lib/services/copy';
-import { Badge, Card, LinkButton, cx, fmtUsd } from '@/components/ui';
-import {
-  ShieldIcon,
-  BoltIcon,
-  SlidersIcon,
-  LinkIcon,
-  ChartIcon,
-  UsersIcon,
-  ArrowRightIcon,
-  Sparkline,
-} from '@/components/icons';
+import { LinkButton, cx } from '@/components/ui';
+import { Marquee } from '@/components/icons';
 
-// Deterministic upward-trending series for demo sparklines.
-function series(seed: number, n = 24): number[] {
-  const out: number[] = [];
-  let v = 0.4;
-  for (let i = 0; i < n; i++) {
-    const wobble = Math.sin((i + seed) * 0.7) * 0.08 + (Math.sin(seed * 3.1) + 1) * 0.004 * i;
-    v = Math.max(0.05, Math.min(0.98, v + wobble * 0.5 + 0.012));
-    out.push(v);
-  }
-  return out;
+const EXCHANGES: Array<[string, React.CSSProperties]> = [
+  ['Delta Exchange', { fontFamily: 'Georgia, serif', fontWeight: 700, letterSpacing: '-0.02em', fontSize: 16 }],
+  ['BYBIT', { fontFamily: 'Arial, sans-serif', fontWeight: 900, letterSpacing: '0.08em', fontSize: 14, textTransform: 'uppercase' }],
+  ['Binance', { fontFamily: '"Trebuchet MS", sans-serif', fontWeight: 600, letterSpacing: '0.01em', fontSize: 16, fontStyle: 'italic' }],
+  ['COINDCX', { fontFamily: '"Courier New", monospace', fontWeight: 700, letterSpacing: '0.12em', fontSize: 13, textTransform: 'uppercase' }],
+  ['TradingView', { fontFamily: 'Palatino, "Book Antiqua", serif', fontWeight: 400, letterSpacing: '-0.01em', fontSize: 17 }],
+  ['MetaTrader', { fontFamily: 'Impact, "Arial Narrow", sans-serif', fontWeight: 400, letterSpacing: '0.04em', fontSize: 15 }],
+  ['CoinSwitch', { fontFamily: 'Verdana, sans-serif', fontWeight: 700, letterSpacing: '-0.03em', fontSize: 14 }],
+];
+
+function MarqueeRow({ items }: { items: Array<[string, React.CSSProperties]> }) {
+  return (
+    <Marquee className="w-full">
+      {items.map(([name, style], i) => (
+        <span key={i} className="mx-8 shrink-0 whitespace-nowrap text-black/55" style={style}>
+          {name}
+        </span>
+      ))}
+    </Marquee>
+  );
 }
 
 export default async function LandingPage() {
   const user = await getSessionUser();
-  const leaders = await listLeaders().catch(() => []);
   const primaryHref = user ? '/leaders' : '/register';
 
   return (
-    <div className="space-y-28">
+    <div className="flex flex-col gap-24 pb-8">
       {/* ── Hero ─────────────────────────────────────────────────────── */}
-      <section className="grid items-center gap-12 pt-6 lg:grid-cols-[1.1fr_0.9fr]">
-        <div className="animate-in">
-          <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface px-3 py-1 text-xs text-muted">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand" />
-            Live on Delta Exchange India
-          </div>
-          <h1 className="text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-6xl">
-            Copy the best crypto traders,{' '}
-            <span className="bg-gradient-to-r from-brand to-[#38bdf8] bg-clip-text text-transparent">
-              automatically.
-            </span>
-          </h1>
-          <p className="mt-5 max-w-xl text-base text-muted sm:text-lg">
-            Connect your own exchange account, pick a verified leader, and every trade they make is mirrored into your
-            account in real time. Your funds never leave your exchange.
-          </p>
-          <div className="mt-8 flex flex-wrap items-center gap-3">
-            <LinkButton href={primaryHref} className="px-6 py-3 text-base">
-              {user ? 'Browse leaders' : 'Start copying free'}
-              <ArrowRightIcon />
-            </LinkButton>
-            <Link href="/leaders" className="rounded-xl px-5 py-3 text-sm text-muted hover:text-fg">
-              See the leaderboard →
-            </Link>
-          </div>
-          <div className="mt-8 flex flex-wrap items-center gap-x-6 gap-y-2 text-xs text-faint">
-            <span className="inline-flex items-center gap-1.5">
-              <ShieldIcon width={15} height={15} /> You keep custody
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <BoltIcon width={15} height={15} /> Sub-second mirroring
-            </span>
-            <span className="inline-flex items-center gap-1.5">
-              <SlidersIcon width={15} height={15} /> Risk limits on every follow
-            </span>
-          </div>
-        </div>
+      <section className="pt-2">
+        <div
+          className="relative overflow-hidden rounded-3xl border border-border"
+          style={{
+            minHeight: 'clamp(560px, 76vh, 760px)',
+            background:
+              'radial-gradient(1200px 480px at 78% -8%, rgba(43,38,68,0.16), transparent 60%), radial-gradient(900px 520px at 6% 12%, rgba(120,140,210,0.18), transparent 55%), linear-gradient(160deg, #ecebf4 0%, #f5f5f5 46%, #e9eef7 100%)',
+          }}
+        >
+          <div className="animate-in relative z-10 flex h-full flex-col items-start justify-start p-8 pt-20 sm:p-14 sm:pt-28">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs text-black/70 backdrop-blur">
+              <span className="h-1.5 w-1.5 rounded-full bg-up" /> Live on Delta Exchange India
+            </div>
+            <h1
+              className="max-w-2xl text-5xl leading-[1.02] text-black sm:text-7xl"
+              style={{ letterSpacing: '-0.04em' }}
+            >
+              Your capital,
+              <br />
+              on autopilot.
+            </h1>
+            <p
+              className="mt-5 max-w-md text-base leading-relaxed text-black/65 sm:text-lg"
+              style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
+            >
+              Connect your exchange, follow a verified leader, and every trade they make is mirrored into your account in
+              real time — while your funds never leave your custody.
+            </p>
+            <div className="mt-8 flex flex-wrap items-center gap-3">
+              <LinkButton href={primaryHref} arrow className="text-base">
+                {user ? 'Browse leaders' : 'Start copying'}
+              </LinkButton>
+              <LinkButton href="/leaders" variant="ghost" className="text-base">
+                See the leaderboard
+              </LinkButton>
+            </div>
 
-        {/* Hero product card */}
-        <div className="animate-in relative">
-          <div className="pointer-events-none absolute -inset-6 rounded-[32px] bg-gradient-to-br from-brand/20 to-transparent blur-2xl" />
-          <Card className="relative overflow-hidden">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 font-semibold">A</div>
-                <div>
-                  <div className="text-sm font-semibold">Aarav Mehta</div>
-                  <div className="text-xs text-faint">You’re copying · Proportional ×1</div>
-                </div>
-              </div>
-              <Badge tone="up">+42.1%</Badge>
+            <div className="mt-auto w-full max-w-lg pt-16">
+              <div className="mb-2 text-xs text-black/40">Works with your exchange</div>
+              <MarqueeRow items={EXCHANGES} />
             </div>
-            <div className="mt-5 flex items-end justify-between">
-              <div>
-                <div className="text-xs text-muted">30-day equity</div>
-                <div className="text-2xl font-bold tabular-nums text-up">+$4,912.65</div>
-              </div>
-              <Sparkline points={series(2, 40)} width={150} height={52} className="text-up" stroke="var(--color-up)" />
-            </div>
-            <div className="mt-5 space-y-2 border-t border-border-soft pt-4">
-              {[
-                ['BTCUSD', 'BUY', '+$820.40'],
-                ['ETHUSD', 'BUY', '+$318.10'],
-                ['SOLUSD', 'SELL', '-$44.20'],
-              ].map(([sym, side, pnl]) => (
-                <div key={sym} className="flex items-center justify-between text-sm">
-                  <div className="flex items-center gap-2">
-                    <Badge tone={side === 'BUY' ? 'up' : 'down'}>{side}</Badge>
-                    <span className="font-medium">{sym}</span>
-                  </div>
-                  <span className={cx('tabular-nums', pnl.startsWith('-') ? 'text-down' : 'text-up')}>{pnl}</span>
-                </div>
-              ))}
-            </div>
-          </Card>
+          </div>
         </div>
       </section>
 
-      {/* ── How it works ─────────────────────────────────────────────── */}
+      {/* ── Meet MirrorPip ───────────────────────────────────────────── */}
       <section>
-        <h2 className="text-center text-2xl font-bold">How it works</h2>
-        <p className="mx-auto mt-2 max-w-md text-center text-sm text-muted">
-          Three steps from connected account to fully automated copying.
-        </p>
-        <div className="mt-10 grid gap-5 sm:grid-cols-3">
-          {[
-            { n: '01', I: LinkIcon, t: 'Connect your account', d: 'Add a trade-enabled, withdrawal-disabled API key. It’s encrypted at rest and never shown again.' },
-            { n: '02', I: SlidersIcon, t: 'Pick a leader', d: 'Browse verified traders with transparent stats. Choose your sizing and set risk limits.' },
-            { n: '03', I: BoltIcon, t: 'We mirror the trades', d: 'When your leader trades, the engine places the equivalent order in your account within a second.' },
-          ].map((s) => (
-            <Card key={s.n} className="relative">
-              <div className="mb-4 grid h-11 w-11 place-items-center rounded-xl bg-brand-soft text-brand">
-                <s.I />
-              </div>
-              <div className="text-xs font-bold text-faint">{s.n}</div>
-              <div className="mt-1 text-base font-semibold">{s.t}</div>
-              <p className="mt-2 text-sm text-muted">{s.d}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Features ─────────────────────────────────────────────────── */}
-      <section>
-        <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-          {[
-            { I: ShieldIcon, t: 'You keep custody', d: 'API keys only — orders yes, withdrawals never.' },
-            { I: BoltIcon, t: 'Real-time engine', d: 'A live WebSocket watches each leader and fans out in milliseconds.' },
-            { I: SlidersIcon, t: 'Risk controls', d: 'Proportional sizing, max position, and a daily loss limit.' },
-            { I: ChartIcon, t: 'Transparent stats', d: 'Real ROI and drawdown from a live equity curve — nothing faked.' },
-          ].map((f) => (
-            <Card key={f.t}>
-              <div className="mb-3 text-brand">
-                <f.I />
-              </div>
-              <div className="text-sm font-semibold">{f.t}</div>
-              <p className="mt-1.5 text-xs text-muted">{f.d}</p>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* ── Top leaders ──────────────────────────────────────────────── */}
-      <section>
-        <div className="mb-6 flex items-end justify-between">
+        <div className="mb-14 grid grid-cols-1 items-start gap-12 md:grid-cols-2">
           <div>
-            <h2 className="text-2xl font-bold">Top leaders</h2>
-            <p className="mt-1 text-sm text-muted">Verified traders you can mirror today.</p>
+            <h2 className="text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+              Meet MirrorPip.
+            </h2>
+            <div className="mt-8">
+              <LinkButton href={primaryHref} arrow>
+                Discover it
+              </LinkButton>
+            </div>
           </div>
-          <Link href="/leaders" className="text-sm text-brand hover:brightness-125">
-            View all →
-          </Link>
+          <p className="text-2xl leading-relaxed text-black/70 sm:text-3xl" style={{ letterSpacing: '-0.01em' }}>
+            A copy-trading engine that watches verified leaders and mirrors their trades into your own exchange account —
+            automatically, in real time.
+          </p>
         </div>
-        {leaders.length === 0 ? (
-          <Card className="py-12 text-center text-sm text-muted">
-            No verified leaders yet — connect an account and apply to be the first.
-          </Card>
-        ) : (
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {leaders.slice(0, 6).map((l, i) => (
-              <Link key={l.id} href={`/leaders/${l.id}`}>
-                <Card className="h-full transition hover:border-brand">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="grid h-10 w-10 place-items-center rounded-full bg-surface-2 font-semibold">
-                        {l.displayName.slice(0, 1)}
-                      </div>
-                      <div className="font-semibold">{l.displayName}</div>
-                    </div>
-                    <span className="inline-flex items-center gap-1 text-xs text-muted">
-                      <UsersIcon width={13} height={13} />
-                      {l.stats.followerCount}
-                    </span>
-                  </div>
-                  <div className="mt-4">
-                    <Sparkline points={series(i + 3)} width={260} height={40} className="w-full text-brand" stroke="var(--color-brand)" />
-                  </div>
-                  <div className="mt-4 grid grid-cols-2 gap-3 border-t border-border-soft pt-3 text-sm">
-                    <div>
-                      <div className="text-xs text-muted">Win rate</div>
-                      <div className="font-semibold tabular-nums">{l.stats.winRatePct.toFixed(1)}%</div>
-                    </div>
-                    <div>
-                      <div className="text-xs text-muted">Volume copied</div>
-                      <div className="font-semibold tabular-nums">{fmtUsd(l.stats.totalCopiedUsd, 0)}</div>
-                    </div>
-                  </div>
-                </Card>
-              </Link>
-            ))}
+
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {/* wide gradient card */}
+          <div
+            className="flex min-h-80 flex-col justify-between rounded-2xl border border-border p-7 sm:col-span-2 lg:col-span-2"
+            style={{
+              background:
+                'radial-gradient(600px 300px at 80% 10%, rgba(43,38,68,0.14), transparent 60%), linear-gradient(150deg, #eef1f8, #ffffff)',
+            }}
+          >
+            <div className="text-2xl font-medium leading-snug text-black" style={{ letterSpacing: '-0.02em' }}>
+              Returns that mirror the best.
+            </div>
+            <p className="max-w-xs text-base text-black/65">
+              Every fill a leader makes is sized to your account and placed within a second — you hold the exact same
+              positions, proportionally.
+            </p>
           </div>
-        )}
+          {/* ink cards */}
+          {[
+            ['You keep custody, always.', 'Trade-only API keys. The engine can place orders but never withdraw a cent.'],
+            ['Fully automated.', 'No screens to watch. It runs in the background and mirrors trades for you, 24/7.'],
+          ].map(([t, d]) => (
+            <div key={t} className="flex min-h-80 flex-col justify-between rounded-2xl p-7" style={{ background: '#2B2644' }}>
+              <div className="whitespace-pre-line text-2xl font-medium leading-snug text-white" style={{ letterSpacing: '-0.02em' }}>
+                {t}
+              </div>
+              <p className="text-base text-white/60">{d}</p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ── Backed by / trusted ──────────────────────────────────────── */}
+      <section>
+        <div className="grid grid-cols-1 items-center gap-8 md:grid-cols-4">
+          <p className="text-base leading-relaxed text-black/70">
+            Built on the rails traders
+            <br />
+            already trust.
+          </p>
+          <div className="md:col-span-3">
+            <MarqueeRow items={EXCHANGES} />
+          </div>
+        </div>
+      </section>
+
+      {/* ── Use cases ────────────────────────────────────────────────── */}
+      <section>
+        <div className="grid grid-cols-1 items-start gap-8 md:grid-cols-2">
+          <div className="md:pr-12 md:pt-2">
+            <div className="mb-2 text-sm text-black/60">MirrorPip in practice</div>
+            <h2 className="mb-6 text-5xl leading-none text-black sm:text-6xl" style={{ letterSpacing: '-0.04em' }}>
+              Use modes
+            </h2>
+            <p className="max-w-sm text-base leading-relaxed text-black/60">
+              Whether you’re a follower who wants hands-off returns or a trader who wants a following, MirrorPip has a
+              mode for you.
+            </p>
+          </div>
+          <div
+            className="relative min-h-[560px] overflow-hidden rounded-3xl border border-border"
+            style={{
+              background:
+                'radial-gradient(700px 380px at 20% 90%, rgba(43,38,68,0.2), transparent 60%), linear-gradient(160deg, #e9edf6, #f3f0f8)',
+            }}
+          >
+            <div className="relative z-10 p-10 sm:p-12">
+              <h3 className="mb-5 text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+                Follow
+              </h3>
+              <p className="mb-8 max-w-md text-base text-black/70">
+                Pick a verified leader, set your sizing and risk limits, and let the engine mirror their every move into
+                your account — pause or stop whenever you want.
+              </p>
+              <LinkButton href={primaryHref} arrow>
+                Get started
+              </LinkButton>
+            </div>
+          </div>
+        </div>
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section>
-        <Card className="relative overflow-hidden py-16 text-center">
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-brand/15 via-transparent to-[#38bdf8]/10" />
-          <div className="relative">
-            <h2 className="text-3xl font-bold">Ready to trade on autopilot?</h2>
-            <p className="mx-auto mt-3 max-w-md text-sm text-muted">
-              It takes two minutes to connect an account and start mirroring a leader.
-            </p>
-            <div className="mt-7 flex justify-center">
-              <LinkButton href={primaryHref} className="px-6 py-3 text-base">
-                {user ? 'Browse leaders' : 'Create your free account'}
-                <ArrowRightIcon />
-              </LinkButton>
-            </div>
-          </div>
-        </Card>
+        <div
+          className={cx('flex flex-col items-center gap-5 rounded-3xl p-14 text-center')}
+          style={{ background: '#2B2644' }}
+        >
+          <h2 className="text-3xl text-white sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
+            Ready to trade on autopilot?
+          </h2>
+          <p className="max-w-md text-base text-white/60">
+            Connect an account and start mirroring a leader in two minutes.
+          </p>
+          <LinkButton href={primaryHref} arrow variant="ghost" className="mt-1 text-base">
+            {user ? 'Browse leaders' : 'Create your account'}
+          </LinkButton>
+        </div>
       </section>
     </div>
   );

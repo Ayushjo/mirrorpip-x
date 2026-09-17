@@ -1,75 +1,56 @@
-import type { SVGProps } from 'react';
+import type { ReactNode, SVGProps } from 'react';
+import {
+  ShieldCheck,
+  Zap,
+  SlidersHorizontal,
+  Link2,
+  TrendingUp,
+  Users,
+  Check,
+  ArrowRight,
+  type LucideProps,
+} from 'lucide-react';
 
-// Clean 1.6px line icons (currentColor). Keeps the UI crisp and non-boxy without
-// pulling an icon dependency. 24x24 viewBox.
-const base = (props: SVGProps<SVGSVGElement>) => ({
-  width: 20,
-  height: 20,
-  viewBox: '0 0 24 24',
-  fill: 'none',
-  stroke: 'currentColor',
-  strokeWidth: 1.6,
-  strokeLinecap: 'round' as const,
-  strokeLinejoin: 'round' as const,
-  ...props,
-});
+// lucide-react is the only icon library (per the design spec). We alias the
+// names used across the app to lucide equivalents so pages need no changes.
+const wrap =
+  (Cmp: (p: LucideProps) => ReactNode) =>
+  (p: LucideProps) =>
+    <Cmp strokeWidth={1.75} {...p} />;
 
-export const ShieldIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="M12 3 4 6v6c0 4.5 3.2 7.3 8 9 4.8-1.7 8-4.5 8-9V6l-8-3Z" />
-    <path d="m9 12 2 2 4-4" />
-  </svg>
-);
+export const ShieldIcon = wrap(ShieldCheck);
+export const BoltIcon = wrap(Zap);
+export const SlidersIcon = wrap(SlidersHorizontal);
+export const LinkIcon = wrap(Link2);
+export const ChartIcon = wrap(TrendingUp);
+export const UsersIcon = wrap(Users);
+export const CheckIcon = wrap(Check);
+export const ArrowRightIcon = wrap(ArrowRight);
 
-export const BoltIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="M13 2 4 14h7l-1 8 9-12h-7l1-8Z" />
-  </svg>
-);
+// Brand mark — two interlocking rounded squares ("halo"). currentColor.
+export function LogoIcon(props: SVGProps<SVGSVGElement>) {
+  return (
+    <svg viewBox="0 0 256 256" fill="currentColor" xmlns="http://www.w3.org/2000/svg" {...props}>
+      <path d="M 128.005 191.173 C 128.448 156.208 156.93 128 192 128 L 192 64 L 128 64 C 128 99.346 99.346 128 64 128 L 64 192 L 128 192 Z M 192 256 L 64 256 C 28.654 256 0 227.346 0 192 L 0 64 L 64 64 L 64 0 L 192 0 C 227.346 0 256 28.654 256 64 L 256 192 L 192 192 Z" />
+    </svg>
+  );
+}
 
-export const SlidersIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3" />
-    <path d="M1 14h6M9 8h6M17 16h6" />
-  </svg>
-);
+// Seamless infinite marquee. Renders `children` twice on one track.
+export function Marquee({ children, slow, className }: { children: ReactNode; slow?: boolean; className?: string }) {
+  return (
+    <div className={`overflow-hidden ${className ?? ''}`}>
+      <div className={`marquee-track ${slow ? 'slow' : ''}`}>
+        <div className="flex items-center">{children}</div>
+        <div className="flex items-center" aria-hidden>
+          {children}
+        </div>
+      </div>
+    </div>
+  );
+}
 
-export const LinkIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="M9 15 15 9" />
-    <path d="M11 6.5 13 4.5a4 4 0 0 1 6 6l-2 2" />
-    <path d="M13 17.5 11 19.5a4 4 0 0 1-6-6l2-2" />
-  </svg>
-);
-
-export const ChartIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="M4 20V4M4 20h16" />
-    <path d="m7 15 3-4 3 3 4-6" />
-  </svg>
-);
-
-export const UsersIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <circle cx="9" cy="8" r="3.2" />
-    <path d="M3.5 20a5.5 5.5 0 0 1 11 0" />
-    <path d="M16 5.5a3.2 3.2 0 0 1 0 6M17 20a5.5 5.5 0 0 0-3-4.9" />
-  </svg>
-);
-
-export const CheckIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="m5 12 4 4 10-10" />
-  </svg>
-);
-
-export const ArrowRightIcon = (p: SVGProps<SVGSVGElement>) => (
-  <svg {...base(p)}>
-    <path d="M5 12h14M13 6l6 6-6 6" />
-  </svg>
-);
-
-// Tiny inline sparkline from a series of 0..1 values.
+// Tiny inline sparkline from a series of numbers.
 export function Sparkline({
   points,
   width = 96,
@@ -97,7 +78,7 @@ export function Sparkline({
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={className} fill="none">
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={stroke} stopOpacity="0.25" />
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.18" />
           <stop offset="100%" stopColor={stroke} stopOpacity="0" />
         </linearGradient>
       </defs>
