@@ -161,6 +161,14 @@ export function Stat({ label, value, tone }: { label: string; value: ReactNode; 
 export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
   return (
     <Card className="flex flex-col items-center gap-3 py-14 text-center">
+      <div
+        className="mb-1 h-20 w-20 rounded-full border border-border"
+        style={{
+          backgroundImage: 'url("/media/halo-object.png"), radial-gradient(circle at 50% 42%, #e7e3f3, #f5f5f5)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+        }}
+      />
       <div className="text-base font-medium">{title}</div>
       <p className="max-w-sm text-sm text-muted">{body}</p>
       {action}

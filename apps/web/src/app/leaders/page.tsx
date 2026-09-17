@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { listLeaders } from '@/lib/services/copy';
 import { Badge, Card, EmptyState, LinkButton, fmtPct, fmtUsd } from '@/components/ui';
 import { UsersIcon, ArrowRightIcon, Sparkline } from '@/components/icons';
+import { MediaBanner } from '@/components/media-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,25 +24,30 @@ export default async function LeadersPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-bold tracking-tight">Leaderboard</h1>
-        <p className="mt-1.5 text-sm text-muted">Verified traders you can mirror, ranked by 30-day performance.</p>
-      </div>
-
-      <div className="flex flex-wrap gap-2">
-        {FILTERS.map((f, i) => (
-          <span
-            key={f}
-            className={
-              i === 0
-                ? 'rounded-full bg-black px-3.5 py-1.5 text-xs font-medium text-white'
-                : 'rounded-full border border-border bg-surface px-3.5 py-1.5 text-xs text-muted'
-            }
-          >
-            {f}
-          </span>
-        ))}
-      </div>
+      <MediaBanner src="/media/leaderboard-hero.png" position="right center">
+        <div className="p-8 sm:p-10">
+          <h1 className="max-w-lg text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+            Leaderboard
+          </h1>
+          <p className="mt-2 max-w-md text-sm text-black/60">
+            Verified traders you can mirror, ranked by 30-day performance.
+          </p>
+          <div className="mt-6 flex flex-wrap gap-2">
+            {FILTERS.map((f, i) => (
+              <span
+                key={f}
+                className={
+                  i === 0
+                    ? 'rounded-full bg-black px-3.5 py-1.5 text-xs font-medium text-white'
+                    : 'rounded-full border border-border bg-white/70 px-3.5 py-1.5 text-xs text-muted backdrop-blur'
+                }
+              >
+                {f}
+              </span>
+            ))}
+          </div>
+        </div>
+      </MediaBanner>
 
       {leaders.length === 0 ? (
         <EmptyState

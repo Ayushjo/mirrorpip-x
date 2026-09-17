@@ -2,6 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
 import { listCredentials } from '@/lib/services/copy';
 import { ConnectManager } from '@/components/connect-manager';
+import { MediaBanner } from '@/components/media-banner';
 
 export const dynamic = 'force-dynamic';
 
@@ -12,10 +13,16 @@ export default async function ConnectPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold">Connected accounts</h1>
-        <p className="mt-1 text-sm text-muted">Manage the exchange accounts you use to follow leaders.</p>
-      </div>
+      <MediaBanner src="/media/connect-hero.png" position="right center">
+        <div className="p-8 sm:p-10">
+          <h1 className="text-3xl text-black sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
+            Connected accounts
+          </h1>
+          <p className="mt-2 max-w-md text-sm text-black/60">
+            Manage the exchange accounts you use to follow leaders. Keys are encrypted; withdrawals are never possible.
+          </p>
+        </div>
+      </MediaBanner>
       <ConnectManager initial={creds} />
     </div>
   );
