@@ -1,6 +1,14 @@
 import { getSessionUser } from '@/lib/session';
-import { LinkButton, cx } from '@/components/ui';
+import { LinkButton } from '@/components/ui';
 import { Marquee } from '@/components/icons';
+import { ArrowRight } from 'lucide-react';
+
+const HERO_VIDEO =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_161253_c72b1869-400f-45ed-ac0c-52f68c2ed5bd.mp4';
+const CARD_IMG =
+  'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260423_164207_f243351d-ed59-48ec-83a0-a5e996bdbe3c.png&w=1280&q=85';
+const USECASE_VIDEO =
+  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_183428_ab5e672a-f608-4dcb-b319-f3e040f02e2d.mp4';
 
 const EXCHANGES: Array<[string, React.CSSProperties]> = [
   ['Delta Exchange', { fontFamily: 'Georgia, serif', fontWeight: 700, letterSpacing: '-0.02em', fontSize: 16 }],
@@ -37,17 +45,30 @@ export default async function LandingPage() {
           style={{
             minHeight: 'clamp(560px, 76vh, 760px)',
             background:
-              'radial-gradient(1200px 480px at 78% -8%, rgba(43,38,68,0.16), transparent 60%), radial-gradient(900px 520px at 6% 12%, rgba(120,140,210,0.18), transparent 55%), linear-gradient(160deg, #ecebf4 0%, #f5f5f5 46%, #e9eef7 100%)',
+              'radial-gradient(1200px 480px at 78% -8%, rgba(43,38,68,0.16), transparent 60%), linear-gradient(160deg, #ecebf4 0%, #f5f5f5 46%, #e9eef7 100%)',
           }}
         >
+          <video
+            className="absolute inset-0 h-full w-full object-cover"
+            src={HERO_VIDEO}
+            autoPlay
+            muted
+            loop
+            playsInline
+          />
+          {/* readability scrim so the black hero text stays legible */}
+          <div
+            className="absolute inset-0"
+            style={{
+              background:
+                'linear-gradient(90deg, rgba(245,245,245,0.9) 0%, rgba(245,245,245,0.55) 42%, rgba(245,245,245,0.05) 72%)',
+            }}
+          />
           <div className="animate-in relative z-10 flex h-full flex-col items-start justify-start p-8 pt-20 sm:p-14 sm:pt-28">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs text-black/70 backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-up" /> Live on Delta Exchange India
             </div>
-            <h1
-              className="max-w-2xl text-5xl leading-[1.02] text-black sm:text-7xl"
-              style={{ letterSpacing: '-0.04em' }}
-            >
+            <h1 className="max-w-2xl text-5xl leading-[1.02] text-black sm:text-7xl" style={{ letterSpacing: '-0.04em' }}>
               Your capital,
               <br />
               on autopilot.
@@ -96,18 +117,19 @@ export default async function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {/* wide gradient card */}
+          {/* wide image card */}
           <div
-            className="flex min-h-80 flex-col justify-between rounded-2xl border border-border p-7 sm:col-span-2 lg:col-span-2"
-            style={{
-              background:
-                'radial-gradient(600px 300px at 80% 10%, rgba(43,38,68,0.14), transparent 60%), linear-gradient(150deg, #eef1f8, #ffffff)',
-            }}
+            className="relative flex min-h-80 flex-col justify-between overflow-hidden rounded-2xl border border-border p-7 sm:col-span-2 lg:col-span-2"
+            style={{ backgroundImage: `url("${CARD_IMG}")`, backgroundSize: 'cover', backgroundPosition: 'center' }}
           >
-            <div className="text-2xl font-medium leading-snug text-black" style={{ letterSpacing: '-0.02em' }}>
+            <div
+              className="pointer-events-none absolute inset-0"
+              style={{ background: 'linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.55))' }}
+            />
+            <div className="relative text-2xl font-medium leading-snug text-black" style={{ letterSpacing: '-0.02em' }}>
               Returns that mirror the best.
             </div>
-            <p className="max-w-xs text-base text-black/65">
+            <p className="relative max-w-xs text-base text-black/70">
               Every fill a leader makes is sized to your account and placed within a second — you hold the exact same
               positions, proportionally.
             </p>
@@ -154,13 +176,19 @@ export default async function LandingPage() {
               mode for you.
             </p>
           </div>
-          <div
-            className="relative min-h-[560px] overflow-hidden rounded-3xl border border-border"
-            style={{
-              background:
-                'radial-gradient(700px 380px at 20% 90%, rgba(43,38,68,0.2), transparent 60%), linear-gradient(160deg, #e9edf6, #f3f0f8)',
-            }}
-          >
+          <div className="relative min-h-[560px] overflow-hidden rounded-3xl border border-border">
+            <video
+              className="absolute inset-0 h-full w-full object-cover"
+              src={USECASE_VIDEO}
+              autoPlay
+              muted
+              loop
+              playsInline
+            />
+            <div
+              className="absolute inset-0"
+              style={{ background: 'linear-gradient(180deg, rgba(245,245,245,0.82) 0%, rgba(245,245,245,0.35) 40%, transparent 75%)' }}
+            />
             <div className="relative z-10 p-10 sm:p-12">
               <h3 className="mb-5 text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
                 Follow
@@ -169,9 +197,12 @@ export default async function LandingPage() {
                 Pick a verified leader, set your sizing and risk limits, and let the engine mirror their every move into
                 your account — pause or stop whenever you want.
               </p>
-              <LinkButton href={primaryHref} arrow>
+              <a href={primaryHref} className="group inline-flex items-center gap-3 text-base font-medium text-black">
+                <span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 backdrop-blur transition-colors group-hover:bg-white">
+                  <ArrowRight className="h-4 w-4 text-black" />
+                </span>
                 Get started
-              </LinkButton>
+              </a>
             </div>
           </div>
         </div>
@@ -179,16 +210,11 @@ export default async function LandingPage() {
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section>
-        <div
-          className={cx('flex flex-col items-center gap-5 rounded-3xl p-14 text-center')}
-          style={{ background: '#2B2644' }}
-        >
+        <div className="flex flex-col items-center gap-5 rounded-3xl p-14 text-center" style={{ background: '#2B2644' }}>
           <h2 className="text-3xl text-white sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Ready to trade on autopilot?
           </h2>
-          <p className="max-w-md text-base text-white/60">
-            Connect an account and start mirroring a leader in two minutes.
-          </p>
+          <p className="max-w-md text-base text-white/60">Connect an account and start mirroring a leader in two minutes.</p>
           <LinkButton href={primaryHref} arrow variant="ghost" className="mt-1 text-base">
             {user ? 'Browse leaders' : 'Create your account'}
           </LinkButton>
