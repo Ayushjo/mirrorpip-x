@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Button, Card, Field, Input, cx, fmtUsd } from './ui';
+import { Badge, Button, Card, EmptyState, Field, Input, cx, fmtUsd } from './ui';
 import { ShieldIcon, LinkIcon, CheckIcon } from './icons';
 
 interface Credential {
@@ -140,7 +140,10 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
       <div>
         <h2 className="mb-3 text-base font-semibold">Connected accounts</h2>
         {creds.length === 0 ? (
-          <Card className="py-10 text-center text-sm text-muted">No accounts connected yet.</Card>
+          <EmptyState
+            title="No accounts connected"
+            body="Connect your first exchange account on the left. Your keys are encrypted and can never withdraw funds."
+          />
         ) : (
           <div className="space-y-3">
             {creds.map((c) => (
