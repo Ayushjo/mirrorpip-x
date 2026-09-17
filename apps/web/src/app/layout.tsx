@@ -61,14 +61,32 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">{children}</main>
 
         <footer className="mx-auto w-full max-w-[88rem] border-t border-border px-6 py-10 text-xs text-faint">
-          <div className="flex items-center gap-2 text-black">
-            <LogoIcon className="h-5 w-5" />
-            <span className="font-medium">MirrorPip</span>
+          <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
+            <div>
+              <div className="flex items-center gap-2 text-black">
+                <LogoIcon className="h-5 w-5" />
+                <span className="font-medium">MirrorPip</span>
+              </div>
+              <p className="mt-3 max-w-md">
+                Copy-trading is high risk. You keep custody of your funds; the platform only places orders via your own
+                API keys. Not investment advice.
+              </p>
+            </div>
+            <nav className="flex flex-wrap gap-x-6 gap-y-2 text-sm text-muted">
+              <Link href="/leaders" className="transition-colors hover:text-black">
+                Leaderboard
+              </Link>
+              <Link href="/#how-it-works" className="transition-colors hover:text-black">
+                How it works
+              </Link>
+              <Link href="/connect" className="transition-colors hover:text-black">
+                Accounts
+              </Link>
+              <Link href={user ? '/dashboard' : '/register'} className="transition-colors hover:text-black">
+                {user ? 'Dashboard' : 'Get started'}
+              </Link>
+            </nav>
           </div>
-          <p className="mt-3 max-w-2xl">
-            Copy-trading is high risk. You keep custody of your funds; the platform only places orders via your own API
-            keys. Not investment advice.
-          </p>
         </footer>
       </body>
     </html>
