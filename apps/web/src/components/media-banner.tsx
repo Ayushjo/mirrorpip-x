@@ -23,21 +23,22 @@ export function MediaBanner({
 }) {
   return (
     <div
-      className={cx('relative overflow-hidden rounded-3xl border border-border', className)}
+      className={cx('relative flex min-h-[210px] items-center overflow-hidden rounded-3xl border border-border', className)}
       style={{ background: gradient }}
     >
       <div
         className="absolute inset-0"
         style={{ backgroundImage: `url("${src}")`, backgroundSize: 'cover', backgroundPosition: position }}
       />
+      {/* left-weighted scrim: text side stays readable, right side shows the art */}
       <div
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(90deg, rgba(245,245,245,0.92) 0%, rgba(245,245,245,0.5) 46%, rgba(245,245,245,0.06) 78%)',
+            'linear-gradient(90deg, rgba(245,245,245,0.9) 0%, rgba(245,245,245,0.4) 42%, rgba(245,245,245,0) 66%)',
         }}
       />
-      <div className="relative z-10">{children}</div>
+      <div className="relative z-10 w-full">{children}</div>
     </div>
   );
 }
