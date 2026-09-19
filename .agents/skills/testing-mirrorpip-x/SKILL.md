@@ -23,7 +23,7 @@ Repo: pnpm monorepo. Web app is `apps/web` (Next.js), DB is `packages/db` (Prism
   `set -a; source ../../.env; set +a; ./node_modules/.bin/tsx test-util.ts <cmd>`.
   Commands: `users`, `sessions`, `audit`, `notifications`, `promote <email>` (sets role=admin), `demote`, `notify <email> <title>`, `beta on|off`.
 - `tsx -e` one-liners FAIL (CJS top-level await + relative import issues) — always write a .ts file and run it.
-- `ADMIN_EMAILS` env only contains kkfahmin@gmail.com; promote test users via `role:'admin'` in the DB, then RE-LOGIN (better-auth `cookieCache` maxAge=5min serves stale role/consent claims).
+- Admin emails come from `ADMIN_EMAILS` in the repo-root `.env` (check it for the current value); promote test users via `role:'admin'` in the DB, then RE-LOGIN (better-auth `cookieCache` maxAge=5min serves stale role/consent claims).
 
 ## UI quirks (desktop automation)
 - Signup/consent checkboxes don't reliably toggle via mouse click on the label (label contains Terms/Privacy <a> links). Reliable path: click the password/last field, Tab forward to the checkbox, press Space. Watch the status bar — Tab can land on the inline links.
@@ -39,9 +39,9 @@ Repo: pnpm monorepo. Web app is `apps/web` (Next.js), DB is `packages/db` (Prism
 
 ## Copy-trading (engine) e2e flow
 - The copy engine is a SEPARATE process — `pnpm --filter @mirrorpip/engine dev` (log /tmp/engine.log). It is NOT covered by the blueprint's dev-server knowledge entry.
-- Env needs `DELTA_REST_URL`/`DELTA_WS_URL` (testnet: `https://cdn-ind.testnet.deltaex.org`) in repo-root `.env`.
+- Env needs `DELTA_REST_URL`/`DELTA_WS_URL` in repo-root `.env` (testnet REST: `https://cdn-ind.testnet.deltaex.org`, WS: `wss://socket-ind.testnet.deltaex.org`).
 - Engine syncs every 5s: a watcher spawns only after leader is VERIFIED *and* a follow is ACTIVE → log line `started leader watcher`. Copy = `copied fill {leaderId, followId, symbol, side, qty, status}`; heartbeat shows `liveWatchers:N`.
 - To place a real leader order: write a tsx script inside `apps/engine` importing `getExchange` from `@mirrorpip/exchange`, then `placeMarketOrder({apiKey,apiSecret,tradeCurrency:'USDT'},{symbol:'BTCUSD',side:'BUY',qty:1,clientOrderId:'demo-'+Date.now()})`. Run from apps/engine with `set -a; source ../../.env; set +a`. BTCUSD qty is in contracts (~0.001 BTC each ≈ $80-115 notional); ETHUSD qty 1 is a smaller fallback if margin is an issue.
 - Observed copy latency ~3s. Follower's copied qty = leader qty × sizing (PROPORTIONAL value 1 scales by follower/leader equity ratio, e.g. 1 → 0.8311).
 - Verify in UI at the follower follow-detail page `/dashboard/<followId>`: "Copy order log" shows FILLED rows, "Open positions" shows the CopyPosition; admin Overview counts "copies filled 24h".
-- Exchange cred connect calls `adapter.verify()` first — a 401 "invalid_api_key" on a freshly-created Delta testnet key can just be propagation delay; retry before falling back to cloning a credential row in the DB.
+- Exchange cred connect calls `adapter.verify()` first — a 401 "invalid_api_key" on a freshly-created Delta testnet key can just be propagation delay (up to ~5 min); retry before assuming the key is bad.
