@@ -101,6 +101,21 @@ async function copyToFollower(
 
   const exchange = getExchange(follow.credential.exchange);
 
+  // Resolve the follower venue's instrument by canonical identity so a
+  // leader fill from another exchange (e.g. Shark BTCUSDT → Delta BTCUSD)
+  // lands on the right contract. Falls back to the leader symbol for venues
+  // without resolveInstrument.
+  const followerInstrument = exchange.resolveInstrument
+    ? await exchange.resolveInstrument(fill).catch(() => null)
+    : exchange.getInstrument
+      ? await exchange.getInstrument(fill.symbol).catch(() => null)
+      : null;
+  if (!followerInstrument) {
+    await recordSkip(follow.id, leaderFillId, coid, fill, `no matching instrument on ${follow.credential.exchange}`, fill.side, follow.credential.exchange);
+    return;
+  }
+  const followerMult = followerInstrument.contractMultiplier || 1;
+
   // Daily-loss guard: halt this follow if realized losses breach the limit.
   if (follow.dailyLossLimitUsd != null) {
     const agg = await prisma.copyPosition.aggregate({
@@ -133,6 +148,9 @@ async function copyToFollower(
     copyReverse: follow.copyReverse,
   });
 
+  // sized.qty is in base units — convert to the follower venue's qty units.
+  const orderQty = sized.qty / followerMult;
+
   if (sized.qty <= 0) {
     await recordSkip(follow.id, leaderFillId, coid, fill, sized.reason ?? 'size zero', sized.side, follow.credential.exchange);
     return;
@@ -147,9 +165,9 @@ async function copyToFollower(
         leaderFillId,
         exchange: follow.credential.exchange,
         clientOrderId: coid,
-        symbol: fill.symbol,
+        symbol: followerInstrument.symbol,
         side: sized.side,
-        qty: sized.qty,
+        qty: orderQty,
         status: 'PENDING',
       },
     });
@@ -158,12 +176,10 @@ async function copyToFollower(
   }
 
   try {
-    const instrument = exchange.getInstrument ? await exchange.getInstrument(fill.symbol) : null;
-    const contractMultiplier = instrument?.contractMultiplier ?? 1;
     const result = await exchange.placeMarketOrder(toApiCreds(follow.credential), {
-      symbol: fill.symbol,
+      symbol: followerInstrument.symbol,
       side: sized.side,
-      qty: sized.qty,
+      qty: orderQty,
       reduceOnly: sized.reduceOnly,
       clientOrderId: coid,
     });
@@ -188,11 +204,11 @@ async function copyToFollower(
     if (result.filledQty > 0) {
       await applyToPosition(
         follow.id,
-        fill.symbol,
+        followerInstrument.symbol,
         sized.side,
         result.filledQty,
         result.avgPrice ?? fill.price,
-        contractMultiplier,
+        followerMult,
       );
     }
 

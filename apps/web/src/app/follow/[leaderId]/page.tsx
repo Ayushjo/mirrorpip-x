@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
 import { getLeaderPublic, listCredentials } from '@/lib/services/copy';
+import { getExchangeRegistryItem } from '@mirrorpip/exchange';
 import { Badge, Card, fmtPct, fmtUsd } from '@/components/ui';
 import { ShieldIcon, Sparkline } from '@/components/icons';
 import { FollowForm } from '@/components/follow-form';
@@ -42,7 +43,8 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
             <FollowForm
               leaderId={leader.id}
               leaderName={leader.displayName}
-              creds={creds.filter((c) => c.exchange === leader.exchange).map((c) => ({ id: c.id, label: c.label, keyLast4: c.keyLast4, exchange: c.exchange }))}
+              leaderExchange={getExchangeRegistryItem(leader.exchange)?.displayName ?? leader.exchange}
+              creds={creds.map((c) => ({ id: c.id, label: c.label, keyLast4: c.keyLast4, exchange: getExchangeRegistryItem(c.exchange)?.displayName ?? c.exchange }))}
             />
           </div>
         </div>

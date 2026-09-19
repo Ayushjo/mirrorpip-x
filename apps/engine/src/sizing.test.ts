@@ -44,6 +44,17 @@ describe('computeSize', () => {
     expect(computeSize({ ...base, sizingMode: 'MULTIPLIER', sizingValue: 0.5 }).qty).toBeCloseTo(5);
   });
 
+  it('converts contract-quantity fills to base units via contractMultiplier', () => {
+    // Delta-style fill: 10 contracts × 0.001 BTC each → 0.01 BTC base units.
+    const r = computeSize({
+      ...base,
+      sizingMode: 'MULTIPLIER',
+      sizingValue: 1,
+      fill: fill({ qty: 10, contractMultiplier: 0.001 }),
+    });
+    expect(r.qty).toBeCloseTo(0.01);
+  });
+
   it('FIXED_MARGIN sizes by notional / price', () => {
     expect(computeSize({ ...base, sizingMode: 'FIXED_MARGIN', sizingValue: 250 }).qty).toBeCloseTo(2.5);
   });

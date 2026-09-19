@@ -66,8 +66,10 @@ export interface PositionInfo {
 /** A leader fill delivered by the private WebSocket stream. */
 export interface FillEvent {
   externalId: string;
+  /** Venue-native symbol (e.g. "BTCUSD" on Delta, "BTCUSDT" elsewhere). */
   symbol: string;
   side: Side;
+  /** Quantity in the leader venue's native units (contracts or base). */
   qty: number;
   price: number;
   reduceOnly: boolean;
@@ -78,6 +80,12 @@ export interface FillEvent {
   quoteCurrency?: string;
   nativePrice?: number;
   priceUsd?: number;
+  /** Canonical base asset of the instrument (e.g. "BTC") — for cross-venue copy. */
+  baseAsset?: string;
+  /** Canonical quote asset (e.g. "USD" / "USDT" / "INR"). */
+  quoteAsset?: string;
+  /** Base units per leader qty unit (e.g. Delta contract_value 0.001 BTC). */
+  contractMultiplier?: number;
 }
 
 export interface InstrumentInfo {
@@ -119,6 +127,13 @@ export interface Exchange {
   getRecentFills(creds: ApiCredentials, limit?: number): Promise<FillEvent[]>;
 
   getInstrument?(symbol: string): Promise<InstrumentInfo | null>;
+
+  /**
+   * Resolve a venue-native instrument matching a leader fill's canonical
+   * identity (base asset, preferring quote match). Enables cross-venue copy:
+   * a leader's "BTCUSDT" fill resolves to the follower's "BTCUSD" contract.
+   */
+  resolveInstrument?(fill: FillEvent): Promise<InstrumentInfo | null>;
 
   placeMarketOrder(creds: ApiCredentials, order: OrderRequest): Promise<OrderResult>;
 

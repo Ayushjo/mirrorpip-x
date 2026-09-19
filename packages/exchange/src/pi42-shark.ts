@@ -62,11 +62,12 @@ abstract class SignedFuturesExchange implements Exchange {
   async getRecentFills(creds: ApiCredentials, limit = 50): Promise<FillEvent[]> {
     const payload = await this.request(creds, 'GET', `/v1/trades?limit=${Math.min(limit, 100)}`);
     const conversionRate = await this.usdPerNative();
-    return rows(payload).map((f) => this.normalizeFill(f, conversionRate)).filter((f): f is FillEvent => Boolean(f.externalId && f.symbol));
+    const out = await Promise.all(rows(payload).map((f) => this.normalizeFill(f, conversionRate)));
+    return out.filter((f): f is FillEvent => Boolean(f.externalId && f.symbol));
   }
 
-  async getInstrument(symbol: string): Promise<InstrumentInfo | null> {
-    if (this.instruments.has(symbol)) return this.instruments.get(symbol)!;
+  private async loadInstruments(): Promise<Map<string, InstrumentInfo>> {
+    if (this.instruments.size > 0) return this.instruments;
     const response = await fetch(`${this.config.rest}/v1/exchangeInfo`);
     if (!response.ok) throw new ExchangeRequestError(`Could not load ${this.id} instruments`, response.status);
     const payload: any = await response.json();
@@ -77,7 +78,20 @@ abstract class SignedFuturesExchange implements Exchange {
       const info: InstrumentInfo = { symbol: item.symbol, canonicalSymbol: item.symbol, baseAsset: item.baseAsset ?? String(item.symbol).replace(/(USDT|INR)$/, ''), quoteCurrency: item.quoteAsset ?? this.config.currency, contractMultiplier: number(item.contractSize) || 1, minQty: number(lot.minQty ?? item.minOrderQty), qtyStep: number(lot.stepSize ?? item.qtyStep) || 1, minNotional: number(min.notional ?? min.minNotional), orderTypes: item.orderTypes ?? ['MARKET'] };
       this.instruments.set(info.symbol, info);
     }
-    return this.instruments.get(symbol) ?? null;
+    return this.instruments;
+  }
+
+  async getInstrument(symbol: string): Promise<InstrumentInfo | null> {
+    return (await this.loadInstruments()).get(symbol) ?? null;
+  }
+
+  async resolveInstrument(fill: FillEvent): Promise<InstrumentInfo | null> {
+    const instruments = [...(await this.loadInstruments()).values()];
+    if (!fill.baseAsset) return instruments.find((i) => i.symbol === fill.symbol) ?? null;
+    const baseUp = fill.baseAsset.toUpperCase();
+    const quoteUp = fill.quoteAsset?.toUpperCase();
+    const baseMatches = instruments.filter((i) => i.baseAsset?.toUpperCase() === baseUp);
+    return baseMatches.find((i) => i.quoteCurrency?.toUpperCase() === quoteUp) ?? baseMatches[0] ?? null;
   }
 
   async getMarkPrice(symbol: string): Promise<number | null> {
@@ -105,17 +119,18 @@ abstract class SignedFuturesExchange implements Exchange {
     const listenKey = created?.data?.listenKey ?? created?.listenKey;
     if (!listenKey) throw new ExchangeRequestError(`${this.id} did not return a listen key`);
     let socket: Socket | undefined = io(this.config.socket, { transports: ['websocket'], query: { listenKey }, auth: { listenKey } });
-    const deliver = (event: any) => { void this.usdPerNative().then((rate) => { const fill = this.normalizeFill(event?.data ?? event, rate); if (fill.externalId && fill.symbol) handlers.onFill(fill); }).catch((error) => handlers.onError?.(error as Error)); };
+    const deliver = (event: any) => { void this.usdPerNative().then((rate) => this.normalizeFill(event?.data ?? event, rate)).then((fill) => { if (fill.externalId && fill.symbol) handlers.onFill(fill); }).catch((error) => handlers.onError?.(error as Error)); };
     socket.on('trade', deliver).on('executionReport', deliver).on('order_update', deliver).on('connect_error', (error) => handlers.onError?.(error));
     const renewal = setInterval(() => void this.request(creds, 'PUT', '/v1/retail/listen-key', { listenKey }).catch((error) => handlers.onError?.(error as Error)), 45 * 60 * 1000);
     return { close: () => { clearInterval(renewal); socket?.removeAllListeners(); socket?.close(); socket = undefined; void this.request(creds, 'DELETE', '/v1/retail/listen-key', { listenKey }).catch(() => undefined); } };
   }
 
-  private normalizeFill(f: any, conversionRate?: number): FillEvent {
+  private async normalizeFill(f: any, conversionRate?: number): Promise<FillEvent> {
     const symbol = String(f.symbol ?? f.s ?? f.contract ?? '');
     const price = number(f.price ?? f.p ?? f.avgPrice);
     const priceUsd = conversionRate ? price * conversionRate : undefined;
-    return { externalId: String(f.tradeId ?? f.id ?? f.t ?? f.orderId ?? ''), symbol, nativeSymbol: symbol, canonicalSymbol: symbol, quoteCurrency: this.config.currency, side: String(f.side ?? f.S).toUpperCase() === 'SELL' ? 'SELL' : 'BUY', qty: number(f.quantity ?? f.qty ?? f.q ?? f.executedQty), price: priceUsd ?? price, nativePrice: price, priceUsd, reduceOnly: Boolean(f.reduceOnly), timestamp: new Date(number(f.timestamp ?? f.time ?? f.T) || Date.now()) };
+    const instrument = symbol ? await this.getInstrument(symbol).catch(() => null) : null;
+    return { externalId: String(f.tradeId ?? f.id ?? f.t ?? f.orderId ?? ''), symbol, nativeSymbol: symbol, canonicalSymbol: symbol, quoteCurrency: this.config.currency, baseAsset: instrument?.baseAsset, quoteAsset: instrument?.quoteCurrency, contractMultiplier: instrument?.contractMultiplier, side: String(f.side ?? f.S).toUpperCase() === 'SELL' ? 'SELL' : 'BUY', qty: number(f.quantity ?? f.qty ?? f.q ?? f.executedQty), price: priceUsd ?? price, nativePrice: price, priceUsd, reduceOnly: Boolean(f.reduceOnly), timestamp: new Date(number(f.timestamp ?? f.time ?? f.T) || Date.now()) };
   }
 
   private async usdPerNative(): Promise<number | undefined> {

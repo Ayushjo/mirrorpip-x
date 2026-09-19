@@ -130,6 +130,30 @@ async function productIdFor(symbol: string): Promise<number> {
   return p.id;
 }
 
+/** Canonical identity of a Delta product symbol for cross-venue matching. */
+function productMeta(p?: DeltaProduct): { baseAsset?: string; quoteAsset?: string; contractMultiplier?: number } {
+  if (!p) return {};
+  return {
+    baseAsset: p.contract_unit_currency,
+    quoteAsset: p.quoting_asset?.symbol,
+    contractMultiplier: num(p.contract_value, 1),
+  };
+}
+
+/** Exact base+quote match preferred; falls back to base-asset only (different quote is still the same directional exposure). */
+function matchInstrument<T extends { base?: string; quote?: string }>(
+  items: T[],
+  baseAsset: string | undefined,
+  quoteAsset: string | undefined,
+  pick: (item: T) => boolean,
+): T | undefined {
+  if (!baseAsset) return undefined;
+  const baseUp = baseAsset.toUpperCase();
+  const quoteUp = quoteAsset?.toUpperCase();
+  const baseMatches = items.filter((i) => i.base?.toUpperCase() === baseUp && pick(i));
+  return baseMatches.find((i) => i.quote?.toUpperCase() === quoteUp) ?? baseMatches[0];
+}
+
 // ─── shapes ─────────────────────────────────────────────────────────────────
 
 interface DeltaBalance {
@@ -203,6 +227,20 @@ export class DeltaIndiaExchange implements Exchange {
     };
   }
 
+  async resolveInstrument(fill: FillEvent): Promise<InstrumentInfo | null> {
+    const products = [...(await loadProducts()).values()].map((p) => ({
+      p,
+      base: p.contract_unit_currency,
+      quote: p.quoting_asset?.symbol,
+    }));
+    // If the fill lacks canonical fields, its symbol may still be a native
+    // Delta symbol — look it up directly first.
+    const direct = products.find((x) => x.p.symbol === fill.symbol);
+    if (direct && !fill.baseAsset) return this.getInstrument(direct.p.symbol);
+    const match = matchInstrument(products, fill.baseAsset, fill.quoteAsset, (x) => x.p.state !== 'expired');
+    return match ? this.getInstrument(match.p.symbol) : null;
+  }
+
   async getPositions(creds: ApiCredentials): Promise<PositionInfo[]> {
     const positions = await signedRequest<DeltaPosition[]>(creds, 'GET', '/v2/positions/margined');
     return positions
@@ -221,6 +259,7 @@ export class DeltaIndiaExchange implements Exchange {
     const rows = await signedRequest<Array<Record<string, unknown>>>(creds, 'GET', '/v2/fills', {
       query: { page_size: limit },
     }).catch(() => [] as Array<Record<string, unknown>>);
+    const products = await loadProducts().catch(() => new Map<string, DeltaProduct>());
     const out: FillEvent[] = [];
     for (const f of rows) {
       const side = String(f.side ?? '').toUpperCase();
@@ -245,6 +284,7 @@ export class DeltaIndiaExchange implements Exchange {
         reduceOnly: Boolean(f.reduce_only),
         positionKey: String(symbol),
         timestamp: ts,
+        ...productMeta(products.get(String(symbol))),
       });
     }
     return out;
@@ -364,16 +404,22 @@ export class DeltaIndiaExchange implements Exchange {
 
       if (!fillId || !symbol || (sideRaw !== 'BUY' && sideRaw !== 'SELL') || size <= 0) return;
 
-      handlers.onFill({
-        externalId: String(fillId),
-        symbol: String(symbol),
-        side: sideRaw as 'BUY' | 'SELL',
-        qty: size,
-        price,
-        reduceOnly: Boolean(msg.reduce_only),
-        positionKey: String(symbol),
-        timestamp: ts,
-      });
+      // Attach canonical instrument metadata for cross-venue copy.
+      void loadProducts()
+        .then((products) => {
+          handlers.onFill({
+            externalId: String(fillId),
+            symbol: String(symbol),
+            side: sideRaw as 'BUY' | 'SELL',
+            qty: size,
+            price,
+            reduceOnly: Boolean(msg.reduce_only),
+            positionKey: String(symbol),
+            timestamp: ts,
+            ...productMeta(products.get(String(symbol))),
+          });
+        })
+        .catch((err) => handlers.onError?.(err as Error));
     });
 
     ws.on('error', (err: Error) => handlers.onError?.(err));
