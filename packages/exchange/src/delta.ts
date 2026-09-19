@@ -237,7 +237,10 @@ export class DeltaIndiaExchange implements Exchange {
     // Delta symbol — look it up directly first.
     const direct = products.find((x) => x.p.symbol === fill.symbol);
     if (direct && !fill.baseAsset) return this.getInstrument(direct.p.symbol);
-    const match = matchInstrument(products, fill.baseAsset, fill.quoteAsset, (x) => x.p.state !== 'expired');
+    // Cross-venue match: only live perpetual futures are copy targets —
+    // options/dated futures are never the right destination for a perp fill.
+    const isLivePerp = (x: { p: DeltaProduct }) => x.p.contract_type === 'perpetual_futures' && x.p.state === 'live';
+    const match = matchInstrument(products, fill.baseAsset, fill.quoteAsset, isLivePerp);
     return match ? this.getInstrument(match.p.symbol) : null;
   }
 
