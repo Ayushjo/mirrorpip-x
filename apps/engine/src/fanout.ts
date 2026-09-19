@@ -105,11 +105,19 @@ async function copyToFollower(
   // leader fill from another exchange (e.g. Shark BTCUSDT → Delta BTCUSD)
   // lands on the right contract. Falls back to the leader symbol for venues
   // without resolveInstrument.
-  const followerInstrument = exchange.resolveInstrument
-    ? await exchange.resolveInstrument(fill).catch(() => null)
-    : exchange.getInstrument
-      ? await exchange.getInstrument(fill.symbol).catch(() => null)
-      : null;
+  let followerInstrument;
+  try {
+    followerInstrument = exchange.resolveInstrument
+      ? await exchange.resolveInstrument(fill)
+      : exchange.getInstrument
+        ? await exchange.getInstrument(fill.symbol)
+        : null;
+  } catch (err) {
+    // Transient resolution failure (venue catalog endpoint down): do NOT
+    // claim the idempotency key — the reconcile pass will retry this fill.
+    log.warn('instrument resolution failed; leaving fill for retry', { followId: follow.id, symbol: fill.symbol, err: String(err) });
+    return;
+  }
   if (!followerInstrument) {
     await recordSkip(follow.id, leaderFillId, coid, fill, `no matching instrument on ${follow.credential.exchange}`, fill.side, follow.credential.exchange);
     return;
