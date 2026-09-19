@@ -49,24 +49,32 @@ export async function fanoutLeaderFill(leader: Leader, fill: FillEvent): Promise
     });
   if (!leaderFill) return;
 
-  if (await isKillSwitchOn()) {
-    log.warn('kill-switch on — skipping fan-out', { leaderId: leader.id, fill: fill.externalId });
-    return;
-  }
-
-  // Re-read leader status: the caller's object may be stale (a watcher loaded
-  // it before an admin pause, or the reconcile sweep paged it minutes ago).
-  const liveLeader = await prisma.leader.findUnique({ where: { id: leader.id }, select: { status: true } });
-  if (liveLeader?.status !== 'VERIFIED') {
-    log.warn('leader not verified — skipping fan-out', { leaderId: leader.id, status: liveLeader?.status, fill: fill.externalId });
-    return;
-  }
-
   // 2. Load active follows for this leader.
   const follows = (await prisma.follow.findMany({
     where: { leaderId: leader.id, status: 'ACTIVE' },
     include: { credential: true },
   })) as FollowWithCred[];
+
+  // Suppression claims: if fan-out is halted (kill-switch or the leader was
+  // paused/delisted after the caller loaded it), record a terminal SKIPPED
+  // order per eligible follow instead of leaving the fill unclaimed — the
+  // reconcile sweep treats unclaimed fills as retryable, and a paused-period
+  // fill must never execute late when the halt lifts.
+  let haltReason: string | null = null;
+  if (await isKillSwitchOn()) haltReason = 'kill-switch on';
+  else {
+    const liveLeader = await prisma.leader.findUnique({ where: { id: leader.id }, select: { status: true } });
+    if (liveLeader?.status !== 'VERIFIED') haltReason = `leader not verified (status: ${liveLeader?.status ?? 'deleted'})`;
+  }
+  if (haltReason) {
+    log.warn('fan-out halted — claiming skips', { leaderId: leader.id, fill: fill.externalId, haltReason });
+    for (const follow of follows) {
+      if (follow.startedAt.getTime() > fill.timestamp.getTime()) continue;
+      const coid = clientOrderId(follow.credential.exchange, follow.id, fill.externalId);
+      await recordSkip(follow.id, leaderFill.id, coid, fill, haltReason, fill.side, follow.credential.exchange);
+    }
+    return;
+  }
   if (follows.length === 0) return;
 
   // 3. Leader equity (for proportional sizing) — fetched once.
@@ -172,6 +180,16 @@ async function copyToFollower(
 
   if (sized.qty <= 0) {
     await recordSkip(follow.id, leaderFillId, coid, fill, sized.reason ?? 'size zero', sized.side, follow.credential.exchange);
+    return;
+  }
+
+  // Final leader-status gate immediately before claiming + submitting: an
+  // admin pause committed while account/risk lookups were in flight must stop
+  // this order. (The external API call itself can't be made atomic with the
+  // check — this narrows the window to the claim→submit step.)
+  const liveLeader = await prisma.leader.findUnique({ where: { id: leader.id }, select: { status: true } });
+  if (liveLeader?.status !== 'VERIFIED') {
+    await recordSkip(follow.id, leaderFillId, coid, fill, 'leader paused before order submit', fill.side, follow.credential.exchange);
     return;
   }
 
