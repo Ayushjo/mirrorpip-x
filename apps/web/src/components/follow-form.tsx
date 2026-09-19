@@ -8,6 +8,7 @@ interface Cred {
   id: string;
   label: string;
   keyLast4: string;
+  exchange: string;
 }
 
 const SIZING = [

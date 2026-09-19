@@ -15,27 +15,38 @@ export async function reconcile(): Promise<void> {
 }
 
 async function markPositions(): Promise<void> {
-  const open = await prisma.copyPosition.findMany({ where: { closedAt: null, qty: { gt: 0 } } });
+  const open = await prisma.copyPosition.findMany({
+    where: { closedAt: null, qty: { gt: 0 } },
+    include: { follow: { select: { credential: { select: { exchange: true } } } } },
+  });
   if (open.length === 0) return;
 
-  // Mark price per symbol, fetched once (default Delta India adapter).
-  const exchange = getExchange('DELTA_INDIA');
-  const symbols = [...new Set(open.map((p) => p.symbol))];
-  const marks = new Map<string, number | null>();
+  // Fetch once per venue+symbol; contracts are intentionally never translated.
+  const keys = [...new Set(open.map((p) => `${p.follow.credential.exchange}:${p.symbol}`))];
+  const marks = new Map<string, { price: number | null; multiplier: number }>();
   await Promise.all(
-    symbols.map(async (s) => {
-      marks.set(s, await exchange.getMarkPrice(s).catch(() => null));
+    keys.map(async (key) => {
+      const separator = key.indexOf(':');
+      const exchangeId = key.slice(0, separator);
+      const symbol = key.slice(separator + 1);
+      const exchange = getExchange(exchangeId);
+      const [price, instrument] = await Promise.all([
+        exchange.getMarkPrice(symbol).catch(() => null),
+        exchange.getInstrument?.(symbol).catch(() => null) ?? Promise.resolve(null),
+      ]);
+      marks.set(key, { price, multiplier: instrument?.contractMultiplier ?? 1 });
     }),
   );
 
   for (const pos of open) {
-    const mark = marks.get(pos.symbol);
-    if (mark == null) continue;
+    const mark = marks.get(`${pos.follow.credential.exchange}:${pos.symbol}`);
+    if (!mark || mark.price == null) continue;
     const qty = Number(pos.qty);
     const entry = Number(pos.avgEntry);
-    const unrealized = pos.side === 'LONG' ? (mark - entry) * qty : (entry - mark) * qty;
+    const unrealized =
+      (pos.side === 'LONG' ? mark.price - entry : entry - mark.price) * qty * mark.multiplier;
     await prisma.copyPosition
-      .update({ where: { id: pos.id }, data: { markPrice: mark, unrealizedPnl: unrealized } })
+      .update({ where: { id: pos.id }, data: { markPrice: mark.price, unrealizedPnl: unrealized } })
       .catch(() => undefined);
   }
 }

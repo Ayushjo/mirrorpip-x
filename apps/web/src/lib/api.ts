@@ -6,6 +6,7 @@ export class ApiError extends Error {
   constructor(
     readonly status: number,
     message: string,
+    readonly code?: string,
   ) {
     super(message);
   }
@@ -36,7 +37,7 @@ export async function requireAdmin(): Promise<SessionUser> {
 /** Wrap a route handler so thrown ApiError/ZodError become clean JSON responses. */
 export function route(fn: () => Promise<NextResponse>): Promise<NextResponse> {
   return fn().catch((err: unknown) => {
-    if (err instanceof ApiError) return fail(err.status, err.message);
+    if (err instanceof ApiError) return NextResponse.json({ error: err.message, ...(err.code ? { code: err.code } : {}) }, { status: err.status });
     if (err instanceof ZodError) {
       return fail(400, err.issues.map((i) => `${i.path.join('.')}: ${i.message}`).join('; '));
     }

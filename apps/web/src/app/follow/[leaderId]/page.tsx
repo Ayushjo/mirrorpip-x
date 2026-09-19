@@ -42,7 +42,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
             <FollowForm
               leaderId={leader.id}
               leaderName={leader.displayName}
-              creds={creds.map((c) => ({ id: c.id, label: c.label, keyLast4: c.keyLast4 }))}
+              creds={creds.filter((c) => c.exchange === leader.exchange).map((c) => ({ id: c.id, label: c.label, keyLast4: c.keyLast4, exchange: c.exchange }))}
             />
           </div>
         </div>

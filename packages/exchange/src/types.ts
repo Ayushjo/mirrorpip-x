@@ -4,15 +4,23 @@
 
 export type Side = 'BUY' | 'SELL';
 
+export type ExchangeId = 'DELTA_INDIA' | 'SHARK' | 'PI42' | 'MUDREX' | 'BYBIT';
+export type TradeCurrency = 'USDT' | 'INR';
+
 export interface ApiCredentials {
   apiKey: string;
   apiSecret: string;
+  tradeCurrency?: TradeCurrency;
+  settings?: Record<string, unknown>;
 }
 
 export interface AccountInfo {
   /** Total account equity in the account's settlement/base currency (USD-ish). */
   equityUsd: number;
   baseCurrency: string;
+  nativeEquity?: number;
+  nativeCurrency?: TradeCurrency | string;
+  conversionRate?: number;
 }
 
 export interface VerifyResult extends AccountInfo {
@@ -46,6 +54,13 @@ export interface PositionInfo {
   avgEntry: number;
   markPrice: number | null;
   unrealizedPnl: number;
+  nativeSymbol?: string;
+  canonicalSymbol?: string;
+  quoteCurrency?: string;
+  nativePrice?: number;
+  priceUsd?: number;
+  nativePnl?: number;
+  pnlUsd?: number;
 }
 
 /** A leader fill delivered by the private WebSocket stream. */
@@ -58,6 +73,29 @@ export interface FillEvent {
   reduceOnly: boolean;
   positionKey?: string;
   timestamp: Date;
+  nativeSymbol?: string;
+  canonicalSymbol?: string;
+  quoteCurrency?: string;
+  nativePrice?: number;
+  priceUsd?: number;
+}
+
+export interface InstrumentInfo {
+  symbol: string;
+  canonicalSymbol: string;
+  baseAsset: string;
+  quoteCurrency: string;
+  contractMultiplier: number;
+  minQty: number;
+  qtyStep: number;
+  minNotional: number;
+  orderTypes: string[];
+}
+
+export interface ExchangeCapabilities {
+  fillSource: 'WEBSOCKET' | 'POLLING';
+  currencies: readonly TradeCurrency[];
+  liveOrdersEnabled: boolean;
 }
 
 export interface FillStream {
@@ -67,7 +105,8 @@ export interface FillStream {
 
 /** Contract every venue adapter fulfills. */
 export interface Exchange {
-  readonly id: 'DELTA_INDIA' | 'BYBIT';
+  readonly id: ExchangeId;
+  readonly capabilities?: ExchangeCapabilities;
 
   /** Validate credentials with a lightweight authenticated read. */
   verify(creds: ApiCredentials): Promise<VerifyResult>;
@@ -78,6 +117,8 @@ export interface Exchange {
 
   /** Most recent account fills (newest first), for reconnect backfill. */
   getRecentFills(creds: ApiCredentials, limit?: number): Promise<FillEvent[]>;
+
+  getInstrument?(symbol: string): Promise<InstrumentInfo | null>;
 
   placeMarketOrder(creds: ApiCredentials, order: OrderRequest): Promise<OrderResult>;
 

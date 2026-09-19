@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
 export const connectCredentialSchema = z.object({
-  exchange: z.enum(['DELTA_INDIA']).default('DELTA_INDIA'),
+  exchange: z.enum(['DELTA_INDIA', 'SHARK', 'PI42', 'MUDREX']).default('DELTA_INDIA'),
+  tradeCurrency: z.enum(['USDT', 'INR']).default('USDT'),
+  settings: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).default({}),
   label: z.string().trim().min(1).max(40).default('My account'),
   apiKey: z.string().trim().min(8, 'API key looks too short.').max(200),
   apiSecret: z.string().trim().min(8, 'API secret looks too short.').max(400),

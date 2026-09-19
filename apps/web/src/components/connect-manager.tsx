@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Badge, Button, Card, EmptyState, Field, Input, cx, fmtUsd } from './ui';
+import { Badge, Button, Card, EmptyState, Field, Input, Select, cx, fmtUsd } from './ui';
 import { ShieldIcon, LinkIcon, CheckIcon, UsersIcon } from './icons';
 
 interface Credential {
@@ -10,17 +10,31 @@ interface Credential {
   label: string;
   keyLast4: string;
   baseCurrency: string;
+  tradeCurrency: string;
   status: string;
   isLeader: boolean;
   leaderStatus: string | null;
   equityUsd: number | null;
+  lastError?: string | null;
 }
 
-export function ConnectManager({ initial }: { initial: Credential[] }) {
+interface ExchangeOption {
+  id: string;
+  displayName: string;
+  availability: 'ACTIVE' | 'DISABLED' | 'COMING_SOON';
+  message?: string;
+  supportedCurrencies: Array<'USDT' | 'INR'>;
+  credentialInstructions: string;
+}
+
+export function ConnectManager({ initial, exchanges }: { initial: Credential[]; exchanges: ExchangeOption[] }) {
   const [creds, setCreds] = useState<Credential[]>(initial);
   const [label, setLabel] = useState('My account');
   const [apiKey, setApiKey] = useState('');
   const [apiSecret, setApiSecret] = useState('');
+  const [exchangeId, setExchangeId] = useState('DELTA_INDIA');
+  const selected = exchanges.find((exchange) => exchange.id === exchangeId)!;
+  const [tradeCurrency, setTradeCurrency] = useState<'USDT' | 'INR'>('USDT');
   const [error, setError] = useState<string | null>(null);
   const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -61,7 +75,7 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
       const res = await fetch('/api/credentials', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ exchange: 'DELTA_INDIA', label, apiKey, apiSecret }),
+        body: JSON.stringify({ exchange: exchangeId, tradeCurrency, settings: {}, label, apiKey, apiSecret }),
       });
       const body = await res.json();
       if (!res.ok) {
@@ -89,31 +103,46 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
   }
 
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="space-y-6">
+      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+        {exchanges.map((exchange) => (
+          <button key={exchange.id} type="button" disabled={exchange.availability !== 'ACTIVE'} onClick={() => { setExchangeId(exchange.id); setTradeCurrency(exchange.supportedCurrencies[0] ?? 'USDT'); }} className={cx('rounded-2xl border p-5 text-left transition', exchange.id === exchangeId ? 'border-brand bg-brand-soft/50' : 'border-border bg-white', exchange.availability !== 'ACTIVE' && 'cursor-not-allowed opacity-45')}>
+            <div className="font-medium">{exchange.displayName}</div>
+            <div className="mt-1 text-xs text-muted">{exchange.message ?? exchange.supportedCurrencies.join(' / ')}</div>
+          </button>
+        ))}
+      </div>
+      <div className="grid gap-6 lg:grid-cols-2">
       <div>
         <Card>
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand">
               <LinkIcon />
             </div>
-            <h2 className="text-base font-semibold">Connect a Delta India account</h2>
+            <h2 className="text-base font-semibold">Connect a {selected?.displayName} account</h2>
           </div>
           <div className="mt-4 flex items-start gap-2 rounded-xl border border-border-soft bg-surface-2 px-3.5 py-3 text-xs text-muted">
             <span className="mt-0.5 text-brand">
               <ShieldIcon width={16} height={16} />
             </span>
             <span>
-              Create an API key with <span className="text-fg">Trading enabled</span> and{' '}
-              <span className="text-fg">Withdrawals disabled</span>. We verify it, encrypt it with AES-256-GCM, and never
-              show it again.
+              {selected?.credentialInstructions} We verify it with a read-only account call, encrypt it with AES-256-GCM,
+              and never show the secret again.
             </span>
           </div>
           <form onSubmit={add} className="mt-5 space-y-4">
             <Field label="Label">
               <Input value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} required />
             </Field>
+            {selected?.supportedCurrencies.length > 1 && (
+              <Field label="Trading currency">
+                <Select value={tradeCurrency} onChange={(e) => setTradeCurrency(e.target.value as 'USDT' | 'INR')}>
+                  {selected.supportedCurrencies.map((currency) => <option key={currency}>{currency}</option>)}
+                </Select>
+              </Field>
+            )}
             <Field label="API key">
-              <Input value={apiKey} onChange={(e) => setApiKey(e.target.value)} required placeholder="delta api key" autoComplete="off" />
+              <Input value={apiKey} onChange={(e) => setApiKey(e.target.value)} required placeholder="exchange API key" autoComplete="off" />
             </Field>
             <Field label="API secret" hint="Stored AES-256-GCM encrypted. Never displayed after this.">
               <Input
@@ -121,7 +150,7 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                 value={apiSecret}
                 onChange={(e) => setApiSecret(e.target.value)}
                 required
-                placeholder="delta api secret"
+                placeholder="exchange API secret"
                 autoComplete="off"
               />
             </Field>
@@ -178,9 +207,10 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
                         {c.leaderStatus === 'DELISTED' && <Badge tone="down">Delisted</Badge>}
                       </div>
                       <div className="mt-1 text-xs text-faint">
-                        Delta India · key ••••{c.keyLast4}
+                        {exchanges.find((exchange) => exchange.id === c.exchange)?.displayName ?? c.exchange} · {c.tradeCurrency} · key ••••{c.keyLast4}
                         {c.equityUsd != null && <> · {fmtUsd(c.equityUsd)}</>}
                       </div>
+                      {c.lastError && <div className="mt-1 text-xs text-down">Reconnect required: {c.lastError}</div>}
                     </div>
                   </div>
                   <div className="flex items-center gap-1">
@@ -217,6 +247,7 @@ export function ConnectManager({ initial }: { initial: Credential[] }) {
             ))}
           </div>
         )}
+      </div>
       </div>
     </div>
   );

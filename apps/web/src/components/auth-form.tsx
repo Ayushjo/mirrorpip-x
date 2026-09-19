@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { signIn, signUp } from '@/lib/auth-client';
 import { Button, Field, Input } from './ui';
 import { CheckIcon } from './icons';
@@ -17,6 +17,25 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const [busy, setBusy] = useState(false);
 
   const isRegister = mode === 'register';
+  const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
+  const [oauthError, setOauthError] = useState<string | null>(null);
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get('error') === 'oauth') {
+      setOauthError('Google sign-in was cancelled or could not be completed. Please try again or use email and password.');
+    }
+  }, []);
+
+  async function signInWithGoogle() {
+    setError(null);
+    setBusy(true);
+    try {
+      const result = await signIn.social({ provider: 'google', callbackURL: '/dashboard', errorCallbackURL: '/login?error=oauth' });
+      if (result?.error) setError('Google sign-in could not be completed. Please try again.');
+    } catch {
+      setError('Google sign-in could not be completed. Please try again.');
+      setBusy(false);
+    }
+  }
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -48,7 +67,16 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         {isRegister ? 'Start copying verified traders in minutes.' : 'Sign in to your dashboard.'}
       </p>
 
-      <form onSubmit={submit} className="mt-8 space-y-4">
+      {googleEnabled && (
+        <>
+          <Button type="button" className="mt-8 w-full justify-center" disabled={busy} onClick={signInWithGoogle}>
+            Continue with Google
+          </Button>
+          <div className="my-5 flex items-center gap-3 text-xs text-faint"><span className="h-px flex-1 bg-border" />or<span className="h-px flex-1 bg-border" /></div>
+        </>
+      )}
+
+      <form onSubmit={submit} className={googleEnabled ? 'space-y-4' : 'mt-8 space-y-4'}>
         {isRegister && (
           <Field label="Name">
             <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Jordan Trader" autoComplete="name" />
@@ -76,7 +104,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           />
         </Field>
 
-        {error && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
+        {(error || oauthError) && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error ?? oauthError}</p>}
 
         <Button type="submit" arrow className="w-full justify-center" disabled={busy}>
           {busy ? 'Please wait…' : isRegister ? 'Create account' : 'Sign in'}

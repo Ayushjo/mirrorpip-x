@@ -1,5 +1,5 @@
 import { prisma } from '@mirrorpip/db';
-import { encryptSecret, getExchange, last4, ExchangeAuthError } from '@mirrorpip/exchange';
+import { decryptSecret, encryptSecret, fingerprintApiKey, getExchange, getExchangeRegistryItem, last4, ExchangeAuthError } from '@mirrorpip/exchange';
 import { ApiError } from '../api.js';
 import { dec, decOr0, iso } from '../serialize.js';
 import type {
@@ -10,7 +10,7 @@ import type {
   ApplyLeaderInput,
 } from '../validation.js';
 
-const MAX_CREDENTIALS_PER_USER = 5;
+const MAX_CREDENTIALS_PER_USER = 8;
 
 // ─── Credentials ───────────────────────────────────────────────────────────
 
@@ -21,27 +21,53 @@ export async function addCredential(userId: string, input: ConnectCredentialInpu
   }
 
   const exchange = getExchange(input.exchange);
+  const registry = getExchangeRegistryItem(input.exchange);
+  if (!registry || registry.availability !== 'ACTIVE') throw new ApiError(409, 'That exchange is not available.');
+  if (!registry.supportedCurrencies.includes(input.tradeCurrency)) throw new ApiError(400, `${input.tradeCurrency} is not supported for ${registry.displayName}.`);
+  const apiKeyFingerprint = fingerprintApiKey(input.exchange, input.apiKey);
+  const existingCredentials = await prisma.exchangeCredential.findMany({
+    where: { exchange: input.exchange, status: { not: 'REVOKED' } },
+    select: { apiKeyFingerprint: true, apiKeyEnc: true },
+  });
+  const duplicate = existingCredentials.some((credential) =>
+    credential.apiKeyFingerprint === apiKeyFingerprint ||
+    (!credential.apiKeyFingerprint && decryptSecret(credential.apiKeyEnc).trim() === input.apiKey.trim()),
+  );
+  if (duplicate) throw new ApiError(409, 'This exchange API key is already connected.', 'DUPLICATE_EXCHANGE_ACCOUNT');
   let verified;
   try {
-    verified = await exchange.verify({ apiKey: input.apiKey, apiSecret: input.apiSecret });
+    verified = await exchange.verify({ apiKey: input.apiKey, apiSecret: input.apiSecret, tradeCurrency: input.tradeCurrency, settings: input.settings });
   } catch (err) {
     if (err instanceof ExchangeAuthError) throw new ApiError(400, 'Those API keys were rejected by the exchange. Check the key, secret, and that it has trade permission.');
     throw new ApiError(502, `Could not reach the exchange to verify the key: ${String(err)}`);
   }
+  if (!verified.canTrade) throw new ApiError(400, 'This API key does not have trading permission. Enable read and trading access, with withdrawals disabled.');
 
-  const cred = await prisma.exchangeCredential.create({
-    data: {
-      userId,
-      exchange: input.exchange,
-      label: input.label,
-      apiKeyEnc: encryptSecret(input.apiKey),
-      apiSecretEnc: encryptSecret(input.apiSecret),
-      keyLast4: last4(input.apiKey),
-      baseCurrency: verified.baseCurrency,
-      status: 'ACTIVE',
-      verifiedAt: new Date(),
-    },
-  });
+  let cred;
+  try {
+    cred = await prisma.exchangeCredential.create({
+      data: {
+        userId,
+        exchange: input.exchange,
+        label: input.label,
+        apiKeyEnc: encryptSecret(input.apiKey),
+        apiSecretEnc: encryptSecret(input.apiSecret),
+        keyLast4: last4(input.apiKey),
+        apiKeyFingerprint,
+        baseCurrency: verified.baseCurrency,
+        tradeCurrency: input.tradeCurrency,
+        settings: input.settings,
+        status: 'ACTIVE',
+        verifiedAt: new Date(),
+        lastCheckedAt: new Date(),
+      },
+    });
+  } catch (error) {
+    if (typeof error === 'object' && error && 'code' in error && error.code === 'P2002') {
+      throw new ApiError(409, 'This exchange API key is already connected.', 'DUPLICATE_EXCHANGE_ACCOUNT');
+    }
+    throw error;
+  }
   return serializeCredential(cred, verified.equityUsd);
 }
 
@@ -72,8 +98,11 @@ function serializeCredential(
     label: string;
     keyLast4: string;
     baseCurrency: string;
+    tradeCurrency: string;
     status: string;
     verifiedAt: Date | null;
+    lastCheckedAt?: Date | null;
+    lastError?: string | null;
     createdAt: Date;
     leaderProfile?: { id: string; status?: string } | null;
   },
@@ -85,10 +114,13 @@ function serializeCredential(
     label: c.label,
     keyLast4: c.keyLast4,
     baseCurrency: c.baseCurrency,
+    tradeCurrency: c.tradeCurrency,
     status: c.status,
     isLeader: Boolean(c.leaderProfile),
     leaderStatus: c.leaderProfile?.status ?? null,
     verifiedAt: iso(c.verifiedAt),
+    lastCheckedAt: iso(c.lastCheckedAt ?? null),
+    lastError: c.lastError ?? null,
     createdAt: iso(c.createdAt),
     equityUsd: equityUsd ?? null,
   };
@@ -176,6 +208,7 @@ export async function createFollow(userId: string, input: CreateFollowInput) {
   if (!leader || leader.status !== 'VERIFIED') throw new ApiError(404, 'Leader not available.');
   if (!cred) throw new ApiError(404, 'Connected account not found.');
   if (cred.status !== 'ACTIVE') throw new ApiError(409, 'That account is not active.');
+  if (cred.exchange !== leader.exchange) throw new ApiError(409, 'The follower account must use the same exchange as the leader.', 'EXCHANGE_MISMATCH');
   if (leader.credentialId === cred.id) throw new ApiError(409, 'You cannot follow yourself with the same account.');
 
   const existing = await prisma.follow.findUnique({
@@ -208,7 +241,7 @@ export async function listFollows(userId: string) {
     where: { followerUserId: userId, status: { not: 'STOPPED' } },
     include: {
       leader: { include: { stats: { where: { window: 'all' } } } },
-      credential: { select: { label: true, keyLast4: true } },
+      credential: { select: { label: true, keyLast4: true, exchange: true } },
       copyPositions: true,
     },
     orderBy: { createdAt: 'desc' },
@@ -221,7 +254,7 @@ export async function listFollows(userId: string) {
     maxPositionUsd: dec(f.maxPositionUsd),
     dailyLossLimitUsd: dec(f.dailyLossLimitUsd),
     copyReverse: f.copyReverse,
-    account: { label: f.credential.label, keyLast4: f.credential.keyLast4 },
+    account: { label: f.credential.label, keyLast4: f.credential.keyLast4, exchange: f.credential.exchange },
     leader: serializeLeaderCard(f.leader),
     openPnl: f.copyPositions.filter((p) => !p.closedAt).reduce((s, p) => s + decOr0(p.unrealizedPnl), 0),
     realizedPnl: f.copyPositions.reduce((s, p) => s + decOr0(p.realizedPnl), 0),
@@ -234,7 +267,7 @@ export async function getFollowDetail(userId: string, id: string) {
     where: { id, followerUserId: userId },
     include: {
       leader: { include: { stats: { where: { window: 'all' } } } },
-      credential: { select: { label: true, keyLast4: true } },
+      credential: { select: { label: true, keyLast4: true, exchange: true } },
       copyPositions: { orderBy: { updatedAt: 'desc' } },
       copyOrders: { orderBy: { requestedAt: 'desc' }, take: 50 },
     },
@@ -248,7 +281,7 @@ export async function getFollowDetail(userId: string, id: string) {
     maxPositionUsd: dec(follow.maxPositionUsd),
     dailyLossLimitUsd: dec(follow.dailyLossLimitUsd),
     copyReverse: follow.copyReverse,
-    account: { label: follow.credential.label, keyLast4: follow.credential.keyLast4 },
+    account: { label: follow.credential.label, keyLast4: follow.credential.keyLast4, exchange: follow.credential.exchange },
     leader: serializeLeaderCard(follow.leader),
     positions: follow.copyPositions.map((p) => ({
       id: p.id,

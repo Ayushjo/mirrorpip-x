@@ -51,4 +51,10 @@ describe('applyFill', () => {
     expect(r.realizedDelta).toBe(20); // (110-100)*2 on the closed 2
     expect(r.closed).toBe(false);
   });
+
+  it('applies a futures contract multiplier to realized P&L', () => {
+    const r = applyFill({ side: 'LONG', qty: 1, avgEntry: 81_000 }, 'SELL', 1, 81_100, 0.001);
+    expect(r.closed).toBe(true);
+    expect(r.realizedDelta).toBeCloseTo(0.1, 10);
+  });
 });

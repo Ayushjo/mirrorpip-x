@@ -9,9 +9,10 @@ import { log } from './log.js';
 type FollowWithCred = Follow & { credential: ExchangeCredential };
 
 /** Deterministic idempotency key: one copy order per (follow, leader fill). */
-function clientOrderId(followId: string, fillExternalId: string): string {
-  // Delta client_order_id has a length cap; keep it short but unique.
-  return `mpx_${followId.slice(-8)}_${fillExternalId.slice(-16)}`;
+function clientOrderId(exchange: string, followId: string, fillExternalId: string): string {
+  // This full internal key stays in our DB. Each adapter converts it to its
+  // venue's permitted length/characters at the API boundary.
+  return `mpx:${exchange}:${followId}:${fillExternalId}`;
 }
 
 /**
@@ -85,7 +86,14 @@ async function copyToFollower(
   // open positions the follower never opted into.
   if (follow.startedAt.getTime() > fill.timestamp.getTime()) return;
 
-  const coid = clientOrderId(follow.id, fill.externalId);
+  const coid = clientOrderId(follow.credential.exchange, follow.id, fill.externalId);
+
+  // USD limits must never be evaluated against an INR-labelled price. INR
+  // adapters populate priceUsd only when their short-lived FX quote is fresh.
+  if (fill.quoteCurrency === 'INR' && (fill.priceUsd == null || fill.priceUsd <= 0)) {
+    await recordSkip(follow.id, leaderFillId, coid, fill, 'INR/USD conversion quote unavailable or stale', fill.side, follow.credential.exchange);
+    return;
+  }
 
   // Idempotency: bail if we already created a copy order for this pair.
   const existing = await prisma.copyOrder.findUnique({ where: { clientOrderId: coid } });
@@ -101,7 +109,7 @@ async function copyToFollower(
     });
     const realized = Number(agg._sum.realizedPnl ?? 0);
     if (realized <= -Math.abs(Number(follow.dailyLossLimitUsd))) {
-      await recordSkip(follow.id, leaderFillId, coid, fill, 'daily loss limit reached');
+      await recordSkip(follow.id, leaderFillId, coid, fill, 'daily loss limit reached', fill.side, follow.credential.exchange);
       return;
     }
   }
@@ -111,7 +119,7 @@ async function copyToFollower(
   try {
     followerEquityUsd = (await exchange.getAccount(toApiCreds(follow.credential))).equityUsd;
   } catch (err) {
-    await recordSkip(follow.id, leaderFillId, coid, fill, `follower account read failed: ${String(err)}`);
+    await recordSkip(follow.id, leaderFillId, coid, fill, `follower account read failed: ${String(err)}`, fill.side, follow.credential.exchange);
     return;
   }
 
@@ -126,7 +134,7 @@ async function copyToFollower(
   });
 
   if (sized.qty <= 0) {
-    await recordSkip(follow.id, leaderFillId, coid, fill, sized.reason ?? 'size zero', sized.side);
+    await recordSkip(follow.id, leaderFillId, coid, fill, sized.reason ?? 'size zero', sized.side, follow.credential.exchange);
     return;
   }
 
@@ -150,6 +158,8 @@ async function copyToFollower(
   }
 
   try {
+    const instrument = exchange.getInstrument ? await exchange.getInstrument(fill.symbol) : null;
+    const contractMultiplier = instrument?.contractMultiplier ?? 1;
     const result = await exchange.placeMarketOrder(toApiCreds(follow.credential), {
       symbol: fill.symbol,
       side: sized.side,
@@ -176,7 +186,14 @@ async function copyToFollower(
     });
 
     if (result.filledQty > 0) {
-      await applyToPosition(follow.id, fill.symbol, sized.side, result.filledQty, result.avgPrice ?? fill.price);
+      await applyToPosition(
+        follow.id,
+        fill.symbol,
+        sized.side,
+        result.filledQty,
+        result.avgPrice ?? fill.price,
+        contractMultiplier,
+      );
     }
 
     log.info('copied fill', {
@@ -203,12 +220,14 @@ async function recordSkip(
   fill: FillEvent,
   reason: string,
   side: 'BUY' | 'SELL' = fill.side,
+  exchange: 'DELTA_INDIA' | 'SHARK' | 'PI42' | 'MUDREX' | 'BYBIT' = 'DELTA_INDIA',
 ): Promise<void> {
   await prisma.copyOrder
     .create({
       data: {
         followId,
         leaderFillId,
+        exchange,
         clientOrderId: coid,
         symbol: fill.symbol,
         side,
@@ -231,6 +250,7 @@ async function applyToPosition(
   side: 'BUY' | 'SELL',
   qty: number,
   price: number,
+  contractMultiplier: number,
 ): Promise<void> {
   const existing = await prisma.copyPosition.findUnique({ where: { followId_symbol: { followId, symbol } } });
   const current =
@@ -238,7 +258,7 @@ async function applyToPosition(
       ? { side: existing.side as 'LONG' | 'SHORT', qty: Number(existing.qty), avgEntry: Number(existing.avgEntry) }
       : null;
 
-  const r = applyFill(current, side, qty, price);
+  const r = applyFill(current, side, qty, price, contractMultiplier);
 
   await prisma.copyPosition.upsert({
     where: { followId_symbol: { followId, symbol } },

@@ -84,6 +84,9 @@ model Verification {
 
 enum Exchange {
   DELTA_INDIA
+  SHARK
+  PI42
+  MUDREX
   BYBIT // reserved for a later adapter
 }
 
@@ -144,10 +147,15 @@ model ExchangeCredential {
   apiSecretEnc String
   // Last 4 chars of the public API key — safe to show for identification.
   keyLast4 String
+  // Stable keyed digest used only to prevent connecting one exchange account twice.
+  apiKeyFingerprint String?
 
   baseCurrency String           @default("USD")
+  tradeCurrency String          @default("USDT")
+  settings      Json            @default("{}")
   status       CredentialStatus @default(ACTIVE)
   verifiedAt   DateTime?
+  lastCheckedAt DateTime?
   lastError    String?
 
   createdAt DateTime @default(now())
@@ -157,6 +165,7 @@ model ExchangeCredential {
   follows       Follow[] @relation("FollowerCredential")
 
   @@index([userId])
+  @@unique([exchange, apiKeyFingerprint])
   @@map("exchange_credential")
 }
 

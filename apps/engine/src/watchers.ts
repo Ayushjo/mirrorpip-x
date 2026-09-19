@@ -1,5 +1,5 @@
 import { prisma, type Leader } from '@mirrorpip/db';
-import { type FillStream, getExchange } from '@mirrorpip/exchange';
+import { ExchangeAuthError, type FillStream, getExchange } from '@mirrorpip/exchange';
 import { toApiCreds } from './creds.js';
 import { fanoutLeaderFill } from './fanout.js';
 import { log } from './log.js';
@@ -87,6 +87,12 @@ async function startWatcher(leader: Leader): Promise<void> {
       .then((fills) => Promise.allSettled(fills.map((f) => fanoutLeaderFill(leader, f))))
       .catch((err) => log.debug('backfill failed', { leaderId: leader.id, err: String(err) }));
   } catch (err) {
+    if (err instanceof ExchangeAuthError) {
+      await prisma.$transaction([
+        prisma.exchangeCredential.update({ where: { id: leader.credentialId }, data: { status: 'INVALID', lastError: 'Credentials were rejected. Reconnect this account.' } }),
+        prisma.follow.updateMany({ where: { leaderId: leader.id, status: 'ACTIVE' }, data: { status: 'PAUSED', pausedAt: new Date() } }),
+      ]).catch(() => undefined);
+    }
     state.stream = null;
     state.starting = false;
     state.failUntil = Date.now() + BACKOFF_MS;

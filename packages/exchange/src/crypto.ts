@@ -1,4 +1,4 @@
-import { createCipheriv, createDecipheriv, randomBytes } from 'node:crypto';
+import { createCipheriv, createDecipheriv, createHmac, randomBytes } from 'node:crypto';
 
 // AES-256-GCM secret vault for exchange API keys.
 // Stored form: base64(iv):base64(authTag):base64(ciphertext).
@@ -48,4 +48,14 @@ export function decryptSecret(stored: string): string {
 /** Last 4 chars of a public API key — safe to persist and display. */
 export function last4(apiKey: string): string {
   return apiKey.slice(-4);
+}
+
+/**
+ * Stable, non-reversible identity for duplicate-key detection. The API key is
+ * never stored in plaintext and the fingerprint cannot be used to authenticate.
+ */
+export function fingerprintApiKey(exchange: string, apiKey: string): string {
+  return createHmac('sha256', getKey())
+    .update(`${exchange}:${apiKey.trim()}`)
+    .digest('hex');
 }

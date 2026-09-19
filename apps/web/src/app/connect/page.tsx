@@ -3,6 +3,7 @@ import { getSessionUser } from '@/lib/session';
 import { listCredentials } from '@/lib/services/copy';
 import { ConnectManager } from '@/components/connect-manager';
 import { MediaBanner } from '@/components/media-banner';
+import { exchangeRegistry } from '@mirrorpip/exchange';
 
 export const dynamic = 'force-dynamic';
 
@@ -23,7 +24,7 @@ export default async function ConnectPage() {
           </p>
         </div>
       </MediaBanner>
-      <ConnectManager initial={creds} />
+      <ConnectManager initial={creds} exchanges={exchangeRegistry} />
     </div>
   );
 }

@@ -1,4 +1,4 @@
-import { createHmac } from 'node:crypto';
+import { createHash, createHmac } from 'node:crypto';
 import WebSocket from 'ws';
 import {
   type ApiCredentials,
@@ -6,6 +6,7 @@ import {
   type Exchange,
   type FillEvent,
   type FillStream,
+  type InstrumentInfo,
   type OrderRequest,
   type OrderResult,
   type PositionInfo,
@@ -102,6 +103,10 @@ interface DeltaProduct {
   symbol: string;
   contract_type?: string;
   state?: string;
+  contract_value?: string;
+  contract_unit_currency?: string;
+  quoting_asset?: { symbol?: string };
+  tick_size?: string;
 }
 
 let productCache: Map<string, DeltaProduct> | null = null;
@@ -175,11 +180,27 @@ export class DeltaIndiaExchange implements Exchange {
   }
 
   async verify(creds: ApiCredentials): Promise<VerifyResult> {
-    const account = await this.getAccount(creds);
-    // A successful signed read proves the key + signature work. We assume trade
-    // scope (users are instructed to create a trade-enabled key); a rejected
-    // order later surfaces a clear permission error.
+    // Delta documents wallet and position APIs as requiring Trading permission.
+    // Calling both verifies the scope without creating, editing, or cancelling
+    // an order.
+    const [account] = await Promise.all([this.getAccount(creds), this.getPositions(creds)]);
     return { ok: true, canTrade: true, ...account };
+  }
+
+  async getInstrument(symbol: string): Promise<InstrumentInfo | null> {
+    const product = (await loadProducts()).get(symbol);
+    if (!product) return null;
+    return {
+      symbol,
+      canonicalSymbol: symbol,
+      baseAsset: product.contract_unit_currency ?? symbol.replace(/USD(T)?$/, ''),
+      quoteCurrency: product.quoting_asset?.symbol ?? 'USD',
+      contractMultiplier: num(product.contract_value, 1),
+      minQty: 1,
+      qtyStep: 1,
+      minNotional: 0,
+      orderTypes: ['MARKET', 'LIMIT'],
+    };
   }
 
   async getPositions(creds: ApiCredentials): Promise<PositionInfo[]> {
@@ -245,7 +266,7 @@ export class DeltaIndiaExchange implements Exchange {
       order_type: 'market_order',
       time_in_force: 'ioc',
       reduce_only: order.reduceOnly ?? false,
-      client_order_id: order.clientOrderId,
+      client_order_id: `mpx_${createHash('sha256').update(order.clientOrderId).digest('hex').slice(0, 24)}`,
     };
     const result = await signedRequest<DeltaOrder>(creds, 'POST', '/v2/orders', { body });
 

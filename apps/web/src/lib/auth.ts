@@ -22,6 +22,11 @@ const trustedOrigins = Array.from(
   ),
 );
 
+const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
+if (process.env.NODE_ENV === 'production' && googleEnabled && (!process.env.GOOGLE_CLIENT_ID || !process.env.GOOGLE_CLIENT_SECRET)) {
+  throw new Error('Google authentication is enabled, but GOOGLE_CLIENT_ID or GOOGLE_CLIENT_SECRET is missing.');
+}
+
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   secret: process.env.AUTH_SECRET,
@@ -31,6 +36,16 @@ export const auth = betterAuth({
     enabled: true,
     requireEmailVerification: false,
     minPasswordLength: 8,
+  },
+  socialProviders: googleEnabled && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
+    ? { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET } }
+    : {},
+  account: {
+    accountLinking: {
+      enabled: true,
+      allowDifferentEmails: false,
+      trustedProviders: [],
+    },
   },
   user: {
     additionalFields: {

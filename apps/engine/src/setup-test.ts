@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 
 import { prisma } from '@mirrorpip/db';
-import { deltaIndia, encryptSecret, last4 } from '@mirrorpip/exchange';
+import { deltaIndia, encryptSecret, fingerprintApiKey, last4 } from '@mirrorpip/exchange';
 
 /**
  * Dev helper: wire a full leader→follower copy scenario from two testnet keys.
@@ -45,6 +45,7 @@ async function main(): Promise<void> {
     data: {
       userId: user.id, exchange: 'DELTA_INDIA', label: 'Test Leader',
       apiKeyEnc: encryptSecret(lKey), apiSecretEnc: encryptSecret(lSec), keyLast4: last4(lKey),
+      apiKeyFingerprint: fingerprintApiKey('DELTA_INDIA', lKey),
       baseCurrency: lInfo.baseCurrency, status: 'ACTIVE', verifiedAt: new Date(),
     },
   });
@@ -52,6 +53,7 @@ async function main(): Promise<void> {
     data: {
       userId: user.id, exchange: 'DELTA_INDIA', label: 'Test Follower',
       apiKeyEnc: encryptSecret(fKey), apiSecretEnc: encryptSecret(fSec), keyLast4: last4(fKey),
+      apiKeyFingerprint: fingerprintApiKey('DELTA_INDIA', fKey),
       baseCurrency: fInfo.baseCurrency, status: 'ACTIVE', verifiedAt: new Date(),
     },
   });

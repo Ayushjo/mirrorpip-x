@@ -29,6 +29,7 @@ export function applyFill(
   side: 'BUY' | 'SELL',
   qty: number,
   price: number,
+  contractMultiplier = 1,
 ): FillResult {
   const signed = side === 'BUY' ? qty : -qty;
 
@@ -61,7 +62,8 @@ export function applyFill(
 
   // Opposite direction → reduce / close / flip, realizing P&L on the closed qty.
   const closedQty = Math.min(Math.abs(curSigned), Math.abs(signed));
-  const realizedDelta = curSigned > 0 ? (price - avgEntry) * closedQty : (avgEntry - price) * closedQty;
+  const realizedDelta =
+    (curSigned > 0 ? price - avgEntry : avgEntry - price) * closedQty * contractMultiplier;
   // Entry stays the same while reducing; on a flip the remainder opens at `price`.
   const flipped = Math.sign(newSigned) !== 0 && Math.sign(newSigned) !== Math.sign(curSigned);
   const newEntry = flipped ? price : avgEntry;

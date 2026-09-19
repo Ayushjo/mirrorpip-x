@@ -4,7 +4,8 @@ Watch verified **leaders**, mirror their trades automatically into **follower** 
 Followers keep custody of their funds — the platform only ever places orders via the
 follower's own exchange API key (trade permission, never withdrawal).
 
-> A cleaner, better-built take on mirrorpip.com. First exchange: **Delta Exchange India**.
+Supported connections: **Delta India, Shark, Pi42, and Mudrex**. Copying is
+same-exchange only; MirrorPip-X never guesses at cross-venue contract translation.
 
 ## How it works
 
@@ -32,7 +33,7 @@ packages/
 - **TypeScript** everywhere, pnpm workspaces.
 - **Next.js 15** (App Router, React 19) + **Tailwind v4** for the site.
 - **Prisma** on **PostgreSQL** (Neon in prod).
-- **better-auth** email + password sessions.
+- **better-auth** email/password and optional Google OAuth sessions.
 - The engine and web share the DB; no external broker/message-bus needed for the MVP
   (engine reconciles config by polling the DB; kill-switch is a DB setting).
 
@@ -48,6 +49,26 @@ pnpm db:generate
 pnpm db:migrate               # creates the schema
 pnpm dev                      # runs web (:3000) + engine together
 ```
+
+### Google sign-in
+
+Create a Google OAuth web client and register
+`http://localhost:3000/api/auth/callback/google` for local development (replace
+the origin with `NEXT_PUBLIC_APP_URL` in production). Set `GOOGLE_CLIENT_ID`,
+`GOOGLE_CLIENT_SECRET`, and `NEXT_PUBLIC_GOOGLE_AUTH_ENABLED=true`. Production
+startup fails intentionally if Google is enabled without both credentials.
+
+Google is linked to an existing password account only when the provider returns
+the same verified email, preserving that user's roles, exchange accounts,
+follows, and dashboard.
+
+### New-exchange rollout
+
+Pi42, Shark, and Mudrex account verification/read paths are available, but real
+orders are independently gated by `PI42_ORDERS_ENABLED`,
+`SHARK_ORDERS_ENABLED`, and `MUDREX_ORDERS_ENABLED`. Mudrex additionally requires
+`LIVE_EXCHANGE_CANARY=1`. Enable a venue only after a controlled minimum-size
+live open/fill/close/flat canary; no live trade runs in CI.
 
 ## Security notes
 
