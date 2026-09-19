@@ -35,6 +35,9 @@ export async function fanoutLeaderFill(leader: Leader, fill: FillEvent): Promise
         side: fill.side,
         qty: fill.qty,
         price: fill.price,
+        quoteCurrency: fill.quoteCurrency ?? null,
+        nativePrice: fill.nativePrice ?? null,
+        priceUsd: fill.priceUsd ?? null,
         reduceOnly: fill.reduceOnly,
         leaderPositionKey: fill.positionKey ?? null,
         exchTs: fill.timestamp,
@@ -48,6 +51,14 @@ export async function fanoutLeaderFill(leader: Leader, fill: FillEvent): Promise
 
   if (await isKillSwitchOn()) {
     log.warn('kill-switch on — skipping fan-out', { leaderId: leader.id, fill: fill.externalId });
+    return;
+  }
+
+  // Re-read leader status: the caller's object may be stale (a watcher loaded
+  // it before an admin pause, or the reconcile sweep paged it minutes ago).
+  const liveLeader = await prisma.leader.findUnique({ where: { id: leader.id }, select: { status: true } });
+  if (liveLeader?.status !== 'VERIFIED') {
+    log.warn('leader not verified — skipping fan-out', { leaderId: leader.id, status: liveLeader?.status, fill: fill.externalId });
     return;
   }
 
