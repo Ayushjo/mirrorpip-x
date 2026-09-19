@@ -75,6 +75,13 @@ async function retryMissingCopies(): Promise<void> {
           side: fill.side,
           qty: Number(fill.qty),
           price: Number(fill.price),
+          // Persisted currency metadata keeps the INR guard meaningful on
+          // replay; rows predating those columns fall back to the instrument's
+          // quote currency, which labels INR fills so the guard SKIPs rather
+          // than sizing an INR price as USD.
+          quoteCurrency: fill.quoteCurrency ?? inst?.quoteCurrency,
+          nativePrice: fill.nativePrice != null ? Number(fill.nativePrice) : undefined,
+          priceUsd: fill.priceUsd != null ? Number(fill.priceUsd) : undefined,
           reduceOnly: fill.reduceOnly,
           timestamp: fill.exchTs,
           baseAsset: inst?.baseAsset,

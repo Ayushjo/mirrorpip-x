@@ -299,7 +299,10 @@ model LeaderFill {
   symbol     String
   side       OrderSide
   qty        Decimal   @db.Decimal(30, 10)
-  price      Decimal   @db.Decimal(30, 10)
+  price      Decimal   @db.Decimal(30, 10) // USD when priceUsd set, otherwise native
+  quoteCurrency String? // venue quote currency of `price` (e.g. INR) — null = USD/unknown
+  nativePrice  Decimal? @db.Decimal(30, 10)
+  priceUsd     Decimal? @db.Decimal(30, 10)
   reduceOnly Boolean   @default(false)
   leaderPositionKey String? // symbol/position grouping key from the exchange
 
