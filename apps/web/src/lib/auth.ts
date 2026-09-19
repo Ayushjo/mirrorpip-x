@@ -1,11 +1,15 @@
 import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
+import { emailOTP } from 'better-auth/plugins';
 import { prisma } from '@mirrorpip/db';
+import { sendEmail, verificationOtpEmail, resetPasswordOtpEmail, welcomeEmail } from './email.js';
+import { geocodeUserIfNeeded } from './geocode.js';
 
 // Email + password auth backed by our Prisma models (user/session/account/
-// verification). Email verification is off for the MVP so signups are instant;
-// enable it before a public launch.
+// verification). Email verification is required via 6-digit OTP; without
+// RESEND_API_KEY the OTP is printed to the server console so local dev still
+// works.
 // Origins allowed to call the auth endpoints. In prod this is the deployed
 // app URL; in dev we also allow common localhost ports (incl. preview ports).
 const trustedOrigins = Array.from(
@@ -34,8 +38,18 @@ export const auth = betterAuth({
   trustedOrigins,
   emailAndPassword: {
     enabled: true,
-    requireEmailVerification: false,
+    requireEmailVerification: true,
     minPasswordLength: 8,
+  },
+  emailVerification: {
+    autoSignInAfterVerification: true,
+    afterEmailVerification: async (user: { id: string; email: string; name?: string | null }) => {
+      try {
+        await sendEmail({ to: user.email, ...welcomeEmail(user.name ?? '') });
+      } catch (err) {
+        console.error('[auth] welcome email failed', { userId: user.id, err: String(err) });
+      }
+    },
   },
   socialProviders: googleEnabled && process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET
     ? { google: { clientId: process.env.GOOGLE_CLIENT_ID, clientSecret: process.env.GOOGLE_CLIENT_SECRET } }
@@ -50,13 +64,46 @@ export const auth = betterAuth({
   user: {
     additionalFields: {
       role: { type: 'string', required: false, defaultValue: 'user', input: false },
+      country: { type: 'string', required: false, input: true },
+      city: { type: 'string', required: false, input: true },
+      postalCode: { type: 'string', required: false, input: true },
+      phone: { type: 'string', required: false, input: true },
+      intendedRole: { type: 'string', required: false, input: true },
+      referralCode: { type: 'string', required: false, input: true },
+      tosAcceptedAt: { type: 'date', required: false, input: true },
+      riskDisclosureAcceptedAt: { type: 'date', required: false, input: true },
+      lat: { type: 'number', required: false, input: false },
+      lng: { type: 'number', required: false, input: false },
+      locationUpdatedAt: { type: 'date', required: false, input: false },
+    },
+  },
+  databaseHooks: {
+    user: {
+      create: {
+        after: async (user) => {
+          void geocodeUserIfNeeded(user.id).catch((err) => {
+            console.warn('[auth] post-signup geocode failed', { userId: user.id, err: String(err) });
+          });
+        },
+      },
     },
   },
   session: {
     expiresIn: 60 * 60 * 24 * 7, // 7 days
     cookieCache: { enabled: true, maxAge: 5 * 60 },
   },
-  plugins: [nextCookies()],
+  plugins: [
+    nextCookies(),
+    emailOTP({
+      otpLength: 6,
+      expiresIn: 60 * 10,
+      sendVerificationOnSignUp: true,
+      async sendVerificationOTP({ email, otp, type }) {
+        const mail = type === 'forget-password' ? resetPasswordOtpEmail(otp) : verificationOtpEmail(otp);
+        await sendEmail({ to: email, ...mail });
+      },
+    }),
+  ],
 });
 
 export type Auth = typeof auth;

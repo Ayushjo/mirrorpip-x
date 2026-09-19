@@ -2,17 +2,39 @@
 
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { signIn, signUp } from '@/lib/auth-client';
-import { Button, Field, Input } from './ui';
+import { COUNTRIES } from '@/lib/countries';
+import { Button, Field, Input, Select } from './ui';
 import { CheckIcon } from './icons';
 
+function passwordStrength(pw: string): { score: number; label: string; color: string } {
+  let score = 0;
+  if (pw.length >= 8) score++;
+  if (pw.length >= 12) score++;
+  if (/[A-Z]/.test(pw) && /[a-z]/.test(pw)) score++;
+  if (/[0-9]/.test(pw)) score++;
+  if (/[^A-Za-z0-9]/.test(pw)) score++;
+  const bucket = Math.min(4, score);
+  const labels = ['Weak', 'Weak', 'Fair', 'Strong', 'Very strong'];
+  const colors = ['#d1293d', '#d1293d', '#b97b1a', '#1a7f4b', '#1a7f4b'];
+  return { score: bucket, label: labels[bucket]!, color: colors[bucket]! };
+}
 
 export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const router = useRouter();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [country, setCountry] = useState('');
+  const [city, setCity] = useState('');
+  const [postalCode, setPostalCode] = useState('');
+  const [phone, setPhone] = useState('');
+  const [intendedRole, setIntendedRole] = useState('');
+  const [referralCode, setReferralCode] = useState('');
+  const [agreeTos, setAgreeTos] = useState(false);
+  const [agreeRisk, setAgreeRisk] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
@@ -24,6 +46,18 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       setOauthError('Google sign-in was cancelled or could not be completed. Please try again or use email and password.');
     }
   }, []);
+
+  const strength = useMemo(() => passwordStrength(password), [password]);
+  const canSubmit = isRegister
+    ? name.trim().length > 1 &&
+      email.includes('@') &&
+      strength.score >= 2 &&
+      agreeTos &&
+      agreeRisk &&
+      country.length === 2 &&
+      city.trim().length > 0 &&
+      postalCode.trim().length > 0
+    : email.includes('@') && password.length >= 8;
 
   async function signInWithGoogle() {
     setError(null);
@@ -39,14 +73,36 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
+    if (!canSubmit) return;
     setError(null);
     setBusy(true);
     try {
       const res = isRegister
-        ? await signUp.email({ name, email, password })
+        ? await signUp.email({
+            name,
+            email,
+            password,
+            country,
+            city: city.trim(),
+            postalCode: postalCode.trim(),
+            ...(phone.trim() ? { phone: phone.trim() } : {}),
+            ...(intendedRole ? { intendedRole } : {}),
+            ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}),
+            tosAcceptedAt: new Date().toISOString(),
+            riskDisclosureAcceptedAt: new Date().toISOString(),
+          } as Parameters<typeof signUp.email>[0])
         : await signIn.email({ email, password });
       if (res.error) {
-        setError(res.error.message ?? 'Something went wrong. Please try again.');
+        const msg = res.error.message ?? 'Something went wrong. Please try again.';
+        if (/verif/i.test(msg) || (res.error as { code?: string }).code === 'EMAIL_NOT_VERIFIED') {
+          router.push(`/verify?email=${encodeURIComponent(email)}`);
+          return;
+        }
+        setError(msg);
+        return;
+      }
+      if (isRegister) {
+        router.push(`/verify?email=${encodeURIComponent(email)}`);
         return;
       }
       router.push('/dashboard');
@@ -78,7 +134,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
       <form onSubmit={submit} className={googleEnabled ? 'space-y-4' : 'mt-8 space-y-4'}>
         {isRegister && (
-          <Field label="Name">
+          <Field label="Full name">
             <Input value={name} onChange={(e) => setName(e.target.value)} required placeholder="Jordan Trader" autoComplete="name" />
           </Field>
         )}
@@ -92,21 +148,104 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             autoComplete="email"
           />
         </Field>
-        <Field label="Password" hint={isRegister ? 'At least 8 characters.' : undefined}>
-          <Input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            minLength={8}
-            placeholder="••••••••"
-            autoComplete={isRegister ? 'new-password' : 'current-password'}
-          />
+
+        {isRegister && (
+          <>
+            <Field label="Country">
+              <Select value={country} onChange={(e) => setCountry(e.target.value)} required>
+                <option value="">Select country…</option>
+                {COUNTRIES.map((c) => (
+                  <option key={c.code} value={c.code}>
+                    {c.name}
+                  </option>
+                ))}
+              </Select>
+            </Field>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="City">
+                <Input value={city} onChange={(e) => setCity(e.target.value)} required placeholder="Mumbai" autoComplete="address-level2" />
+              </Field>
+              <Field label="PIN / ZIP code">
+                <Input value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required placeholder="400001" autoComplete="postal-code" />
+              </Field>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              <Field label="Phone (optional)">
+                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91…" autoComplete="tel" />
+              </Field>
+              <Field label="Referral code (optional)">
+                <Input value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="FRIEND-123" />
+              </Field>
+            </div>
+            <Field label="I want to…">
+              <Select value={intendedRole} onChange={(e) => setIntendedRole(e.target.value)} required>
+                <option value="">Choose…</option>
+                <option value="follower">Copy verified leaders</option>
+                <option value="leader">Lead and share my trades</option>
+                <option value="both">Both</option>
+              </Select>
+            </Field>
+          </>
+        )}
+
+        <Field label="Password" hint={isRegister ? '8+ characters with upper & lower case and a number.' : undefined}>
+          <div className="relative">
+            <Input
+              type={showPassword ? 'text' : 'password'}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              minLength={8}
+              placeholder="••••••••"
+              autoComplete={isRegister ? 'new-password' : 'current-password'}
+              className="pr-16"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword((s) => !s)}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-faint hover:text-black"
+            >
+              {showPassword ? 'Hide' : 'Show'}
+            </button>
+          </div>
+          {isRegister && password.length > 0 && (
+            <div className="mt-2">
+              <div className="flex gap-1">
+                {[0, 1, 2, 3].map((i) => (
+                  <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ background: strength.score > i ? strength.color : '#e5e5e5' }} />
+                ))}
+              </div>
+              <div className="mt-1 text-xs" style={{ color: strength.color }}>{strength.label}</div>
+            </div>
+          )}
         </Field>
+
+        {isRegister && (
+          <div className="space-y-2.5">
+            <label className="flex items-start gap-2.5 text-xs text-muted">
+              <input type="checkbox" checked={agreeTos} onChange={(e) => setAgreeTos(e.target.checked)} className="mt-0.5" required />
+              <span>
+                I accept the <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
+              </span>
+            </label>
+            <label className="flex items-start gap-2.5 text-xs text-muted">
+              <input type="checkbox" checked={agreeRisk} onChange={(e) => setAgreeRisk(e.target.checked)} className="mt-0.5" required />
+              <span>I understand copy-trading involves substantial risk of loss and past leader performance does not guarantee future results.</span>
+            </label>
+          </div>
+        )}
+
+        {!isRegister && (
+          <div className="text-right">
+            <Link href="/forgot-password" className="text-xs text-muted underline-offset-4 hover:text-black hover:underline">
+              Forgot password?
+            </Link>
+          </div>
+        )}
 
         {(error || oauthError) && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error ?? oauthError}</p>}
 
-        <Button type="submit" arrow className="w-full justify-center" disabled={busy}>
+        <Button type="submit" arrow className="w-full justify-center" disabled={busy || !canSubmit}>
           {busy ? 'Please wait…' : isRegister ? 'Create account' : 'Sign in'}
         </Button>
       </form>

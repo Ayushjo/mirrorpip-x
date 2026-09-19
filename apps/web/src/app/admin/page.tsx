@@ -1,7 +1,8 @@
 import { redirect } from 'next/navigation';
 import { getSessionUser, isAdmin } from '@/lib/session';
 import { getKillSwitch, listLeadersAdmin } from '@/lib/services/copy';
-import { AdminPanel } from '@/components/admin-panel';
+import { getAdminOverview } from '@/lib/services/admin';
+import { AdminDashboard } from '@/components/admin-dashboard';
 import { MediaBanner } from '@/components/media-banner';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ export default async function AdminPage() {
   if (!user) redirect('/login');
   if (!(await isAdmin(user))) redirect('/');
 
-  const [leaders, kill] = await Promise.all([listLeadersAdmin(), getKillSwitch()]);
+  const [overview, leaders, kill] = await Promise.all([getAdminOverview(), listLeadersAdmin(), getKillSwitch()]);
 
   return (
     <div className="space-y-6">
@@ -20,10 +21,12 @@ export default async function AdminPage() {
           <h1 className="text-3xl text-black sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Admin
           </h1>
-          <p className="mt-2 max-w-md text-sm text-black/60">Verify leaders and control the copy engine.</p>
+          <p className="mt-2 max-w-md text-sm text-black/60">
+            Users, activity, leader verification, access and engine control.
+          </p>
         </div>
       </MediaBanner>
-      <AdminPanel initialLeaders={leaders} initialKill={kill} />
+      <AdminDashboard overview={overview} leaders={leaders} kill={kill} />
     </div>
   );
 }

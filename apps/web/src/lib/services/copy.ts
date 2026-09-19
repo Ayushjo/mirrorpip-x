@@ -402,7 +402,7 @@ export async function setLeaderStatus(id: string, status: 'PENDING' | 'VERIFIED'
   const leader = await prisma.leader.findUnique({ where: { id } });
   if (!leader) throw new ApiError(404, 'Leader not found.');
   await prisma.leader.update({ where: { id }, data: { status } });
-  return { id, status };
+  return { id, status, userId: leader.userId, displayName: leader.displayName };
 }
 
 export async function getKillSwitch(): Promise<boolean> {

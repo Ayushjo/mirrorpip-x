@@ -91,6 +91,15 @@ async function startWatcher(leader: Leader): Promise<void> {
       await prisma.$transaction([
         prisma.exchangeCredential.update({ where: { id: leader.credentialId }, data: { status: 'INVALID', lastError: 'Credentials were rejected. Reconnect this account.' } }),
         prisma.follow.updateMany({ where: { leaderId: leader.id, status: 'ACTIVE' }, data: { status: 'PAUSED', pausedAt: new Date() } }),
+        prisma.notification.create({
+          data: {
+            userId: leader.userId,
+            kind: 'credential.invalid',
+            title: 'Your leader account connection was rejected',
+            body: `The API credentials for "${leader.displayName}" were rejected by the exchange, so copying paused. Reconnect the account to resume.`,
+            href: '/connect',
+          },
+        }),
       ]).catch(() => undefined);
     }
     state.stream = null;
