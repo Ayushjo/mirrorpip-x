@@ -17,7 +17,7 @@ type ButtonVariant = 'primary' | 'ghost' | 'danger' | 'subtle';
 const buttonStyles: Record<ButtonVariant, string> = {
   primary: 'bg-black text-white hover:bg-gray-800',
   ghost: 'border border-black/15 bg-white text-black hover:bg-[#ececec]',
-  danger: 'bg-[--color-down] text-white hover:opacity-90',
+  danger: 'bg-(--color-down) text-white hover:opacity-90',
   subtle: 'bg-[#ececec] text-black hover:bg-[#e2e2e2]',
 };
 
