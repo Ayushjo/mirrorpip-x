@@ -100,9 +100,6 @@ model Verification {
 
 enum Exchange {
   DELTA_INDIA
-  SHARK
-  PI42
-  MUDREX
   BYBIT // reserved for a later adapter
 }
 

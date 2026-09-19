@@ -13,10 +13,10 @@ importers:
 
   apps/engine:
     dependencies:
-      '@mirrorpip/db':
+      '@belivemeguys/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@mirrorpip/exchange':
+      '@belivemeguys/exchange':
         specifier: workspace:*
         version: link:../../packages/exchange
       dotenv:
@@ -44,10 +44,10 @@ importers:
 
   apps/web:
     dependencies:
-      '@mirrorpip/db':
+      '@belivemeguys/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@mirrorpip/exchange':
+      '@belivemeguys/exchange':
         specifier: workspace:*
         version: link:../../packages/exchange
       better-auth:

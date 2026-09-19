@@ -25,7 +25,7 @@ import {
 // production default even when .env selects testnet.
 const restUrl = (): string => process.env.DELTA_REST_URL ?? 'https://api.india.delta.exchange';
 const wsUrl = (): string => process.env.DELTA_WS_URL ?? 'wss://socket.india.delta.exchange';
-const USER_AGENT = 'mirrorpip-x/0.1';
+const USER_AGENT = 'belivemeguys/1.0';
 
 function nowSec(): string {
   return Math.floor(Date.now() / 1000).toString();

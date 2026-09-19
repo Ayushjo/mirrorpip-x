@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { notFound, redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
 import { getLeaderPublic, listCredentials } from '@/lib/services/copy';
-import { getExchangeRegistryItem } from '@mirrorpip/exchange';
+import { getExchangeRegistryItem } from '@belivemeguys/exchange';
 import { Badge, Card, fmtPct, fmtUsd } from '@/components/ui';
 import { ShieldIcon, Sparkline } from '@/components/icons';
 import { FollowForm } from '@/components/follow-form';

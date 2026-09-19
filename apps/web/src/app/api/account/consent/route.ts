@@ -1,4 +1,4 @@
-import { prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
 import { ok, requireUser, route, ApiError } from '@/lib/api';
 import { consentSchema } from '@/lib/validation';
 

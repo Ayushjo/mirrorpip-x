@@ -14,7 +14,7 @@ Repo: pnpm monorepo. Web app is `apps/web` (Next.js), DB is `packages/db` (Prism
 - Node/pnpm are NOT on PATH. Prefix every command: `export PATH="$HOME/.nvm/versions/node/v24.19.0/bin:$PATH"`
 - Env file lives at REPO ROOT (not apps/web) — next.config.ts loads `../../.env` via dotenv.
 - Start dev server with a fresh log:
-  `(cd /home/ubuntu/repos/mirrorpip-x && pnpm --filter @mirrorpip/web dev > /tmp/dev-server.log 2>&1 &)` → http://localhost:3000
+  `(cd /home/ubuntu/repos/mirrorpip-x && pnpm --filter @belivemeguys/web dev > /tmp/dev-server.log 2>&1 &)` → http://localhost:3000
 - OTPs appear in the log as `[email:dev] to=<email> subject=XXXXXX` — `grep 'email:dev' /tmp/dev-server.log | tail`.
 - If pages 500 with "Cannot find module './NNNN.js'" or missing routes-manifest: stale `.next` cache. Fix: `pkill -f "next dev"; rm -rf apps/web/.next; restart`.
 
@@ -38,10 +38,12 @@ Repo: pnpm monorepo. Web app is `apps/web` (Next.js), DB is `packages/db` (Prism
 - Maintenance banner is in the SSR root layout — only appears on FULL page load, not client-side navigation.
 
 ## Copy-trading (engine) e2e flow
-- The copy engine is a SEPARATE process — `pnpm --filter @mirrorpip/engine dev` (log /tmp/engine.log). It is NOT covered by the blueprint's dev-server knowledge entry.
+- The copy engine is a SEPARATE process — `pnpm --filter @belivemeguys/engine dev` (log /tmp/engine.log). It is NOT covered by the blueprint's dev-server knowledge entry.
 - Env needs `DELTA_REST_URL`/`DELTA_WS_URL` in repo-root `.env` (testnet REST: `https://cdn-ind.testnet.deltaex.org`, WS: `wss://socket-ind.testnet.deltaex.org`).
 - Engine syncs every 5s: a watcher spawns only after leader is VERIFIED *and* a follow is ACTIVE → log line `started leader watcher`. Copy = `copied fill {leaderId, followId, symbol, side, qty, status}`; heartbeat shows `liveWatchers:N`.
-- To place a real leader order: write a tsx script inside `apps/engine` importing `getExchange` from `@mirrorpip/exchange`, then `placeMarketOrder({apiKey,apiSecret,tradeCurrency:'USDT'},{symbol:'BTCUSD',side:'BUY',qty:1,clientOrderId:'demo-'+Date.now()})`. Run from apps/engine with `set -a; source ../../.env; set +a`. BTCUSD qty is in contracts (~0.001 BTC each ≈ $80-115 notional); ETHUSD qty 1 is a smaller fallback if margin is an issue.
+- To place a real leader order: write a tsx script inside `apps/engine` importing `getExchange` from `@belivemeguys/exchange`, then `placeMarketOrder({apiKey,apiSecret,tradeCurrency:'USDT'},{symbol:'BTCUSD',side:'BUY',qty:1,clientOrderId:'demo-'+Date.now()})`. Run from apps/engine with `set -a; source ../../.env; set +a`. BTCUSD qty is in contracts (~0.001 BTC each ≈ $80-115 notional); ETHUSD qty 1 is a smaller fallback if margin is an issue.
 - Observed copy latency ~3s. Follower's copied qty = leader qty × sizing (PROPORTIONAL value 1 scales by follower/leader equity ratio, e.g. 1 → 0.8311).
 - Verify in UI at the follower follow-detail page `/dashboard/<followId>`: "Copy order log" shows FILLED rows, "Open positions" shows the CopyPosition; admin Overview counts "copies filled 24h".
 - Exchange cred connect calls `adapter.verify()` first — a 401 "invalid_api_key" on a freshly-created Delta testnet key can just be propagation delay (up to ~5 min); retry before assuming the key is bad.
+- Kill-switch E2E: admin Leaders tab → "Halt everything". NOTE: the `danger` Button variant renders INVISIBLE (white-on-white — `bg-[--color-down]` is invalid in Tailwind v4; use `bg-(--color-down)`). Tab-focus then Enter works, or click the empty area right of Cancel. While engaged, leader fills log `fan-out halted — claiming skips` and mint SKIPPED copyOrders (qty 0, warn badge in copy log, counted as "failed" in admin Overview). To keep positions symmetric, place a BUY+SELL pair while halted.
+- Session/usage dedupe check: query UsageSession per user — exactly one open session per tab clientId; page_view events should NOT double up (StrictMode double-mount fixed via open_session_unique).

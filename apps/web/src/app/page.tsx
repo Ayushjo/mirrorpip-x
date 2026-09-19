@@ -153,12 +153,12 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* ── Meet MirrorPip ───────────────────────────────────────────── */}
+      {/* ── Meet BelieveMeGuys ───────────────────────────────────────────── */}
       <section>
         <div className="mb-14 grid grid-cols-1 items-start gap-12 md:grid-cols-2">
           <div>
             <h2 className="text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
-              Meet MirrorPip.
+              Meet BelieveMeGuys.
             </h2>
             <div className="mt-8">
               <LinkButton href={primaryHref} arrow>
@@ -301,12 +301,12 @@ export default async function LandingPage() {
       {/* ── Use modes ────────────────────────────────────────────────── */}
       <section>
         <div className="mb-10 max-w-2xl">
-          <div className="mb-2 text-sm text-black/60">MirrorPip in practice</div>
+          <div className="mb-2 text-sm text-black/60">BelieveMeGuys in practice</div>
           <h2 className="mb-4 text-5xl leading-none text-black sm:text-6xl" style={{ letterSpacing: '-0.04em' }}>
             Use modes
           </h2>
           <p className="max-w-lg text-base leading-relaxed text-black/60">
-            Whether you’re a follower who wants hands-off returns or a trader who wants a following, MirrorPip has a mode
+            Whether you’re a follower who wants hands-off returns or a trader who wants a following, BelieveMeGuys has a mode
             for you.
           </p>
         </div>

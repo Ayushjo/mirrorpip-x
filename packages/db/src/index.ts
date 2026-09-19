@@ -13,5 +13,5 @@ export const prisma: PrismaClient =
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
 // Re-export the generated types + enums so consumers import everything from
-// "@mirrorpip/db" and never reach into the generated folder directly.
+// "@belivemeguys/db" and never reach into the generated folder directly.
 export * from '../generated/client/index.js';

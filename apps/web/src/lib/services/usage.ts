@@ -1,4 +1,4 @@
-import { prisma, Prisma } from '@mirrorpip/db';
+import { prisma, Prisma } from '@belivemeguys/db';
 import { featureFromPath } from '../usage-features.js';
 
 // Product-usage tracking (ported from tradingjournal): a client heartbeat

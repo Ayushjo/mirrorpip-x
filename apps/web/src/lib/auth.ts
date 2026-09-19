@@ -2,7 +2,7 @@ import { betterAuth } from 'better-auth';
 import { prismaAdapter } from 'better-auth/adapters/prisma';
 import { nextCookies } from 'better-auth/next-js';
 import { emailOTP } from 'better-auth/plugins';
-import { prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
 import { sendEmail, verificationOtpEmail, resetPasswordOtpEmail, welcomeEmail } from './email.js';
 import { geocodeUserIfNeeded } from './geocode.js';
 

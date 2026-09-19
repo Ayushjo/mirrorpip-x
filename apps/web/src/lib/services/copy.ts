@@ -1,5 +1,5 @@
-import { prisma } from '@mirrorpip/db';
-import { decryptSecret, encryptSecret, fingerprintApiKey, getExchange, getExchangeRegistryItem, last4, ExchangeAuthError } from '@mirrorpip/exchange';
+import { prisma } from '@belivemeguys/db';
+import { decryptSecret, encryptSecret, fingerprintApiKey, getExchange, getExchangeRegistryItem, last4, ExchangeAuthError } from '@belivemeguys/exchange';
 import { ApiError } from '../api.js';
 import { dec, decOr0, iso } from '../serialize.js';
 import type {

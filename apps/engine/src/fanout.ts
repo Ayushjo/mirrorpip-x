@@ -1,5 +1,5 @@
-import { prisma, type Follow, type ExchangeCredential, type Leader } from '@mirrorpip/db';
-import { type FillEvent, getExchange } from '@mirrorpip/exchange';
+import { prisma, type Follow, type ExchangeCredential, type Leader } from '@belivemeguys/db';
+import { type FillEvent, getExchange } from '@belivemeguys/exchange';
 import { toApiCreds } from './creds.js';
 import { computeSize } from './sizing.js';
 import { applyFill } from './position.js';
@@ -273,7 +273,7 @@ async function recordSkip(
   fill: FillEvent,
   reason: string,
   side: 'BUY' | 'SELL' = fill.side,
-  exchange: 'DELTA_INDIA' | 'SHARK' | 'PI42' | 'MUDREX' | 'BYBIT' = 'DELTA_INDIA',
+  exchange: 'DELTA_INDIA' | 'BYBIT' = 'DELTA_INDIA',
 ): Promise<void> {
   await prisma.copyOrder
     .create({

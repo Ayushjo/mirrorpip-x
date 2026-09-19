@@ -11,7 +11,7 @@ import { NotificationBell } from '@/components/notification-bell';
 import { ConsentGate } from '@/components/consent-gate';
 
 export const metadata: Metadata = {
-  title: 'MirrorPip-X — Copy the best crypto traders',
+  title: 'BelieveMeGuys — Copy the best crypto traders',
   description:
     'Connect your exchange, follow verified leaders, and mirror their trades automatically. Your funds stay in your own account.',
 };
@@ -47,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
             <Link href="/" className="flex items-center gap-2">
               <LogoIcon className="h-6 w-6 text-black" />
-              <span className="text-xl font-medium tracking-tight text-black">MirrorPip</span>
+              <span className="text-xl font-medium tracking-tight text-black">BelieveMeGuys</span>
             </Link>
 
             <nav className="hidden items-center gap-8 text-base font-medium text-gray-700 md:flex">
@@ -68,7 +68,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
         {maintenance.enabled && (
           <div className="border-b border-warn/30 bg-[#fbf1e3] px-6 py-2 text-center text-sm text-warn">
-            {maintenance.message || 'MirrorPip is under scheduled maintenance — copying may be paused.'}
+            {maintenance.message || 'BelieveMeGuys is under scheduled maintenance — copying may be paused.'}
           </div>
         )}
         {user && <ConsentGate needsConsent={!user.tosAcceptedAt || !user.riskDisclosureAcceptedAt} />}
@@ -81,7 +81,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             <div>
               <div className="flex items-center gap-2 text-black">
                 <LogoIcon className="h-5 w-5" />
-                <span className="font-medium">MirrorPip</span>
+                <span className="font-medium">BelieveMeGuys</span>
               </div>
               <p className="mt-3 max-w-md">
                 Copy-trading is high risk. You keep custody of your funds; the platform only places orders via your own

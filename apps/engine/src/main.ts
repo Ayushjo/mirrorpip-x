@@ -6,7 +6,7 @@ import { config as loadEnv } from 'dotenv';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 
-import { prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
 import { syncWatchers, stopAllWatchers, watcherCount } from './watchers.js';
 import { reconcile } from './reconcile.js';
 import { log } from './log.js';

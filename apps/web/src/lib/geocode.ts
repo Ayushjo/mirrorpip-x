@@ -1,4 +1,4 @@
-import { prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
 
 // Best-effort geocoding of a user's signup location via OSM Nominatim.
 // Fills lat/lng for the admin geo view; failures are silent (never block auth).
@@ -13,7 +13,7 @@ export async function geocodeUserIfNeeded(userId: string): Promise<void> {
   try {
     const res = await fetch(
       `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=1`,
-      { headers: { 'User-Agent': 'mirrorpip-x/1.0 (admin geo view)' }, signal: AbortSignal.timeout(5000) },
+      { headers: { 'User-Agent': 'belivemeguys/1.0 (admin geo view)' }, signal: AbortSignal.timeout(5000) },
     );
     if (!res.ok) return;
     const hits = (await res.json()) as Array<{ lat: string; lon: string }>;

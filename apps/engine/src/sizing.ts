@@ -1,4 +1,4 @@
-import type { FillEvent, Side } from '@mirrorpip/exchange';
+import type { FillEvent, Side } from '@belivemeguys/exchange';
 
 export interface SizingInput {
   fill: FillEvent;

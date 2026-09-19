@@ -60,7 +60,7 @@ export default function CompleteProfilePage() {
         One last step
       </h1>
       <p className="mt-2 text-sm text-muted">
-        Before you use MirrorPip, tell us where you're based and accept the terms — required for compliance.
+        Before you use BelieveMeGuys, tell us where you're based and accept the terms — required for compliance.
       </p>
 
       <form onSubmit={submit} className="mt-8 space-y-4">

@@ -1,5 +1,5 @@
-import { prisma } from '@mirrorpip/db';
-import type { Prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
+import type { Prisma } from '@belivemeguys/db';
 
 export interface NotifyInput {
   kind: string;
