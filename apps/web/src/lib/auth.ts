@@ -80,6 +80,21 @@ export const auth = betterAuth({
   databaseHooks: {
     user: {
       create: {
+        before: async (user) => {
+          // Consent timestamps are compliance records — mint them server-side.
+          // Clients only signal that the boxes were checked; a truthy value is
+          // replaced with the server clock so forged dates can't be stored.
+          // Social signups send neither flag: they stay null and the consent
+          // gate (/complete-profile) collects them before app use.
+          const u = user as typeof user & { tosAcceptedAt?: Date | null; riskDisclosureAcceptedAt?: Date | null };
+          return {
+            data: {
+              ...u,
+              tosAcceptedAt: u.tosAcceptedAt ? new Date() : null,
+              riskDisclosureAcceptedAt: u.riskDisclosureAcceptedAt ? new Date() : null,
+            },
+          };
+        },
         after: async (user) => {
           void geocodeUserIfNeeded(user.id).catch((err) => {
             console.warn('[auth] post-signup geocode failed', { userId: user.id, err: String(err) });

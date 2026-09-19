@@ -55,6 +55,8 @@ export const killSwitchSchema = z.object({ enabled: z.boolean() });
 export const heartbeatSchema = z.object({
   path: z.string().max(200).optional(),
   feature: z.string().max(64).optional(),
+  clientId: z.string().max(64).optional(),
+  type: z.enum(['page_view', 'heartbeat', 'session_end']).optional(),
   ended: z.boolean().default(false),
 });
 export type HeartbeatInput = z.infer<typeof heartbeatSchema>;
@@ -71,3 +73,13 @@ export const maintenanceSchema = z.object({
 });
 
 export const betaModeSchema = z.object({ enabled: z.boolean() });
+
+export const consentSchema = z.object({
+  agreeTos: z.boolean(),
+  agreeRisk: z.boolean(),
+  country: z.string().trim().length(2).optional(),
+  city: z.string().trim().max(100).optional(),
+  postalCode: z.string().trim().max(20).optional(),
+  phone: z.string().trim().max(30).optional(),
+  intendedRole: z.enum(['follower', 'leader', 'both']).optional(),
+});

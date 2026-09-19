@@ -374,10 +374,12 @@ model CopyPosition {
 
 // ─── Product usage tracking (drives the admin engagement view) ──────────────
 
-// One row per continuous visit; reopened when the last heartbeat is <30min old.
+// One row per continuous visit per browser tab; reopened when the last
+// heartbeat is <30min old. clientId is a per-tab UUID from the tracker.
 model UsageSession {
-  id     String @id @default(cuid())
-  userId String
+  id       String  @id @default(cuid())
+  userId   String
+  clientId String?
 
   startedAt   DateTime  @default(now())
   lastSeenAt  DateTime  @default(now())
@@ -387,6 +389,7 @@ model UsageSession {
   userAgent   String?
 
   @@index([userId, lastSeenAt])
+  @@index([userId, clientId])
   @@map("usage_session")
 }
 

@@ -8,6 +8,7 @@ import { LogoIcon } from '@/components/icons';
 import { MobileNav } from '@/components/mobile-nav';
 import { UsageTracker } from '@/components/usage-tracker';
 import { NotificationBell } from '@/components/notification-bell';
+import { ConsentGate } from '@/components/consent-gate';
 
 export const metadata: Metadata = {
   title: 'MirrorPip-X — Copy the best crypto traders',
@@ -70,6 +71,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {maintenance.message || 'MirrorPip is under scheduled maintenance — copying may be paused.'}
           </div>
         )}
+        {user && <ConsentGate needsConsent={!user.tosAcceptedAt || !user.riskDisclosureAcceptedAt} />}
         {user && <UsageTracker />}
 
         <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">{children}</main>

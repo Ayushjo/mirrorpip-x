@@ -1,5 +1,4 @@
-import { prisma } from '@mirrorpip/db';
-import type { Prisma } from '@mirrorpip/db';
+import { prisma, Prisma } from '@mirrorpip/db';
 import type { SessionUser } from '../session.js';
 
 // ─── Audit trail ──────────────────────────────────────────────────────────────
@@ -106,10 +105,20 @@ export async function createGrant(actor: SessionUser, email: string, note: strin
     const { ApiError } = await import('../api.js');
     throw new ApiError(409, 'An active grant already exists for that email.');
   }
-  const grant = await prisma.accessGrant.create({
-    data: { email: email.toLowerCase(), note, grantedBy: actor.id, grantedByEmail: actor.email },
-  });
-  return { id: grant.id };
+  try {
+    const grant = await prisma.accessGrant.create({
+      data: { email: email.toLowerCase(), note, grantedBy: actor.id, grantedByEmail: actor.email },
+    });
+    return { id: grant.id };
+  } catch (err) {
+    // Partial unique index on lower(email) where revokedAt is null — a
+    // concurrent create lost the race, so report the same conflict.
+    if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+      const { ApiError } = await import('../api.js');
+      throw new ApiError(409, 'An active grant already exists for that email.');
+    }
+    throw err;
+  }
 }
 
 export async function revokeGrant(id: string) {

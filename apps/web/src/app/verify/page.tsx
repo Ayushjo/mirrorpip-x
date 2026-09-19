@@ -38,7 +38,11 @@ function VerifyForm() {
     setError(null);
     setInfo(null);
     try {
-      await authClient.emailOtp.sendVerificationOtp({ email, type: 'email-verification' });
+      const res = await authClient.emailOtp.sendVerificationOtp({ email, type: 'email-verification' });
+      if (res.error) {
+        setError(res.error.message ?? 'Could not resend the code. Try again in a moment.');
+        return;
+      }
       setInfo('A new code is on its way.');
     } catch {
       setError('Could not resend the code. Try again in a moment.');

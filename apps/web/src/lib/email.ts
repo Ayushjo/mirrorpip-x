@@ -12,6 +12,11 @@ export async function sendEmail({ to, subject, html }: OutboundEmail): Promise<v
   const key = process.env.RESEND_API_KEY;
   const from = process.env.RESEND_FROM ?? 'MirrorPip <onboarding@resend.dev>';
   if (!key) {
+    if (process.env.NODE_ENV === 'production') {
+      // Never log email bodies in prod — OTP subjects/bodies are auth secrets.
+      console.warn(`[email] RESEND_API_KEY missing — email to ${to} not sent. Set it before onboarding users.`);
+      return;
+    }
     // Dev fallback: surface the OTP/link in server logs so flows remain usable.
     console.log(`[email:dev] to=${to} subject=${subject}\n${html.replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim()}`);
     return;

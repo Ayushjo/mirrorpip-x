@@ -1,42 +1,43 @@
 import { prisma } from '@mirrorpip/db';
+import { featureFromPath } from '../usage-features.js';
 
 // Product-usage tracking (ported from tradingjournal): a client heartbeat
-// opens/reuses a usage session when the last beat is within 30 minutes and
-// writes one UsageEvent per beat. Powers the admin engagement view.
-
+// opens/reuses a usage session when the last beat is within 30 minutes.
+// Sessions are per browser tab (clientId) so one tab can't end another's.
 const SESSION_GAP_MS = 30 * 60 * 1000;
-const HEARTBEAT_SEC = 30;
+const MAX_ELAPSED_SEC = 120;
+
+export type HeartbeatEventType = 'page_view' | 'heartbeat' | 'session_end';
 
 export interface HeartbeatInput {
   path?: string;
   feature?: string;
+  clientId?: string;
+  type?: HeartbeatEventType;
   userAgent?: string;
   ended?: boolean;
 }
 
-export { featureFromPath } from '../usage-features.js';
-import { featureFromPath } from '../usage-features.js';
-
 export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
   const now = new Date();
   const feature = input.feature ?? featureFromPath(input.path);
+  const eventType: HeartbeatEventType = input.ended ? 'session_end' : input.type === 'page_view' ? 'page_view' : 'heartbeat';
 
   const open = await prisma.usageSession.findFirst({
-    where: { userId, endedAt: null },
+    where: { userId, clientId: input.clientId ?? null, endedAt: null },
     orderBy: { lastSeenAt: 'desc' },
   });
 
   let sessionId: string;
   if (open && now.getTime() - open.lastSeenAt.getTime() <= SESSION_GAP_MS) {
-    const elapsed = Math.max(
-      HEARTBEAT_SEC,
-      Math.min(120, Math.round((now.getTime() - open.lastSeenAt.getTime()) / 1000)),
-    );
+    const elapsed = input.ended
+      ? 0
+      : Math.min(MAX_ELAPSED_SEC, Math.max(0, Math.round((now.getTime() - open.lastSeenAt.getTime()) / 1000)));
     const updated = await prisma.usageSession.update({
       where: { id: open.id },
       data: {
         lastSeenAt: now,
-        durationSec: open.durationSec + (input.ended ? 0 : elapsed),
+        durationSec: { increment: elapsed },
         pagePath: input.path ?? open.pagePath,
         endedAt: input.ended ? now : null,
       },
@@ -49,9 +50,10 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
     const created = await prisma.usageSession.create({
       data: {
         userId,
+        clientId: input.clientId ?? null,
         startedAt: now,
         lastSeenAt: now,
-        durationSec: input.ended ? 0 : HEARTBEAT_SEC,
+        durationSec: 0,
         pagePath: input.path,
         userAgent: input.userAgent,
         endedAt: input.ended ? now : null,
@@ -60,15 +62,13 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
     sessionId = created.id;
   }
 
-  await prisma.usageEvent.create({
-    data: {
-      userId,
-      sessionId,
-      type: input.ended ? 'session_end' : input.path ? 'page_view' : 'heartbeat',
-      path: input.path,
-      feature,
-    },
-  });
+  // Events are meaningful moments (navigation, session end) — interval ticks
+  // only update session duration, they don't mint events.
+  if (eventType !== 'heartbeat') {
+    await prisma.usageEvent.create({
+      data: { userId, sessionId, type: eventType, path: input.path, feature },
+    });
+  }
 
   return { sessionId };
 }

@@ -20,7 +20,11 @@ export default function ForgotPasswordPage() {
     setError(null);
     setBusy(true);
     try {
-      await authClient.emailOtp.sendVerificationOtp({ email, type: 'forget-password' });
+      const res = await authClient.emailOtp.sendVerificationOtp({ email, type: 'forget-password' });
+      if (res.error) {
+        setError(res.error.message ?? 'Could not send the code. Please try again.');
+        return;
+      }
       setStep('reset');
     } catch {
       setError('Could not send the code. Please try again.');

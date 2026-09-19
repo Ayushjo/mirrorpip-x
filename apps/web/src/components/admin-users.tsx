@@ -40,11 +40,19 @@ export function AdminUsers() {
   const [loadingId, setLoadingId] = useState<string | null>(null);
 
   useEffect(() => {
+    const ctrl = new AbortController();
     const t = setTimeout(async () => {
-      const res = await fetch(`/api/admin/users${search ? `?q=${encodeURIComponent(search)}` : ''}`);
-      if (res.ok) setUsers((await res.json()).data);
+      try {
+        const res = await fetch(`/api/admin/users${search ? `?q=${encodeURIComponent(search)}` : ''}`, { signal: ctrl.signal });
+        if (res.ok) setUsers((await res.json()).data);
+      } catch (err) {
+        if (!(err instanceof DOMException && err.name === 'AbortError')) throw err;
+      }
     }, 250);
-    return () => clearTimeout(t);
+    return () => {
+      clearTimeout(t);
+      ctrl.abort();
+    };
   }, [search]);
 
   async function openDossier(id: string) {
