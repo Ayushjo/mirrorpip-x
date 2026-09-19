@@ -1,7 +1,8 @@
 import { z } from 'zod';
 
 export const connectCredentialSchema = z.object({
-  exchange: z.enum(['DELTA_INDIA', 'BYBIT']).default('DELTA_INDIA'),
+  // BYBIT is reserved in the schema enum but has no adapter — reject it here.
+  exchange: z.literal('DELTA_INDIA').default('DELTA_INDIA'),
   tradeCurrency: z.enum(['USDT', 'INR']).default('USDT'),
   settings: z.record(z.string(), z.union([z.string(), z.number(), z.boolean()])).default({}),
   label: z.string().trim().min(1).max(40).default('My account'),
