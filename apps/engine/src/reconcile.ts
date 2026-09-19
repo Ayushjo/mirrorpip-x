@@ -1,5 +1,5 @@
 import { prisma } from '@mirrorpip/db';
-import { getExchange } from '@mirrorpip/exchange';
+import { getExchange, type InstrumentInfo } from '@mirrorpip/exchange';
 import { toApiCreds } from './creds.js';
 import { fanoutLeaderFill } from './fanout.js';
 import { curveStats, WINDOWS } from './stats.js';
@@ -24,45 +24,69 @@ export async function reconcile(): Promise<void> {
  * orders bail on the clientOrderId check, only the missing ones get placed.
  */
 async function retryMissingCopies(): Promise<void> {
-  const fills = await prisma.leaderFill.findMany({
-    where: {
-      exchTs: { gte: new Date(Date.now() - 24 * 3600 * 1000) },
-      leader: { follows: { some: { status: 'ACTIVE' } } },
-    },
-    include: { leader: { include: { follows: { where: { status: 'ACTIVE' } } } } },
-    orderBy: { exchTs: 'desc' },
-    take: 200,
-  });
+  const cutoff = new Date(Date.now() - 24 * 3600 * 1000);
+  const PAGE = 200;
+  // Cursor-paginate the whole window (newest first) so a burst of complete
+  // fills can't starve an older missing one out of the page.
+  let cursor: { exchTs: Date; id: string } | undefined;
 
-  for (const fill of fills) {
-    for (const follow of fill.leader.follows) {
-      if (follow.startedAt > fill.exchTs) continue;
-      const existing = await prisma.copyOrder.findFirst({
-        where: { followId: follow.id, leaderFillId: fill.id },
-        select: { id: true },
-      });
-      if (existing) continue; // PENDING/SUBMITTED/FILLED/SKIPPED/FAILED are all claimed
+  for (;;) {
+    const fills = await prisma.leaderFill.findMany({
+      where: {
+        exchTs: { gte: cutoff },
+        leader: { status: 'VERIFIED', follows: { some: { status: 'ACTIVE' } } },
+        ...(cursor
+          ? { OR: [{ exchTs: { lt: cursor.exchTs } }, { exchTs: cursor.exchTs, id: { lt: cursor.id } }] }
+          : {}),
+      },
+      include: { leader: { include: { follows: { where: { status: 'ACTIVE' } } } } },
+      orderBy: [{ exchTs: 'desc' }, { id: 'desc' }],
+      take: PAGE,
+    });
+    if (fills.length === 0) break;
 
-      // Rebuild a FillEvent, re-attaching canonical instrument metadata so
-      // cross-venue resolution works on retry too.
+    for (const fill of fills) {
+      const pending = fill.leader.follows.filter((f) => f.startedAt <= fill.exchTs);
+      if (pending.length === 0) continue;
+
+      // Rebuild a FillEvent with canonical instrument metadata so cross-venue
+      // resolution works on retry. A thrown lookup is transient — skip this
+      // fill for now rather than replay without metadata, which cross-venue
+      // followers would permanently record as SKIPPED.
       const exchange = getExchange(fill.leader.exchange);
-      const inst = exchange.getInstrument
-        ? await exchange.getInstrument(fill.symbol).catch(() => null)
-        : null;
-      log.info('retrying fill that produced no copy order', { leaderFillId: fill.id, followId: follow.id });
-      await fanoutLeaderFill(fill.leader, {
-        externalId: fill.externalId,
-        symbol: fill.symbol,
-        side: fill.side,
-        qty: Number(fill.qty),
-        price: Number(fill.price),
-        reduceOnly: fill.reduceOnly,
-        timestamp: fill.exchTs,
-        baseAsset: inst?.baseAsset,
-        quoteAsset: inst?.quoteCurrency,
-        contractMultiplier: inst?.contractMultiplier,
-      });
+      let inst: InstrumentInfo | null = null;
+      try {
+        inst = exchange.getInstrument ? await exchange.getInstrument(fill.symbol) : null;
+      } catch (err) {
+        log.warn('leader instrument lookup failed; fill stays pending', { leaderFillId: fill.id, err: String(err) });
+        continue;
+      }
+
+      for (const follow of pending) {
+        const existing = await prisma.copyOrder.findFirst({
+          where: { followId: follow.id, leaderFillId: fill.id },
+          select: { id: true },
+        });
+        if (existing) continue; // PENDING/SUBMITTED/FILLED/SKIPPED/FAILED are all claimed
+        log.info('retrying fill that produced no copy order', { leaderFillId: fill.id, followId: follow.id });
+        await fanoutLeaderFill(fill.leader, {
+          externalId: fill.externalId,
+          symbol: fill.symbol,
+          side: fill.side,
+          qty: Number(fill.qty),
+          price: Number(fill.price),
+          reduceOnly: fill.reduceOnly,
+          timestamp: fill.exchTs,
+          baseAsset: inst?.baseAsset,
+          quoteAsset: inst?.quoteCurrency,
+          contractMultiplier: inst?.contractMultiplier,
+        });
+      }
     }
+
+    const last = fills[fills.length - 1];
+    if (fills.length < PAGE || !last) break;
+    cursor = { exchTs: last.exchTs, id: last.id };
   }
 }
 
