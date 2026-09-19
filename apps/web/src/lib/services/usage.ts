@@ -1,4 +1,4 @@
-import { prisma } from '@mirrorpip/db';
+import { prisma, Prisma } from '@mirrorpip/db';
 import { featureFromPath } from '../usage-features.js';
 
 // Product-usage tracking (ported from tradingjournal): a client heartbeat
@@ -47,27 +47,58 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
     if (open) {
       await prisma.usageSession.update({ where: { id: open.id }, data: { endedAt: open.lastSeenAt } });
     }
-    const created = await prisma.usageSession.create({
-      data: {
-        userId,
-        clientId: input.clientId ?? null,
-        startedAt: now,
-        lastSeenAt: now,
-        durationSec: 0,
-        pagePath: input.path,
-        userAgent: input.userAgent,
-        endedAt: input.ended ? now : null,
-      },
-    });
-    sessionId = created.id;
+    try {
+      const created = await prisma.usageSession.create({
+        data: {
+          userId,
+          clientId: input.clientId ?? null,
+          startedAt: now,
+          lastSeenAt: now,
+          durationSec: 0,
+          pagePath: input.path,
+          userAgent: input.userAgent,
+          endedAt: input.ended ? now : null,
+        },
+      });
+      sessionId = created.id;
+    } catch (err) {
+      // Unique index "one open session per (user, tab)": a racing first-beat
+      // already created it (e.g. StrictMode double-mount) — reuse that row.
+      if (err instanceof Prisma.PrismaClientKnownRequestError && err.code === 'P2002') {
+        const winner = await prisma.usageSession.findFirst({
+          where: { userId, clientId: input.clientId ?? null, endedAt: null },
+          orderBy: { lastSeenAt: 'desc' },
+        });
+        if (!winner) throw err;
+        sessionId = winner.id;
+      } else {
+        throw err;
+      }
+    }
   }
 
   // Events are meaningful moments (navigation, session end) — interval ticks
-  // only update session duration, they don't mint events.
+  // only update session duration, they don't mint events. A duplicate
+  // page_view for the same path within a few seconds (double-mount, retry) is
+  // dropped so admin "recent activity" stays a real navigation history.
   if (eventType !== 'heartbeat') {
-    await prisma.usageEvent.create({
-      data: { userId, sessionId, type: eventType, path: input.path, feature },
-    });
+    const dupe =
+      eventType === 'page_view'
+        ? await prisma.usageEvent.findFirst({
+            where: {
+              userId,
+              sessionId,
+              type: 'page_view',
+              path: input.path ?? null,
+              createdAt: { gte: new Date(now.getTime() - 5000) },
+            },
+          })
+        : null;
+    if (!dupe) {
+      await prisma.usageEvent.create({
+        data: { userId, sessionId, type: eventType, path: input.path, feature },
+      });
+    }
   }
 
   return { sessionId };

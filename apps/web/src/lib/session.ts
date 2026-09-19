@@ -16,21 +16,21 @@ export async function getSessionUser(): Promise<SessionUser | null> {
   try {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return null;
-    const u = session.user as {
-      id: string;
-      name: string;
-      email: string;
-      role?: string;
-      tosAcceptedAt?: Date | string | null;
-      riskDisclosureAcceptedAt?: Date | string | null;
-    };
+    const u = session.user as { id: string; name: string; email: string; role?: string };
+    // Consent fields are read from the DB, not the 5-min cookie cache —
+    // otherwise a user who just completed /complete-profile stays gated until
+    // the stale cookie expires.
+    const db = await prisma.user.findUnique({
+      where: { id: u.id },
+      select: { tosAcceptedAt: true, riskDisclosureAcceptedAt: true },
+    });
     return {
       id: u.id,
       name: u.name,
       email: u.email,
       role: u.role ?? 'user',
-      tosAcceptedAt: u.tosAcceptedAt ? new Date(u.tosAcceptedAt).toISOString() : null,
-      riskDisclosureAcceptedAt: u.riskDisclosureAcceptedAt ? new Date(u.riskDisclosureAcceptedAt).toISOString() : null,
+      tosAcceptedAt: db?.tosAcceptedAt?.toISOString() ?? null,
+      riskDisclosureAcceptedAt: db?.riskDisclosureAcceptedAt?.toISOString() ?? null,
     };
   } catch {
     // DB/auth transport unavailable — treat as logged-out rather than 500 the

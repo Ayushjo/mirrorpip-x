@@ -27,6 +27,7 @@ export function AdminAccess() {
   const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     const res = await fetch('/api/admin/grants');
@@ -37,12 +38,18 @@ export function AdminAccess() {
   async function create(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
+    setError(null);
     try {
-      await fetch('/api/admin/grants', {
+      const res = await fetch('/api/admin/grants', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, note }),
       });
+      if (!res.ok) {
+        const j = (await res.json().catch(() => ({}))) as { error?: string };
+        setError(j.error ?? `Could not create grant (${res.status}).`);
+        return;
+      }
       setEmail('');
       setNote('');
       await load();
@@ -73,6 +80,7 @@ export function AdminAccess() {
           <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" className="max-w-xs" />
           <Button type="submit" disabled={busy}>Grant access</Button>
         </form>
+        {error && <p className="mt-3 rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
       </Card>
 
       <Card className="overflow-x-auto p-0">

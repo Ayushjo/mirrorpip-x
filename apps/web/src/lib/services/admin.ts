@@ -275,7 +275,7 @@ export async function getUserDossier(userId: string) {
   });
   if (!user) return null;
 
-  const [credentials, follows, leader, usageSessions, events, notifications] = await Promise.all([
+  const [credentials, follows, leader, usageSessions, events, notifications, accounts] = await Promise.all([
     prisma.exchangeCredential.findMany({
       where: { userId },
       select: { id: true, exchange: true, label: true, status: true, keyLast4: true, lastError: true, verifiedAt: true, createdAt: true },
@@ -291,6 +291,7 @@ export async function getUserDossier(userId: string) {
     prisma.usageSession.findMany({ where: { userId }, orderBy: { lastSeenAt: 'desc' }, take: 10 }),
     prisma.usageEvent.findMany({ where: { userId }, orderBy: { createdAt: 'desc' }, take: 30 }),
     prisma.notification.count({ where: { userId, readAt: null } }),
+    prisma.account.findMany({ where: { userId }, select: { providerId: true } }),
   ]);
 
   return {
@@ -311,6 +312,7 @@ export async function getUserDossier(userId: string) {
       createdAt: user.createdAt.toISOString(),
       sessions: user._count.sessions,
       unreadNotifications: notifications,
+      authProviders: accounts.map((a) => a.providerId),
     },
     credentials: credentials.map((c) => ({
       id: c.id,
