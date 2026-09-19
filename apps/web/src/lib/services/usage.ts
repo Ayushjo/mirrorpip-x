@@ -28,23 +28,38 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
     orderBy: { lastSeenAt: 'desc' },
   });
 
-  let sessionId: string;
+  let sessionId = '';
   if (open && now.getTime() - open.lastSeenAt.getTime() <= SESSION_GAP_MS) {
     const elapsed = input.ended
       ? 0
       : Math.min(MAX_ELAPSED_SEC, Math.max(0, Math.round((now.getTime() - open.lastSeenAt.getTime()) / 1000)));
-    const updated = await prisma.usageSession.update({
-      where: { id: open.id },
+    // Conditional on endedAt still being null — a racing session_end must not
+    // be reopened by a slower in-flight heartbeat landing after it.
+    const { count } = await prisma.usageSession.updateMany({
+      where: { id: open.id, endedAt: null },
       data: {
         lastSeenAt: now,
         durationSec: { increment: elapsed },
         pagePath: input.path ?? open.pagePath,
-        endedAt: input.ended ? now : null,
+        ...(input.ended ? { endedAt: now } : {}),
       },
     });
-    sessionId = updated.id;
-  } else {
-    if (open) {
+    if (count === 1) {
+      sessionId = open.id;
+    } else if (input.ended) {
+      // Already closed by the racing end request — idempotent, nothing to do.
+      sessionId = open.id;
+    } else {
+      // Lost the race to a session_end — fall through to a fresh session so
+      // the visit isn't silently absorbed into a closed row.
+      sessionId = '';
+    }
+  }
+  if (!sessionId) {
+    // Gap-expired open row gets closed at its last real beat. (In the
+    // lost-race case above the row is already closed in the DB — our snapshot
+    // is stale, so don't touch it.)
+    if (open && now.getTime() - open.lastSeenAt.getTime() > SESSION_GAP_MS) {
       await prisma.usageSession.update({ where: { id: open.id }, data: { endedAt: open.lastSeenAt } });
     }
     try {

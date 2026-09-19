@@ -26,11 +26,13 @@ export class MudrexExchange implements Exchange {
   private async loadAssets(): Promise<Map<string, InstrumentInfo>> {
     if (this.assets) return this.assets;
     const response = await fetch(`${this.rest}/assets`);
+    // Only cache a successful catalog — a failed fetch must not poison the
+    // cache for the process lifetime (a 401/5xx would make every later
+    // resolveInstrument/getInstrument return null permanently).
+    if (!response.ok) throw new ExchangeRequestError(`Could not load Mudrex assets (${response.status})`, response.status);
     const map = new Map<string, InstrumentInfo>();
-    if (response.ok) {
-      for (const a of list(await response.json())) {
-        map.set(a.symbol, { symbol: a.symbol, canonicalSymbol: a.symbol, baseAsset: a.base_asset ?? String(a.symbol).replace(/(USDT|INR)$/, ''), quoteCurrency: a.quote_asset ?? 'USDT', contractMultiplier: n(a.contract_multiplier) || 1, minQty: n(a.minimum_quantity), qtyStep: n(a.quantity_step) || 1, minNotional: n(a.minimum_notional), orderTypes: ['MARKET'] });
-      }
+    for (const a of list(await response.json())) {
+      map.set(a.symbol, { symbol: a.symbol, canonicalSymbol: a.symbol, baseAsset: a.base_asset ?? String(a.symbol).replace(/(USDT|INR)$/, ''), quoteCurrency: a.quote_asset ?? 'USDT', contractMultiplier: n(a.contract_multiplier) || 1, minQty: n(a.minimum_quantity), qtyStep: n(a.quantity_step) || 1, minNotional: n(a.minimum_notional), orderTypes: ['MARKET'] });
     }
     this.assets = map;
     return map;

@@ -13,11 +13,13 @@ export function POST(req: Request): Promise<Response> {
       throw new ApiError(400, 'Both consents are required to continue.');
     }
     const now = new Date();
+    // First consent wins: don't overwrite previously-recorded acceptance
+    // timestamps (the audit trail should reflect when the user first agreed).
     await prisma.user.update({
       where: { id: user.id },
       data: {
-        tosAcceptedAt: now,
-        riskDisclosureAcceptedAt: now,
+        tosAcceptedAt: user.tosAcceptedAt ?? now,
+        riskDisclosureAcceptedAt: user.riskDisclosureAcceptedAt ?? now,
         ...(input.country ? { country: input.country } : {}),
         ...(input.city ? { city: input.city } : {}),
         ...(input.postalCode ? { postalCode: input.postalCode } : {}),
