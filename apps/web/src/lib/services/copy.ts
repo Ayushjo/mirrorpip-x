@@ -208,7 +208,10 @@ export async function createFollow(userId: string, input: CreateFollowInput) {
   if (!leader || leader.status !== 'VERIFIED') throw new ApiError(404, 'Leader not available.');
   if (!cred) throw new ApiError(404, 'Connected account not found.');
   if (cred.status !== 'ACTIVE') throw new ApiError(409, 'That account is not active.');
-  if (cred.exchange !== leader.exchange) throw new ApiError(409, 'The follower account must use the same exchange as the leader.', 'EXCHANGE_MISMATCH');
+  // Cross-venue follows are allowed: the engine resolves each fill to the
+  // follower venue's instrument by canonical base/quote and converts contract
+  // quantities to base units. Instruments the venue doesn't list are skipped
+  // per-fill (recorded on the CopyOrder), not blocked here.
   if (leader.credentialId === cred.id) throw new ApiError(409, 'You cannot follow yourself with the same account.');
 
   const existing = await prisma.follow.findUnique({
@@ -402,7 +405,7 @@ export async function setLeaderStatus(id: string, status: 'PENDING' | 'VERIFIED'
   const leader = await prisma.leader.findUnique({ where: { id } });
   if (!leader) throw new ApiError(404, 'Leader not found.');
   await prisma.leader.update({ where: { id }, data: { status } });
-  return { id, status };
+  return { id, status, userId: leader.userId, displayName: leader.displayName };
 }
 
 export async function getKillSwitch(): Promise<boolean> {

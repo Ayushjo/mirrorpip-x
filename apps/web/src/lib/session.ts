@@ -7,6 +7,8 @@ export interface SessionUser {
   name: string;
   email: string;
   role: string;
+  tosAcceptedAt: string | null;
+  riskDisclosureAcceptedAt: string | null;
 }
 
 /** Resolve the current signed-in user (server-side), or null. */
@@ -15,7 +17,21 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     const session = await auth.api.getSession({ headers: await headers() });
     if (!session?.user) return null;
     const u = session.user as { id: string; name: string; email: string; role?: string };
-    return { id: u.id, name: u.name, email: u.email, role: u.role ?? 'user' };
+    // Consent fields are read from the DB, not the 5-min cookie cache —
+    // otherwise a user who just completed /complete-profile stays gated until
+    // the stale cookie expires.
+    const db = await prisma.user.findUnique({
+      where: { id: u.id },
+      select: { tosAcceptedAt: true, riskDisclosureAcceptedAt: true },
+    });
+    return {
+      id: u.id,
+      name: u.name,
+      email: u.email,
+      role: u.role ?? 'user',
+      tosAcceptedAt: db?.tosAcceptedAt?.toISOString() ?? null,
+      riskDisclosureAcceptedAt: db?.riskDisclosureAcceptedAt?.toISOString() ?? null,
+    };
   } catch {
     // DB/auth transport unavailable — treat as logged-out rather than 500 the
     // whole app (every page reads the session in the root layout).

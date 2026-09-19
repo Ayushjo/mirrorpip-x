@@ -27,6 +27,22 @@ model User {
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
 
+  // Profile fields collected at signup (better-auth additionalFields).
+  country    String?
+  city       String?
+  postalCode String?
+  phone      String?
+  // Declared intent at signup: "follower" | "leader".
+  intendedRole String?
+  referralCode String?
+  // Consent stamps — recorded at signup, needed for compliance.
+  tosAcceptedAt            DateTime?
+  riskDisclosureAcceptedAt DateTime?
+  // Geocoded async after signup (best-effort, for the admin geo view).
+  lat               Float?
+  lng               Float?
+  locationUpdatedAt DateTime?
+
   sessions Session[]
   accounts Account[]
 
@@ -319,7 +335,10 @@ model CopyOrder {
   avgPrice    Decimal?        @db.Decimal(30, 10)
   exchOrderId String?
   slippageBps Decimal?        @db.Decimal(12, 4)
-  error       String?
+  // Exchange-reported costs in the order's quote currency.
+  commission Decimal? @db.Decimal(20, 8)
+  fees       Decimal? @db.Decimal(20, 8)
+  error      String?
 
   requestedAt DateTime  @default(now())
   filledAt    DateTime?
@@ -351,6 +370,90 @@ model CopyPosition {
   @@unique([followId, symbol])
   @@index([followId])
   @@map("copy_position")
+}
+
+// ─── Product usage tracking (drives the admin engagement view) ──────────────
+
+// One row per continuous visit per browser tab; reopened when the last
+// heartbeat is <30min old. clientId is a per-tab UUID from the tracker.
+model UsageSession {
+  id       String  @id @default(cuid())
+  userId   String
+  clientId String?
+
+  startedAt   DateTime  @default(now())
+  lastSeenAt  DateTime  @default(now())
+  endedAt     DateTime?
+  durationSec Int       @default(0)
+  pagePath    String?
+  userAgent   String?
+
+  @@index([userId, lastSeenAt])
+  @@index([userId, clientId])
+  @@map("usage_session")
+}
+
+model UsageEvent {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String?
+  type      String // "page_view" | "heartbeat" | "session_end"
+  path      String?
+  feature   String?
+  meta      Json?
+  createdAt DateTime @default(now())
+
+  @@index([userId, createdAt])
+  @@index([feature, createdAt])
+  @@map("usage_event")
+}
+
+// ─── Admin audit trail (who did what, when) ──────────────────────────────────
+
+model AdminAuditLog {
+  id         String   @id @default(cuid())
+  action     String // e.g. "leader.verified", "kill_switch.enabled", "grant.created"
+  actorId    String
+  actorEmail String
+  targetType String?
+  targetId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([targetType, targetId])
+  @@map("admin_audit_log")
+}
+
+// ─── In-app notifications ────────────────────────────────────────────────────
+
+model Notification {
+  id        String    @id @default(cuid())
+  userId    String
+  kind      String // e.g. "credential.invalid", "leader.verified", "copy_order.rejected"
+  title     String
+  body      String?
+  href      String?
+  readAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  @@index([userId, createdAt])
+  @@map("notification")
+}
+
+// ─── Access grants (invite/beta gating when beta_mode setting is on) ──────────
+
+model AccessGrant {
+  id            String    @id @default(cuid())
+  email         String
+  note          String    @default("")
+  grantedBy     String
+  grantedByEmail String
+  revokedAt     DateTime?
+  createdAt     DateTime  @default(now())
+
+  @@index([email])
+  @@map("access_grant")
 }
 
 // ─── System settings (kill-switch, engine flags) ──────────────────────────────

@@ -17,7 +17,7 @@ const SIZING = [
   { value: 'FIXED_MARGIN', label: 'Fixed notional', hint: 'Spend a fixed USD notional per leader entry (value = USD).' },
 ] as const;
 
-export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; leaderName: string; creds: Cred[] }) {
+export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { leaderId: string; leaderName: string; leaderExchange: string; creds: Cred[] }) {
   const router = useRouter();
   const [credentialId, setCredentialId] = useState(creds[0]?.id ?? '');
   const [sizingMode, setSizingMode] = useState<'PROPORTIONAL' | 'MULTIPLIER' | 'FIXED_MARGIN'>('PROPORTIONAL');
@@ -74,11 +74,11 @@ export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; 
   return (
     <Card>
       <form onSubmit={submit} className="space-y-5">
-        <Field label="Copy into account">
+        <Field label="Copy into account" hint="Trades are translated to your account's exchange automatically.">
           <Select value={credentialId} onChange={(e) => setCredentialId(e.target.value)}>
             {creds.map((c) => (
               <option key={c.id} value={c.id}>
-                {c.label} (••••{c.keyLast4})
+                {c.label} (••••{c.keyLast4}) · {c.exchange}
               </option>
             ))}
           </Select>
@@ -133,12 +133,12 @@ export function FollowForm({ leaderId, leaderName, creds }: { leaderId: string; 
         </label>
 
         <div className="rounded-xl border border-border-soft bg-surface-2 px-4 py-3 text-sm text-muted">
-          <strong className="text-black">What will be copied:</strong> every fill {leaderName} makes after you start —
-          sized with your method above
+          <strong className="text-black">What will be copied:</strong> every fill {leaderName} makes after you start on{' '}
+          {leaderExchange} — mapped to the matching contract on your account's exchange, sized with your method above
           {copyReverse ? ', reversed' : ''}
           {maxPositionUsd ? `, capped at $${maxPositionUsd} per position` : ''}
-          {dailyLossLimitUsd ? `, auto-paused after $${dailyLossLimitUsd} daily loss` : ''}. Past trades are not
-          backfilled.
+          {dailyLossLimitUsd ? `, auto-paused after $${dailyLossLimitUsd} daily loss` : ''}. Instruments your exchange
+          doesn't list are skipped. Past trades are not backfilled.
         </div>
 
         {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}

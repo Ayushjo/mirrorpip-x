@@ -2,9 +2,13 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import './globals.css';
 import { getSessionUser, isAdmin } from '@/lib/session';
+import { getMaintenanceMode } from '@/lib/services/admin';
 import { UserMenu } from '@/components/user-menu';
 import { LogoIcon } from '@/components/icons';
 import { MobileNav } from '@/components/mobile-nav';
+import { UsageTracker } from '@/components/usage-tracker';
+import { NotificationBell } from '@/components/notification-bell';
+import { ConsentGate } from '@/components/consent-gate';
 
 export const metadata: Metadata = {
   title: 'MirrorPip-X — Copy the best crypto traders',
@@ -15,6 +19,7 @@ export const metadata: Metadata = {
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
   const user = await getSessionUser();
   const admin = await isAdmin(user);
+  const maintenance = await getMaintenanceMode().catch(() => ({ enabled: false, message: '' }));
 
   const navLinks = [
     { href: '/leaders', label: 'Leaderboard' },
@@ -54,11 +59,20 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </nav>
 
             <div className="flex items-center gap-2">
+              {user && <NotificationBell />}
               <MobileNav links={navLinks} />
               <UserMenu user={user ? { name: user.name, email: user.email } : null} />
             </div>
           </div>
         </header>
+
+        {maintenance.enabled && (
+          <div className="border-b border-warn/30 bg-[#fbf1e3] px-6 py-2 text-center text-sm text-warn">
+            {maintenance.message || 'MirrorPip is under scheduled maintenance — copying may be paused.'}
+          </div>
+        )}
+        {user && <ConsentGate needsConsent={!user.tosAcceptedAt || !user.riskDisclosureAcceptedAt} />}
+        {user && <UsageTracker />}
 
         <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">{children}</main>
 
