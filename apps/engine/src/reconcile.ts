@@ -1,5 +1,5 @@
-import { prisma } from '@mirrorpip/db';
-import { getExchange, type InstrumentInfo } from '@mirrorpip/exchange';
+import { prisma } from '@belivemeguys/db';
+import { getExchange, type InstrumentInfo } from '@belivemeguys/exchange';
 import { toApiCreds } from './creds.js';
 import { fanoutLeaderFill } from './fanout.js';
 import { curveStats, WINDOWS } from './stats.js';

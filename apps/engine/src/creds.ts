@@ -1,5 +1,5 @@
-import type { ExchangeCredential } from '@mirrorpip/db';
-import { type ApiCredentials, decryptSecret, getExchange } from '@mirrorpip/exchange';
+import type { ExchangeCredential } from '@belivemeguys/db';
+import { type ApiCredentials, decryptSecret, getExchange } from '@belivemeguys/exchange';
 
 /** Decrypt a stored credential into usable API keys (in-memory only). */
 export function toApiCreds(cred: Pick<ExchangeCredential, 'apiKeyEnc' | 'apiSecretEnc' | 'tradeCurrency' | 'settings'>): ApiCredentials {

@@ -10,7 +10,7 @@ export interface OutboundEmail {
 
 export async function sendEmail({ to, subject, html }: OutboundEmail): Promise<void> {
   const key = process.env.RESEND_API_KEY;
-  const from = process.env.RESEND_FROM ?? 'MirrorPip <onboarding@resend.dev>';
+  const from = process.env.RESEND_FROM ?? 'BelieveMeGuys <onboarding@resend.dev>';
   if (!key) {
     if (process.env.NODE_ENV === 'production') {
       // Never log email bodies in prod — OTP subjects/bodies are auth secrets.
@@ -34,7 +34,7 @@ export async function sendEmail({ to, subject, html }: OutboundEmail): Promise<v
 
 const shell = (title: string, body: string): string => `
   <div style="font-family:Inter,system-ui,sans-serif;max-width:480px;margin:0 auto;padding:32px">
-    <div style="font-size:20px;font-weight:600;margin-bottom:16px">MirrorPip</div>
+    <div style="font-size:20px;font-weight:600;margin-bottom:16px">BelieveMeGuys</div>
     <h1 style="font-size:22px;margin:0 0 12px">${title}</h1>
     ${body}
     <p style="color:#888;font-size:12px;margin-top:32px">If you didn't request this, you can ignore this email.</p>
@@ -42,7 +42,7 @@ const shell = (title: string, body: string): string => `
 
 export function verificationOtpEmail(otp: string): { subject: string; html: string } {
   return {
-    subject: `${otp} — your MirrorPip verification code`,
+    subject: `${otp} — your BelieveMeGuys verification code`,
     html: shell(
       'Verify your email',
       `<p style="color:#444">Enter this code to finish creating your account:</p>
@@ -54,7 +54,7 @@ export function verificationOtpEmail(otp: string): { subject: string; html: stri
 
 export function resetPasswordOtpEmail(otp: string): { subject: string; html: string } {
   return {
-    subject: `${otp} — reset your MirrorPip password`,
+    subject: `${otp} — reset your BelieveMeGuys password`,
     html: shell(
       'Reset your password',
       `<p style="color:#444">Enter this code to choose a new password:</p>
@@ -66,7 +66,7 @@ export function resetPasswordOtpEmail(otp: string): { subject: string; html: str
 
 export function welcomeEmail(name: string): { subject: string; html: string } {
   return {
-    subject: 'Welcome to MirrorPip',
+    subject: 'Welcome to BelieveMeGuys',
     html: shell(
       `Welcome${name ? `, ${name}` : ''}`,
       `<p style="color:#444">Your account is verified. Connect your exchange account and start copying verified leaders — your funds never leave your exchange.</p>`,

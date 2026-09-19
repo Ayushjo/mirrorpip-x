@@ -1,5 +1,5 @@
-import { prisma, type Leader } from '@mirrorpip/db';
-import { ExchangeAuthError, type FillStream, getExchange } from '@mirrorpip/exchange';
+import { prisma, type Leader } from '@belivemeguys/db';
+import { ExchangeAuthError, type FillStream, getExchange } from '@belivemeguys/exchange';
 import { toApiCreds } from './creds.js';
 import { fanoutLeaderFill } from './fanout.js';
 import { log } from './log.js';

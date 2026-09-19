@@ -5,8 +5,8 @@ import { config as loadEnv } from 'dotenv';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 
-import { prisma } from '@mirrorpip/db';
-import { deltaIndia, encryptSecret, fingerprintApiKey, last4 } from '@mirrorpip/exchange';
+import { prisma } from '@belivemeguys/db';
+import { deltaIndia, encryptSecret, fingerprintApiKey, last4 } from '@belivemeguys/exchange';
 
 /**
  * Dev helper: wire a full leader→follower copy scenario from two testnet keys.
@@ -15,7 +15,7 @@ import { deltaIndia, encryptSecret, fingerprintApiKey, last4 } from '@mirrorpip/
  *   OWNER_EMAIL=you@example.com \
  *   DELTA_LEADER_KEY=... DELTA_LEADER_SECRET=... \
  *   DELTA_FOLLOWER_KEY=... DELTA_FOLLOWER_SECRET=... \
- *   pnpm --filter @mirrorpip/engine setup-test
+ *   pnpm --filter @belivemeguys/engine setup-test
  *
  * Creates two encrypted credentials, a VERIFIED leader, and an ACTIVE proportional
  * follow, all owned by OWNER_EMAIL. Idempotent-ish (skips if already present).

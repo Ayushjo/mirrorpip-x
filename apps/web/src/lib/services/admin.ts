@@ -1,4 +1,4 @@
-import { prisma, Prisma } from '@mirrorpip/db';
+import { prisma, Prisma } from '@belivemeguys/db';
 import type { SessionUser } from '../session.js';
 
 // ─── Audit trail ──────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ export async function assertAccess(user: SessionUser): Promise<void> {
   if (!(await hasAccessGrant(user.email))) {
     throw new (await import('../api.js')).ApiError(
       403,
-      'MirrorPip is in private beta — you need an invite to use this feature.',
+      'BelieveMeGuys is in private beta — you need an invite to use this feature.',
       'BETA_GATE',
     );
   }

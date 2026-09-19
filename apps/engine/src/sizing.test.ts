@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { computeSize } from './sizing.js';
-import type { FillEvent } from '@mirrorpip/exchange';
+import type { FillEvent } from '@belivemeguys/exchange';
 
 const fill = (over: Partial<FillEvent> = {}): FillEvent => ({
   externalId: 'f1',

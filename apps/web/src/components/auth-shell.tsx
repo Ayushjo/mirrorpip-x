@@ -34,7 +34,7 @@ export function AuthShell({ children }: { children: ReactNode }) {
       <div className="relative flex items-center justify-center overflow-y-auto px-6 py-16">
         <Link href="/" className="absolute left-6 top-6 flex items-center gap-2 text-black">
           <LogoIcon className="h-6 w-6" />
-          <span className="text-lg font-medium tracking-tight">MirrorPip</span>
+          <span className="text-lg font-medium tracking-tight">BelieveMeGuys</span>
         </Link>
         <div className="w-full max-w-sm">{children}</div>
       </div>

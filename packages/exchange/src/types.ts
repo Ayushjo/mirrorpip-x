@@ -4,7 +4,7 @@
 
 export type Side = 'BUY' | 'SELL';
 
-export type ExchangeId = 'DELTA_INDIA' | 'SHARK' | 'PI42' | 'MUDREX' | 'BYBIT';
+export type ExchangeId = 'DELTA_INDIA' | 'BYBIT';
 export type TradeCurrency = 'USDT' | 'INR';
 
 export interface ApiCredentials {

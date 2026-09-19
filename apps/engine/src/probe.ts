@@ -7,12 +7,12 @@ import { createHmac } from 'node:crypto';
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 
-import { deltaIndia } from '@mirrorpip/exchange';
+import { deltaIndia } from '@belivemeguys/exchange';
 
 /**
  * Delta testnet connectivity probe. Run once you have a TESTNET api key:
  *
- *   DELTA_TEST_KEY=xxx DELTA_TEST_SECRET=yyy pnpm --filter @mirrorpip/engine probe
+ *   DELTA_TEST_KEY=xxx DELTA_TEST_SECRET=yyy pnpm --filter @belivemeguys/engine probe
  *
  * It (1) reads your balances + positions via the signed REST adapter, (2) fetches
  * a public mark price, and (3) opens the private WebSocket and DUMPS RAW messages
@@ -58,7 +58,7 @@ async function main() {
   }
 
   line('4. RAW WebSocket dump (30s) — place a small trade to see a fill');
-  const ws = new WebSocket(WS, { headers: { 'User-Agent': 'mirrorpip-x-probe/0.1' } });
+  const ws = new WebSocket(WS, { headers: { 'User-Agent': 'belivemeguys-probe/0.1' } });
   ws.on('open', () => {
     const ts = Math.floor(Date.now() / 1000).toString();
     const signature = createHmac('sha256', apiSecret).update('GET' + ts + '/live').digest('hex');

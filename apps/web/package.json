@@ -1,5 +1,5 @@
 {
-  "name": "@mirrorpip/web",
+  "name": "@belivemeguys/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -11,8 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@mirrorpip/db": "workspace:*",
-    "@mirrorpip/exchange": "workspace:*",
+    "@belivemeguys/db": "workspace:*",
+    "@belivemeguys/exchange": "workspace:*",
     "better-auth": "1.2.7",
     "dotenv": "^16.4.7",
     "lucide-react": "^0.469.0",

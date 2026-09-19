@@ -1,5 +1,5 @@
 import { headers } from 'next/headers';
-import { prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
 import { auth } from './auth.js';
 
 export interface SessionUser {

@@ -1,4 +1,4 @@
-import { prisma } from '@mirrorpip/db';
+import { prisma } from '@belivemeguys/db';
 
 // Global kill-switch, stored as a SystemSetting row so admins can flip it from
 // the web app. Cached briefly so a hot fan-out loop doesn't hammer the DB.

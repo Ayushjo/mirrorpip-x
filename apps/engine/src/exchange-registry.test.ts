@@ -1,10 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { exchangeRegistry, getExchange } from '@mirrorpip/exchange';
+import { exchangeRegistry, getExchange } from '@belivemeguys/exchange';
 
 describe('exchange registry', () => {
-  it('exposes the four connectable exchanges', () => {
+  it('exposes Delta India as the only connectable exchange', () => {
     expect(exchangeRegistry.filter((entry) => entry.availability === 'ACTIVE').map((entry) => entry.id)).toEqual([
-      'DELTA_INDIA', 'SHARK', 'PI42', 'MUDREX',
+      'DELTA_INDIA',
     ]);
   });
 
@@ -17,11 +17,5 @@ describe('exchange registry', () => {
     for (const entry of exchangeRegistry.filter((item) => item.availability === 'ACTIVE')) {
       expect(getExchange(entry.id).id).toBe(entry.id);
     }
-  });
-
-  it('marks Mudrex as polling and Pi42/Shark as private streams', () => {
-    expect(getExchange('MUDREX').capabilities?.fillSource).toBe('POLLING');
-    expect(getExchange('PI42').capabilities?.fillSource).toBe('WEBSOCKET');
-    expect(getExchange('SHARK').capabilities?.fillSource).toBe('WEBSOCKET');
   });
 });

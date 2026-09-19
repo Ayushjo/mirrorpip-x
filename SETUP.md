@@ -1,8 +1,8 @@
-# MirrorPip-X — Setup & Status
+# BelieveMeGuys — Setup & Status
 
 ## What this is
 
-A crypto **copy-trading** platform (a cleaner build of mirrorpip.com). Leaders trade in
+A crypto **copy-trading** platform (a cleaner build of belivemeguys.com). Leaders trade in
 their own Delta Exchange India account; the engine watches their fills over WebSocket and
 mirrors each trade proportionally into every follower's account. Followers keep custody —
 the platform only ever places orders via the follower's own API key.
@@ -29,7 +29,7 @@ the platform only ever places orders via the follower's own API key.
 
 ### The local database (dev only)
 A local Postgres is already running on this machine for development:
-- DB `mirrorpip`, role `mirrorpip` / password `mirrorpip`, at `localhost:5432`
+- DB `belivemeguys`, role `belivemeguys` / password `belivemeguys`, at `localhost:5432`
 - Start/stop it:
   ```bash
   LC_ALL="en_US.UTF-8" /opt/homebrew/opt/postgresql@16/bin/pg_ctl -D /opt/homebrew/var/postgresql@16 -l /tmp/pg16.log start

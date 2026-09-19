@@ -3,7 +3,7 @@ import { getSessionUser } from '@/lib/session';
 import { listCredentials } from '@/lib/services/copy';
 import { ConnectManager } from '@/components/connect-manager';
 import { MediaBanner } from '@/components/media-banner';
-import { exchangeRegistry } from '@mirrorpip/exchange';
+import { exchangeRegistry } from '@belivemeguys/exchange';
 
 export const dynamic = 'force-dynamic';
 
