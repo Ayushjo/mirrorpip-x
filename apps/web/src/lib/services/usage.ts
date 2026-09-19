@@ -29,6 +29,7 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
   });
 
   let sessionId = '';
+  let suppressEvent = false;
   if (open && now.getTime() - open.lastSeenAt.getTime() <= SESSION_GAP_MS) {
     const elapsed = input.ended
       ? 0
@@ -47,8 +48,10 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
     if (count === 1) {
       sessionId = open.id;
     } else if (input.ended) {
-      // Already closed by the racing end request — idempotent, nothing to do.
+      // Already closed by the racing end request — that request minted the
+      // session_end event, so don't emit a second one.
       sessionId = open.id;
+      suppressEvent = true;
     } else {
       // Lost the race to a session_end — fall through to a fresh session so
       // the visit isn't silently absorbed into a closed row.
@@ -96,7 +99,7 @@ export async function recordHeartbeat(userId: string, input: HeartbeatInput) {
   // only update session duration, they don't mint events. A duplicate
   // page_view for the same path within a few seconds (double-mount, retry) is
   // dropped so admin "recent activity" stays a real navigation history.
-  if (eventType !== 'heartbeat') {
+  if (eventType !== 'heartbeat' && !suppressEvent) {
     const dupe =
       eventType === 'page_view'
         ? await prisma.usageEvent.findFirst({
