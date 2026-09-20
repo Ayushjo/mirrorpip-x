@@ -1,8 +1,104 @@
 # Deploying BelieveMeGuys on Railway
 
 Two services from this one monorepo — **web** (Next.js, the thing people view) and
-**engine** (the copy-trading worker) — plus **Postgres** (or keep Neon) and the
-**Redis** you already have. Deploy the web service first so people can view the app.
+**engine** (the copy-trading worker). The **DB** is Neon Singapore (already migrated)
+and **Redis** is your existing Railway Redis (used via `REDIS_URL`). Deploy the web
+service first so people can view the app.
+
+There are two ways to deploy, below:
+- **[Deploy via the Railway CLI](#deploy-via-the-railway-cli-no-dashboard)** — no dashboard (recommended, this is what we set up).
+- **[Deploy via the dashboard](#1-web-service-nextjs--deploy-this-first)** — the click-through alternative (sections 1–4).
+
+---
+
+## Deploy via the Railway CLI (no dashboard)
+
+This is a **shared** pnpm monorepo (the two apps import `packages/*`), so both
+services keep their **root directory at the repo root** and get their own **build /
+start commands** set with `railway environment edit --service-config`. (Per-app
+`railway.json` files are *not* read in this flow — Railway only auto-detects those
+via the dashboard "import repo" wizard — so we set the commands explicitly instead.)
+
+Every command below was verified against Railway CLI **5.58.0** (`brew install railway`).
+
+### Step 1 — sign in and create the project
+```bash
+railway login                       # opens a browser (device code on headless)
+railway init --name believemeguys   # creates the project + links this folder
+```
+
+### Step 2 — create the two services
+```bash
+railway add --service web
+railway add --service engine
+```
+> We do **not** add a Railway Postgres or Redis: the DB is Neon Singapore and Redis
+> is your existing instance — both are wired via `REDIS_URL` / `DATABASE_URL` env
+> vars in Step 4. (Later, to move Redis into this project: `railway add --database
+> redis`, then set `REDIS_URL` to `${{Redis.REDIS_URL}}` for the internal URL.)
+
+### Step 3 — set each service's build + start command
+```bash
+# web (Next.js): generate Prisma client, then build; start binds $PORT/0.0.0.0
+railway environment edit --service-config web \
+  build.buildCommand "pnpm --filter @belivemeguys/db exec prisma generate && pnpm --filter @belivemeguys/web build"
+railway environment edit --service-config web \
+  deploy.startCommand "pnpm --filter @belivemeguys/web start"
+
+# engine (worker): only needs the Prisma client generated at build
+railway environment edit --service-config engine \
+  build.buildCommand "pnpm --filter @belivemeguys/db exec prisma generate"
+railway environment edit --service-config engine \
+  deploy.startCommand "pnpm --filter @belivemeguys/engine start"
+```
+
+### Step 4 — push all env vars (from local `.env`, no hand-copying secrets)
+```bash
+bash scripts/railway-set-vars.sh
+```
+This reads `./.env` at runtime and sets every var on `web` and `engine` via `--stdin`
+(safe for the `&`/`?` in the Neon URL) with `--skip-deploys`. It never prints or
+commits a secret. It deliberately skips `NEXT_PUBLIC_APP_URL` (set in Step 6).
+
+### Step 5 — deploy both services (from the repo root)
+```bash
+railway up --service web        # uploads the whole repo; builds+starts web
+railway up --service engine
+```
+`railway up` respects `.gitignore`, so your `.env` is **not** uploaded — the app reads
+the Railway variables from Step 4.
+
+### Step 6 — give web a public URL, then rebuild so auth uses it
+`NEXT_PUBLIC_APP_URL` is baked in at build time and better-auth uses it for cookies +
+OTP links, so it must be the real domain and web must be rebuilt after setting it:
+```bash
+railway domain --service web                      # prints https://<something>.up.railway.app
+railway variable set NEXT_PUBLIC_APP_URL=https://<that-domain> --service web
+railway up --service web                          # redeploy so the URL bakes in
+```
+
+### Step 7 — verify
+```bash
+railway logs --service engine     # expect: "started leader watcher ... Leo Live Delta", no decrypt errors
+railway logs --service web        # expect: Next.js "Ready"
+```
+Open the web domain from Step 6 → sign in → dashboard.
+
+> **DB migrations:** the Singapore DB already has the full schema + data, so no
+> migration step is needed now. If you change the schema later, run:
+> `cd packages/db && npx dotenv -e ../../.env -- npx prisma migrate deploy`.
+
+> ⚠️ **Engine + live trading:** Railway's outbound IP differs from your Mac, and
+> Delta keys are IP-whitelisted. For real copies, whitelist Railway's egress IP on
+> the Delta keys (static-egress add-on) or leave the key allowlist empty. The
+> frontend works regardless.
+
+> **Before real users:** remove the demo backdoor —
+> `railway variable delete DEMO_OTP_BYPASS --service web` and
+> `railway variable delete NEXT_PUBLIC_DEMO_OTP_BYPASS --service web` (then redeploy
+> web), and delete `apps/web/src/app/api/demo/otp`.
+
+---
 
 ## 0. Prereqs
 - Push this repo to GitHub (Railway deploys from GitHub).
