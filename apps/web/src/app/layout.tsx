@@ -55,7 +55,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
             <nav className="hidden items-center gap-8 text-base font-medium text-gray-700 md:flex">
               {navLinks.map((l) => (
-                <Link key={l.href} href={l.href} className="transition-colors duration-200 hover:text-black">
+                <Link
+                  key={l.href}
+                  href={l.href}
+                  className="relative transition-colors duration-200 after:absolute after:-bottom-1 after:left-0 after:h-px after:w-0 after:bg-black after:transition-all after:duration-300 hover:text-black hover:after:w-full"
+                >
                   {l.label}
                 </Link>
               ))}
