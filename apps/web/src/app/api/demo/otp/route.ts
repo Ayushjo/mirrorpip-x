@@ -15,8 +15,10 @@ export function GET(req: NextRequest): Promise<Response> {
     if (process.env.DEMO_OTP_BYPASS !== 'true') throw new ApiError(404, 'Not found.');
     const email = req.nextUrl.searchParams.get('email')?.trim();
     if (!email) throw new ApiError(400, 'email is required.');
+    // better-auth lowercases the email in the verification identifier, so match
+    // case-insensitively — otherwise a typed "Foo@x.com" misses "foo@x.com".
     const row = await prisma.verification.findFirst({
-      where: { identifier: { contains: email } },
+      where: { identifier: { contains: email, mode: 'insensitive' } },
       orderBy: { createdAt: 'desc' },
     });
     // Stored as "<otp>:<attempts>" — pull the first 6-digit run.
