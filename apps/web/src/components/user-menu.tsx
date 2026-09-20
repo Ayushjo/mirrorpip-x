@@ -1,13 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { signOut } from '@/lib/auth-client';
 import { Button, LinkButton } from './ui';
 
 export function UserMenu({ user }: { user: { name: string; email: string } | null }) {
-  const router = useRouter();
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -28,9 +26,13 @@ export function UserMenu({ user }: { user: { name: string; email: string } | nul
 
   async function handleSignOut() {
     setBusy(true);
-    await signOut();
-    router.push('/');
-    router.refresh();
+    try {
+      await signOut();
+    } finally {
+      // Hard navigation guarantees the server layout re-renders logged-out and
+      // the button never gets stuck in the "Signing out…" state.
+      window.location.assign('/');
+    }
   }
 
   return (

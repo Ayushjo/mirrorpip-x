@@ -9,10 +9,12 @@ loadEnv({ path: path.resolve(__dirname, '../../../.env') });
 import { prisma } from '@belivemeguys/db';
 import { syncWatchers, stopAllWatchers, watcherCount } from './watchers.js';
 import { reconcile } from './reconcile.js';
+import { pruneUsage } from './prune.js';
 import { log } from './log.js';
 
 const SYNC_MS = Number(process.env.ENGINE_SYNC_INTERVAL_MS ?? 5000);
 const RECONCILE_MS = Number(process.env.ENGINE_RECONCILE_INTERVAL_MS ?? 30_000);
+const PRUNE_MS = Number(process.env.ENGINE_PRUNE_INTERVAL_MS ?? 6 * 3600_000);
 
 function requireEnv(): void {
   const missing = ['DATABASE_URL', 'CREDENTIAL_ENCRYPTION_KEY'].filter((k) => !process.env[k]);
@@ -38,12 +40,16 @@ async function main(): Promise<void> {
 
   const syncTimer = setInterval(() => void safe('sync', syncWatchers), SYNC_MS);
   const reconcileTimer = setInterval(() => void safe('reconcile', reconcile), RECONCILE_MS);
+  const pruneTimer = setInterval(() => void safe('prune', pruneUsage), PRUNE_MS);
   const heartbeat = setInterval(() => log.info('heartbeat', { liveWatchers: watcherCount() }), 60_000);
+  // Run one prune shortly after boot so retention takes effect without waiting a full cycle.
+  setTimeout(() => void safe('prune', pruneUsage), 10_000);
 
   const shutdown = async (sig: string): Promise<void> => {
     log.info('shutting down', { sig });
     clearInterval(syncTimer);
     clearInterval(reconcileTimer);
+    clearInterval(pruneTimer);
     clearInterval(heartbeat);
     stopAllWatchers();
     await prisma.$disconnect().catch(() => undefined);

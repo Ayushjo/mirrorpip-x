@@ -76,8 +76,9 @@ export const maintenanceSchema = z.object({
 export const betaModeSchema = z.object({ enabled: z.boolean() });
 
 export const consentSchema = z.object({
-  agreeTos: z.boolean(),
-  agreeRisk: z.boolean(),
+  // Optional: users who already accepted at signup finish only their location here.
+  agreeTos: z.boolean().optional().default(false),
+  agreeRisk: z.boolean().optional().default(false),
   country: z.string().trim().length(2).optional(),
   city: z.string().trim().max(100).optional(),
   postalCode: z.string().trim().max(20).optional(),

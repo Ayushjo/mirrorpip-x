@@ -4,8 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { signIn, signUp } from '@/lib/auth-client';
-import { COUNTRIES } from '@/lib/countries';
-import { Button, Field, Input, Select } from './ui';
+import { Button, Field, Input } from './ui';
 import { CheckIcon } from './icons';
 
 function passwordStrength(pw: string): { score: number; label: string; color: string } {
@@ -27,11 +26,6 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const [country, setCountry] = useState('');
-  const [city, setCity] = useState('');
-  const [postalCode, setPostalCode] = useState('');
-  const [phone, setPhone] = useState('');
-  const [intendedRole, setIntendedRole] = useState('');
   const [referralCode, setReferralCode] = useState('');
   const [agreeTos, setAgreeTos] = useState(false);
   const [agreeRisk, setAgreeRisk] = useState(false);
@@ -49,14 +43,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
   const strength = useMemo(() => passwordStrength(password), [password]);
   const canSubmit = isRegister
-    ? name.trim().length > 1 &&
-      email.includes('@') &&
-      strength.score >= 2 &&
-      agreeTos &&
-      agreeRisk &&
-      country.length === 2 &&
-      city.trim().length > 0 &&
-      postalCode.trim().length > 0
+    ? name.trim().length > 1 && email.includes('@') && strength.score >= 2 && agreeTos && agreeRisk
     : email.includes('@') && password.length >= 8;
 
   async function signInWithGoogle() {
@@ -82,11 +69,6 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             name,
             email,
             password,
-            country,
-            city: city.trim(),
-            postalCode: postalCode.trim(),
-            ...(phone.trim() ? { phone: phone.trim() } : {}),
-            ...(intendedRole ? { intendedRole } : {}),
             ...(referralCode.trim() ? { referralCode: referralCode.trim() } : {}),
             tosAcceptedAt: new Date().toISOString(),
             riskDisclosureAcceptedAt: new Date().toISOString(),
@@ -105,8 +87,9 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         router.push(`/verify?email=${encodeURIComponent(email)}`);
         return;
       }
-      router.push('/dashboard');
-      router.refresh();
+      // Full navigation so the server layout re-renders with the fresh session
+      // (avatar/nav correct immediately — no stale menu until a manual refresh).
+      window.location.assign('/dashboard');
     } catch {
       setError('Could not reach the server. Please try again.');
     } finally {
@@ -150,42 +133,9 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         </Field>
 
         {isRegister && (
-          <>
-            <Field label="Country">
-              <Select value={country} onChange={(e) => setCountry(e.target.value)} required>
-                <option value="">Select country…</option>
-                {COUNTRIES.map((c) => (
-                  <option key={c.code} value={c.code}>
-                    {c.name}
-                  </option>
-                ))}
-              </Select>
-            </Field>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="City">
-                <Input value={city} onChange={(e) => setCity(e.target.value)} required placeholder="Mumbai" autoComplete="address-level2" />
-              </Field>
-              <Field label="PIN / ZIP code">
-                <Input value={postalCode} onChange={(e) => setPostalCode(e.target.value)} required placeholder="400001" autoComplete="postal-code" />
-              </Field>
-            </div>
-            <div className="grid grid-cols-2 gap-3">
-              <Field label="Phone (optional)">
-                <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91…" autoComplete="tel" />
-              </Field>
-              <Field label="Referral code (optional)">
-                <Input value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="FRIEND-123" />
-              </Field>
-            </div>
-            <Field label="I want to…">
-              <Select value={intendedRole} onChange={(e) => setIntendedRole(e.target.value)} required>
-                <option value="">Choose…</option>
-                <option value="follower">Copy verified leaders</option>
-                <option value="leader">Lead and share my trades</option>
-                <option value="both">Both</option>
-              </Select>
-            </Field>
-          </>
+          <Field label="Referral code (optional)">
+            <Input value={referralCode} onChange={(e) => setReferralCode(e.target.value)} placeholder="FRIEND-123" />
+          </Field>
         )}
 
         <Field label="Password" hint={isRegister ? '8+ characters with upper & lower case and a number.' : undefined}>

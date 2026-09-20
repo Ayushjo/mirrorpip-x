@@ -1,16 +1,24 @@
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
-import { countTodayCopies, listFollows } from '@/lib/services/copy';
+import { countTodayCopies, listCredentials, listFollows } from '@/lib/services/copy';
 import { LinkButton } from '@/components/ui';
 import { MediaBanner } from '@/components/media-banner';
 import { DashboardList } from '@/components/dashboard-list';
+import { OnboardingChecklist } from '@/components/onboarding-checklist';
 
 export const dynamic = 'force-dynamic';
 
 export default async function DashboardPage() {
   const user = await getSessionUser();
   if (!user) redirect('/login');
-  const [follows, todayCopies] = await Promise.all([listFollows(user.id), countTodayCopies(user.id)]);
+  const [follows, todayCopies, creds] = await Promise.all([
+    listFollows(user.id),
+    countTodayCopies(user.id),
+    listCredentials(user.id),
+  ]);
+  const hasCredential = creds.length > 0;
+  const hasFollow = follows.some((f) => f.status === 'ACTIVE');
+  const isLeaderApplied = creds.some((c) => Boolean(c.leaderStatus));
 
   return (
     <div className="space-y-6">
@@ -27,6 +35,12 @@ export default async function DashboardPage() {
           </LinkButton>
         </div>
       </MediaBanner>
+      <OnboardingChecklist
+        hasCredential={hasCredential}
+        hasFollow={hasFollow}
+        isLeaderApplied={isLeaderApplied}
+        intendedRole={user.intendedRole}
+      />
       <DashboardList
         todayCopies={todayCopies}
         initial={follows.map((f) => ({

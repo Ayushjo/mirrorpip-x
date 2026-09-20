@@ -1,6 +1,7 @@
 import { prisma } from '@belivemeguys/db';
 import { decryptSecret, encryptSecret, fingerprintApiKey, getExchange, getExchangeRegistryItem, last4, ExchangeAuthError } from '@belivemeguys/exchange';
 import { ApiError } from '../api.js';
+import { cached } from '../cache.js';
 import { dec, decOr0, iso } from '../serialize.js';
 import type {
   ConnectCredentialInput,
@@ -128,16 +129,21 @@ function serializeCredential(
 
 // ─── Leaderboard (public) ─────────────────────────────────────────────────────
 
+// The public leaderboard changes slowly (stats recompute on the engine's cadence),
+// so cache the serialized result in Redis (shared across instances) + memory.
+// Repeat /leaders loads become a cache hit instead of a multi-round-trip Neon query.
 export async function listLeaders() {
-  const leaders = await prisma.leader.findMany({
-    where: { status: 'VERIFIED' },
-    include: {
-      stats: { where: { window: 'all' } },
-      equityPoints: { orderBy: { ts: 'desc' }, take: 60 },
-    },
-    orderBy: { createdAt: 'desc' },
+  return cached('bmg:leaderboard:v1', 15, async () => {
+    const leaders = await prisma.leader.findMany({
+      where: { status: 'VERIFIED' },
+      include: {
+        stats: { where: { window: 'all' } },
+        equityPoints: { orderBy: { ts: 'desc' }, take: 60 },
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+    return leaders.map(serializeLeaderCard);
   });
-  return leaders.map(serializeLeaderCard);
 }
 
 export async function getLeaderPublic(id: string) {

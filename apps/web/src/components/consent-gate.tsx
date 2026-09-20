@@ -3,23 +3,25 @@
 import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 
-// Routes reachable without recorded consent (auth pages + the gate itself).
+// Routes reachable without a completed profile (auth pages + the gate itself).
 const OPEN_PATHS = ['/complete-profile', '/login', '/register', '/verify', '/forgot-password', '/terms', '/privacy'];
 
 /**
- * Signed-in users without ToS/risk consent (e.g. first-time OAuth signups,
- * which never see the registration checkboxes) are sent to /complete-profile.
+ * Signed-in users who haven't finished onboarding are sent to /complete-profile.
+ * This covers two cases: missing ToS/risk consent (first-time OAuth signups never
+ * see the registration checkboxes) and a missing address (email signups now defer
+ * location to a compulsory post-verification step).
  */
-export function ConsentGate({ needsConsent }: { needsConsent: boolean }) {
+export function OnboardingGate({ needsOnboarding }: { needsOnboarding: boolean }) {
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    if (!needsConsent) return;
+    if (!needsOnboarding) return;
     if (!OPEN_PATHS.some((p) => pathname === p || pathname.startsWith(`${p}/`))) {
       router.replace('/complete-profile');
     }
-  }, [needsConsent, pathname, router]);
+  }, [needsOnboarding, pathname, router]);
 
   return null;
 }

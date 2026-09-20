@@ -18,7 +18,7 @@ const trustedOrigins = Array.from(
       process.env.NEXT_PUBLIC_APP_URL,
       ...(process.env.TRUSTED_ORIGINS?.split(',') ?? []),
       ...(process.env.NODE_ENV !== 'production'
-        ? ['http://localhost:3000', 'http://localhost:3100', 'http://localhost:3009']
+        ? ['http://localhost:3939', 'http://localhost:3000', 'http://localhost:3100', 'http://localhost:3009']
         : []),
     ]
       .map((o) => o?.trim())
@@ -34,7 +34,7 @@ if (process.env.NODE_ENV === 'production' && googleEnabled && (!process.env.GOOG
 export const auth = betterAuth({
   database: prismaAdapter(prisma, { provider: 'postgresql' }),
   secret: process.env.AUTH_SECRET,
-  baseURL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3000',
+  baseURL: process.env.NEXT_PUBLIC_APP_URL ?? 'http://localhost:3939',
   trustedOrigins,
   emailAndPassword: {
     enabled: true,

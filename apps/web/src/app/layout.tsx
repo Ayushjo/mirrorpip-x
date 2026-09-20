@@ -4,16 +4,17 @@ import './globals.css';
 import { getSessionUser, isAdmin } from '@/lib/session';
 import { getMaintenanceMode } from '@/lib/services/admin';
 import { UserMenu } from '@/components/user-menu';
-import { LogoIcon } from '@/components/icons';
+import { BrandMark } from '@/components/icons';
 import { MobileNav } from '@/components/mobile-nav';
 import { UsageTracker } from '@/components/usage-tracker';
 import { NotificationBell } from '@/components/notification-bell';
-import { ConsentGate } from '@/components/consent-gate';
+import { OnboardingGate } from '@/components/consent-gate';
 
 export const metadata: Metadata = {
   title: 'BelieveMeGuys — Copy the best crypto traders',
   description:
     'Connect your exchange, follow verified leaders, and mirror their trades automatically. Your funds stay in your own account.',
+  icons: { icon: '/media/believemeguysjsutlogo.png', apple: '/media/believemeguysjsutlogo.png' },
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -46,7 +47,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <header className="sticky top-0 z-40 border-b border-border bg-[rgba(245,245,245,0.8)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
             <Link href="/" className="flex items-center gap-2">
-              <LogoIcon className="h-6 w-6 text-black" />
+              <BrandMark className="h-7 w-7" />
               <span className="text-xl font-medium tracking-tight text-black">BelieveMeGuys</span>
             </Link>
 
@@ -71,7 +72,17 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             {maintenance.message || 'BelieveMeGuys is under scheduled maintenance — copying may be paused.'}
           </div>
         )}
-        {user && <ConsentGate needsConsent={!user.tosAcceptedAt || !user.riskDisclosureAcceptedAt} />}
+        {user && (
+          <OnboardingGate
+            needsOnboarding={
+              !user.tosAcceptedAt ||
+              !user.riskDisclosureAcceptedAt ||
+              !user.country ||
+              !user.city ||
+              !user.postalCode
+            }
+          />
+        )}
         {user && <UsageTracker />}
 
         <main className="mx-auto w-full max-w-[88rem] flex-1 px-6 py-10">{children}</main>
@@ -80,7 +91,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           <div className="flex flex-col gap-8 sm:flex-row sm:items-start sm:justify-between">
             <div>
               <div className="flex items-center gap-2 text-black">
-                <LogoIcon className="h-5 w-5" />
+                <BrandMark className="h-6 w-6" />
                 <span className="font-medium">BelieveMeGuys</span>
               </div>
               <p className="mt-3 max-w-md">

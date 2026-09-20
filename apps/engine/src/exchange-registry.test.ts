@@ -8,9 +8,10 @@ describe('exchange registry', () => {
     ]);
   });
 
-  it('keeps CoinSwitch and Binance unavailable', () => {
+  it('keeps CoinSwitch, Binance and Shark unavailable', () => {
     expect(exchangeRegistry.find((entry) => entry.id === 'COINSWITCH')?.availability).toBe('DISABLED');
     expect(exchangeRegistry.find((entry) => entry.id === 'BINANCE')?.availability).toBe('COMING_SOON');
+    expect(exchangeRegistry.find((entry) => entry.id === 'SHARK')?.availability).toBe('COMING_SOON');
   });
 
   it('resolves every active adapter independently', () => {

@@ -38,6 +38,8 @@ export function AdminUsers() {
   const [search, setSearch] = useState('');
   const [dossier, setDossier] = useState<Dossier | null>(null);
   const [loadingId, setLoadingId] = useState<string | null>(null);
+  const [stopping, setStopping] = useState(false);
+  const [stopMsg, setStopMsg] = useState<string | null>(null);
 
   useEffect(() => {
     const ctrl = new AbortController();
@@ -57,11 +59,31 @@ export function AdminUsers() {
 
   async function openDossier(id: string) {
     setLoadingId(id);
+    setStopMsg(null);
     try {
       const res = await fetch(`/api/admin/users/${id}`);
       if (res.ok) setDossier((await res.json()).data);
     } finally {
       setLoadingId(null);
+    }
+  }
+
+  async function stopCopying(id: string) {
+    setStopping(true);
+    setStopMsg(null);
+    try {
+      const res = await fetch(`/api/admin/users/${id}/stop-copying`, { method: 'POST' });
+      if (res.ok) {
+        const { data } = await res.json();
+        setStopMsg(`Paused ${data.paused} active follow${data.paused === 1 ? '' : 's'}.`);
+        // Refresh the dossier so the follow statuses reflect the change.
+        const fresh = await fetch(`/api/admin/users/${id}`);
+        if (fresh.ok) setDossier((await fresh.json()).data);
+      } else {
+        setStopMsg('Could not stop copying. Try again.');
+      }
+    } finally {
+      setStopping(false);
     }
   }
 
@@ -165,7 +187,15 @@ export function AdminUsers() {
               </ul>
             )}
 
-            <h4 className="mt-6 text-sm font-semibold">Follows</h4>
+            <div className="mt-6 flex items-center justify-between">
+              <h4 className="text-sm font-semibold">Follows</h4>
+              {dossier.follows.some((f) => f.status === 'ACTIVE') && (
+                <Button variant="danger" className="!px-3 !py-1 text-xs" disabled={stopping} onClick={() => stopCopying(dossier.user.id)}>
+                  {stopping ? 'Stopping…' : 'Stop all copying'}
+                </Button>
+              )}
+            </div>
+            {stopMsg && <p className="mt-1.5 rounded-lg bg-[#e7f3ec] px-3 py-1.5 text-xs text-up">{stopMsg}</p>}
             {dossier.follows.length === 0 ? (
               <p className="mt-1 text-xs text-muted">Not following anyone.</p>
             ) : (

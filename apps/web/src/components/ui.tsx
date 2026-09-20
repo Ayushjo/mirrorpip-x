@@ -100,9 +100,17 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
   return (
     <select
       className={cx(
-        'w-full rounded-xl border border-black/12 bg-white px-4 py-2.5 text-sm text-black outline-none transition focus:border-black',
+        // appearance-none + a custom chevron so the control matches the rounded
+        // inputs instead of showing the platform's native (double-arrow) select UI.
+        'w-full appearance-none rounded-xl border border-black/12 bg-white bg-no-repeat px-4 py-2.5 pr-10 text-sm text-black outline-none transition focus:border-black',
         className,
       )}
+      style={{
+        backgroundImage:
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+        backgroundPosition: 'right 0.75rem center',
+        backgroundSize: '16px',
+      }}
       {...props}
     >
       {children}

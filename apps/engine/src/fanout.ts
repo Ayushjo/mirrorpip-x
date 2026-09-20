@@ -43,7 +43,17 @@ export async function fanoutLeaderFill(leader: Leader, fill: FillEvent): Promise
         exchTs: fill.timestamp,
       },
     })
-    .catch((err) => {
+    .catch(async (err) => {
+      // Concurrent identical fills (Delta can deliver the same fill on more than
+      // one WS frame) race the upsert: both see no row and INSERT, one hits the
+      // unique (leaderId, externalId). Recover by loading the row the winner
+      // wrote and continuing — downstream copy orders are idempotent per
+      // (follow, fill), so a second fan-out is deduped rather than duplicated.
+      if ((err as { code?: string })?.code === 'P2002') {
+        return prisma.leaderFill.findUnique({
+          where: { leaderId_externalId: { leaderId: leader.id, externalId: fill.externalId } },
+        });
+      }
       log.error('failed to persist leader fill', { leaderId: leader.id, err: String(err) });
       return null;
     });

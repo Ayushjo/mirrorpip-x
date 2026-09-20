@@ -9,6 +9,10 @@ export interface SessionUser {
   role: string;
   tosAcceptedAt: string | null;
   riskDisclosureAcceptedAt: string | null;
+  country: string | null;
+  city: string | null;
+  postalCode: string | null;
+  intendedRole: string | null;
 }
 
 /** Resolve the current signed-in user (server-side), or null. */
@@ -22,7 +26,14 @@ export async function getSessionUser(): Promise<SessionUser | null> {
     // the stale cookie expires.
     const db = await prisma.user.findUnique({
       where: { id: u.id },
-      select: { tosAcceptedAt: true, riskDisclosureAcceptedAt: true },
+      select: {
+        tosAcceptedAt: true,
+        riskDisclosureAcceptedAt: true,
+        country: true,
+        city: true,
+        postalCode: true,
+        intendedRole: true,
+      },
     });
     return {
       id: u.id,
@@ -31,6 +42,10 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       role: u.role ?? 'user',
       tosAcceptedAt: db?.tosAcceptedAt?.toISOString() ?? null,
       riskDisclosureAcceptedAt: db?.riskDisclosureAcceptedAt?.toISOString() ?? null,
+      country: db?.country ?? null,
+      city: db?.city ?? null,
+      postalCode: db?.postalCode ?? null,
+      intendedRole: db?.intendedRole ?? null,
     };
   } catch {
     // DB/auth transport unavailable — treat as logged-out rather than 500 the
