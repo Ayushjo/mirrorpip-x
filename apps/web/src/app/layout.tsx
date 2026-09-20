@@ -9,6 +9,7 @@ import { MobileNav } from '@/components/mobile-nav';
 import { UsageTracker } from '@/components/usage-tracker';
 import { NotificationBell } from '@/components/notification-bell';
 import { OnboardingGate } from '@/components/consent-gate';
+import { SmoothScroll } from '@/components/smooth-scroll';
 
 export const metadata: Metadata = {
   title: 'BelieveMeGuys — Copy the best crypto traders',
@@ -44,6 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="flex min-h-screen flex-col">
+        <SmoothScroll />
         <header className="sticky top-0 z-40 border-b border-border bg-[rgba(245,245,245,0.8)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
             <Link href="/" className="flex items-center gap-2">

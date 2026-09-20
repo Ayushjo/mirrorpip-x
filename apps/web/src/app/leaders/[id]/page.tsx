@@ -3,14 +3,10 @@ import { notFound } from 'next/navigation';
 import { getLeaderPublic } from '@/lib/services/copy';
 import { getSessionUser } from '@/lib/session';
 import { Badge, Card, LinkButton, fmtNum, fmtPct } from '@/components/ui';
-import { ChartIcon, UsersIcon, ShieldIcon, SlidersIcon, ArrowRightIcon, Sparkline } from '@/components/icons';
+import { ChartIcon, UsersIcon, ShieldIcon, SlidersIcon, ArrowRightIcon } from '@/components/icons';
+import { AreaChart } from '@/components/charts';
 
 export const dynamic = 'force-dynamic';
-
-function sparkPoints(series: number[]): number[] {
-  if (series.length >= 2) return series;
-  return [0.42, 0.44, 0.43, 0.46, 0.45, 0.48, 0.47, 0.5];
-}
 
 export default async function LeaderDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -64,15 +60,12 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
         </div>
         {leader.bio && <p className="relative mt-5 max-w-2xl text-sm text-muted">{leader.bio}</p>}
         <div className="relative mt-6">
-          <div className="mb-2 text-xs text-muted">
-            {leader.equitySeries.length >= 2 ? 'Equity curve' : 'Equity curve (waiting for samples)'}
-          </div>
-          <Sparkline
-            points={sparkPoints(leader.equitySeries)}
-            width={1000}
-            height={120}
-            className="w-full text-brand"
-            stroke="var(--color-brand)"
+          <div className="mb-2 text-xs text-muted">Equity curve</div>
+          <AreaChart
+            data={leader.equitySeries.map((v) => ({ value: v }))}
+            height={150}
+            zeroBaseline={false}
+            emptyLabel="Equity curve builds as this leader trades"
           />
         </div>
       </Card>

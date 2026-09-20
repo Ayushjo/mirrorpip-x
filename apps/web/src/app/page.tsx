@@ -1,6 +1,7 @@
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
 import { ShieldIcon, SlidersIcon, ChartIcon } from '@/components/icons';
+import { Reveal } from '@/components/reveal';
 import { ArrowRight } from 'lucide-react';
 
 const HERO_VIDEO =
@@ -58,8 +59,15 @@ function ModeCard({
   video: string;
 }) {
   return (
-    <div className="relative min-h-[520px] overflow-hidden rounded-3xl border border-border">
-      <video className="absolute inset-0 h-full w-full object-cover" src={video} autoPlay muted loop playsInline />
+    <div className="group relative min-h-[520px] overflow-hidden rounded-3xl border border-border transition-shadow duration-300 hover:shadow-[0_24px_60px_rgba(0,0,0,0.10)]">
+      <video
+        className="absolute inset-0 h-full w-full object-cover transition-transform duration-[1200ms] ease-out group-hover:scale-105"
+        src={video}
+        autoPlay
+        muted
+        loop
+        playsInline
+      />
       <div
         className="absolute inset-0"
         style={{
@@ -155,7 +163,7 @@ export default async function LandingPage() {
 
       {/* ── Meet BelieveMeGuys ───────────────────────────────────────────── */}
       <section>
-        <div className="mb-14 grid grid-cols-1 items-start gap-12 md:grid-cols-2">
+        <Reveal className="mb-14 grid grid-cols-1 items-start gap-12 md:grid-cols-2">
           <div>
             <h2 className="text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
               Meet BelieveMeGuys.
@@ -170,7 +178,7 @@ export default async function LandingPage() {
             A copy-trading engine that watches verified leaders and mirrors their trades into your own exchange account —
             automatically, in real time.
           </p>
-        </div>
+        </Reveal>
 
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           <div
@@ -221,23 +229,26 @@ export default async function LandingPage() {
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
-          {STEPS.map(({ n, title, body, image }) => (
-            <div
-              key={n}
-              className="flex flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)]"
-            >
-              <div className="relative aspect-[4/3] overflow-hidden bg-[#f0eef6]">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
+          {STEPS.map(({ n, title, body, image }, i) => (
+            <Reveal key={n} delay={i * 0.12}>
+              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:border-black/12 hover:shadow-[0_18px_44px_rgba(0,0,0,0.07)]">
+                <div className="relative aspect-[4/3] overflow-hidden bg-[#f0eef6]">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img
+                    src={image}
+                    alt=""
+                    className="absolute inset-0 h-full w-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                  />
+                </div>
+                <div className="flex flex-1 flex-col p-7">
+                  <span className="mb-3 text-xs font-medium text-black/40">{n}</span>
+                  <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
+                    {title}
+                  </h3>
+                  <p className="text-sm leading-relaxed text-black/60">{body}</p>
+                </div>
               </div>
-              <div className="flex flex-1 flex-col p-7">
-                <span className="mb-3 text-xs font-medium text-black/40">{n}</span>
-                <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
-                  {title}
-                </h3>
-                <p className="text-sm leading-relaxed text-black/60">{body}</p>
-              </div>
-            </div>
+            </Reveal>
           ))}
         </div>
       </section>
@@ -284,7 +295,10 @@ export default async function LandingPage() {
 
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:col-span-2 lg:grid-cols-1">
             {TRUST_SIDE.map(({ title, body, Icon }) => (
-              <div key={title} className="rounded-3xl border border-border bg-white p-8">
+              <div
+                key={title}
+                className="rounded-3xl border border-border bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:border-black/12 hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]"
+              >
                 <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-[#efeef4] text-ink">
                   <Icon className="h-5 w-5" />
                 </span>
@@ -311,29 +325,33 @@ export default async function LandingPage() {
           </p>
         </div>
         <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
-          <ModeCard
-            title="Follow"
-            body="Pick a verified leader, set your sizing and risk limits, and let the engine mirror their every move into your account — pause or stop whenever you want."
-            href={primaryHref}
-            cta="Get started"
-            video={FOLLOW_VIDEO}
-          />
-          <ModeCard
-            title="Lead"
-            body="Connect your exchange, get verified, and let followers mirror your fills automatically — you keep trading as usual, with the engine doing the rest."
-            href="/connect"
-            cta="Become a leader"
-            video={LEAD_VIDEO}
-          />
+          <Reveal>
+            <ModeCard
+              title="Follow"
+              body="Pick a verified leader, set your sizing and risk limits, and let the engine mirror their every move into your account — pause or stop whenever you want."
+              href={primaryHref}
+              cta="Get started"
+              video={FOLLOW_VIDEO}
+            />
+          </Reveal>
+          <Reveal delay={0.12}>
+            <ModeCard
+              title="Lead"
+              body="Connect your exchange, get verified, and let followers mirror your fills automatically — you keep trading as usual, with the engine doing the rest."
+              href="/connect"
+              cta="Become a leader"
+              video={LEAD_VIDEO}
+            />
+          </Reveal>
         </div>
       </section>
 
       {/* ── CTA ──────────────────────────────────────────────────────── */}
       <section>
-        <div
+        <Reveal
           className="relative flex flex-col items-center gap-5 overflow-hidden rounded-3xl p-14 text-center"
-          style={{ background: '#2B2644' }}
         >
+        <div className="pointer-events-none absolute inset-0" style={{ background: '#2B2644' }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/media/cta-band.png"
@@ -350,7 +368,7 @@ export default async function LandingPage() {
           <LinkButton href={primaryHref} arrow variant="ghost" className="relative mt-1 text-base">
             {user ? 'Browse leaders' : 'Create your account'}
           </LinkButton>
-        </div>
+        </Reveal>
       </section>
     </div>
   );

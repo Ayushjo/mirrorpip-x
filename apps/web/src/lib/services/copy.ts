@@ -375,6 +375,162 @@ export async function countTodayCopies(userId: string) {
   });
 }
 
+const DAY_MS = 86_400_000;
+
+/**
+ * Rich analytics for the follower dashboard: 30-day copy history, fill/win
+ * rates, a 14-day activity series, a cumulative-realized-P&L series (from closed
+ * positions), a per-leader breakdown, and the most recent copies. All derived
+ * from data we already store (CopyOrder / CopyPosition), no new tables.
+ */
+export async function getFollowerAnalytics(userId: string) {
+  const now = new Date();
+  const dayStart = new Date(now);
+  dayStart.setHours(0, 0, 0, 0);
+  const from30 = new Date(now.getTime() - 30 * DAY_MS);
+
+  const [orders, positions, follows] = await Promise.all([
+    prisma.copyOrder.findMany({
+      where: { follow: { followerUserId: userId }, requestedAt: { gte: from30 } },
+      include: { follow: { select: { leader: { select: { displayName: true } } } } },
+      orderBy: { requestedAt: 'desc' },
+    }),
+    prisma.copyPosition.findMany({
+      where: { follow: { followerUserId: userId } },
+      include: { follow: { select: { leader: { select: { displayName: true } } } } },
+    }),
+    prisma.follow.findMany({
+      where: { followerUserId: userId, status: { not: 'STOPPED' } },
+      select: { status: true },
+    }),
+  ]);
+
+  const filled = orders.filter((o) => o.status === 'FILLED' || o.status === 'PARTIAL');
+  const copiesToday = orders.filter((o) => o.requestedAt >= dayStart).length;
+  const activeFollows = follows.filter((f) => f.status === 'ACTIVE').length;
+  const openPnl = positions.filter((p) => !p.closedAt).reduce((s, p) => s + decOr0(p.unrealizedPnl), 0);
+  const realizedPnl = positions.reduce((s, p) => s + decOr0(p.realizedPnl), 0);
+  const closed = positions.filter((p) => p.closedAt);
+  const wins = closed.filter((p) => decOr0(p.realizedPnl) > 0).length;
+
+  // 14-day activity — copies placed per day (oldest→newest).
+  const activity = Array.from({ length: 14 }, (_, i) => {
+    const day = new Date(now.getTime() - (13 - i) * DAY_MS);
+    day.setHours(0, 0, 0, 0);
+    const next = new Date(day.getTime() + DAY_MS);
+    return {
+      date: day.toISOString(),
+      count: orders.filter((o) => o.requestedAt >= day && o.requestedAt < next).length,
+    };
+  });
+
+  // Cumulative realized P&L, in the order positions closed.
+  const closedSorted = closed
+    .slice()
+    .sort((a, b) => (a.closedAt!.getTime() - b.closedAt!.getTime()));
+  let cum = 0;
+  const pnlSeries = closedSorted.map((p) => {
+    cum += decOr0(p.realizedPnl);
+    return { at: iso(p.closedAt), value: Number(cum.toFixed(2)) };
+  });
+
+  // Per-leader breakdown.
+  const byLeaderMap = new Map<string, { name: string; copies: number; openPnl: number; realizedPnl: number }>();
+  const bump = (name: string) => {
+    const e = byLeaderMap.get(name) ?? { name, copies: 0, openPnl: 0, realizedPnl: 0 };
+    byLeaderMap.set(name, e);
+    return e;
+  };
+  for (const p of positions) {
+    const e = bump(p.follow.leader.displayName);
+    e.openPnl += p.closedAt ? 0 : decOr0(p.unrealizedPnl);
+    e.realizedPnl += decOr0(p.realizedPnl);
+  }
+  for (const o of orders) bump(o.follow.leader.displayName).copies += 1;
+  const byLeader = [...byLeaderMap.values()]
+    .map((e) => ({ ...e, openPnl: Number(e.openPnl.toFixed(2)), realizedPnl: Number(e.realizedPnl.toFixed(2)) }))
+    .sort((a, b) => b.copies - a.copies || b.realizedPnl - a.realizedPnl);
+
+  const recent = orders.slice(0, 40).map((o) => ({
+    id: o.id,
+    leader: o.follow.leader.displayName,
+    symbol: o.symbol,
+    side: o.side,
+    qty: decOr0(o.qty),
+    status: o.status,
+    avgPrice: dec(o.avgPrice),
+    slippageBps: dec(o.slippageBps),
+    at: iso(o.requestedAt),
+  }));
+
+  return {
+    summary: {
+      totalCopies30d: orders.length,
+      copiesToday,
+      filledCount: filled.length,
+      fillRate: orders.length ? Number(((filled.length / orders.length) * 100).toFixed(1)) : 0,
+      activeFollows,
+      openPnl: Number(openPnl.toFixed(2)),
+      realizedPnl: Number(realizedPnl.toFixed(2)),
+      winRate: closed.length ? Number(((wins / closed.length) * 100).toFixed(1)) : 0,
+      closedCount: closed.length,
+      wins,
+    },
+    activity,
+    pnlSeries,
+    byLeader,
+    recent,
+  };
+}
+
+/**
+ * Analytics for a user who runs one or more leader accounts: equity curve,
+ * follower count, copied volume and recent fills per leader profile they own.
+ * Returns null when the user is not a leader.
+ */
+export async function getLeaderAnalytics(userId: string) {
+  const leaders = await prisma.leader.findMany({
+    where: { userId },
+    include: {
+      stats: { where: { window: 'all' } },
+      equityPoints: { orderBy: { ts: 'desc' }, take: 90 },
+      fills: { orderBy: { exchTs: 'desc' }, take: 15 },
+      _count: { select: { follows: true } },
+    },
+    orderBy: { createdAt: 'desc' },
+  });
+  if (leaders.length === 0) return null;
+  return leaders.map((l) => {
+    const s = l.stats[0];
+    const equitySeries = (l.equityPoints ?? []).slice().reverse().map((p) => decOr0(p.equityUsd));
+    return {
+      id: l.id,
+      displayName: l.displayName,
+      status: l.status,
+      stats: {
+        roiPct: dec(s?.roiPct) ?? 0,
+        winRatePct: dec(s?.winRatePct) ?? 0,
+        maxDrawdownPct: dec(s?.maxDrawdownPct) ?? 0,
+        totalCopiedUsd: dec(s?.totalCopiedUsd) ?? 0,
+        tradeCount: s?.tradeCount ?? 0,
+        followerCount: s?.followerCount ?? 0,
+      },
+      equitySeries,
+      latestEquity: equitySeries.length ? equitySeries[equitySeries.length - 1] : null,
+      followers: l._count.follows,
+      recentFills: l.fills.map((f) => ({
+        id: f.id,
+        symbol: f.symbol,
+        side: f.side,
+        qty: decOr0(f.qty),
+        price: decOr0(f.priceUsd ?? f.price),
+        reduceOnly: f.reduceOnly,
+        at: iso(f.exchTs),
+      })),
+    };
+  });
+}
+
 // ─── Admin ──────────────────────────────────────────────────────────────────
 
 export async function registerLeader(input: RegisterLeaderInput) {

@@ -83,7 +83,10 @@ export function Leaderboard({ leaders }: { leaders: LeaderCard[] }) {
       ) : (
         <div className="grid gap-5 sm:grid-cols-2">
           {sorted.map((l, i) => (
-            <Card key={l.id} className="group flex h-full flex-col p-0">
+            <Card
+              key={l.id}
+              className="group flex h-full flex-col p-0 transition-all duration-300 hover:-translate-y-1 hover:border-black/12 hover:shadow-[0_18px_44px_rgba(0,0,0,0.07)]"
+            >
               <div
                 className="relative overflow-hidden rounded-t-2xl px-6 pt-6"
                 style={{ background: 'linear-gradient(160deg, #efedf6, #f7f6fb)' }}
