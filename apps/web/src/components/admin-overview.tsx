@@ -105,7 +105,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {stats.map((s) => (
-          <Card key={s.label}>
+          <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-black/12 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
             <div className="flex items-start justify-between gap-2">
               <div className="text-xs text-muted">{s.label}</div>
               {'spark' in s && s.spark.some((v) => v > 0) && (
@@ -122,7 +122,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
         <h3 className="mb-3 text-sm font-semibold text-muted">Money at risk</h3>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {moneyStats.map((s) => (
-            <Card key={s.label}>
+            <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-black/12 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
               <div className="text-xs text-muted">{s.label}</div>
               <div
                 className={`mt-1 text-2xl font-semibold tabular-nums ${s.tone === 'down' ? 'text-down' : s.tone === 'up' ? 'text-up' : ''}`}
@@ -154,7 +154,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-[#efeef4]">
-                    <div className="h-full rounded-full" style={{ width: `${Math.max(pct, 2)}%`, background: '#6d5fd0' }} />
+                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.max(pct, 2)}%`, background: '#6d5fd0' }} />
                   </div>
                 </div>
               );
@@ -196,7 +196,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
                 </div>
                 <div className="flex min-w-0 items-center gap-3">
                   <span className="truncate text-xs text-down" title={c.error ?? ''}>{c.error ?? '—'}</span>
-                  <span className="shrink-0 text-xs text-faint">{new Date(c.requestedAt).toLocaleString()}</span>
+                  <span className="shrink-0 text-xs text-faint" suppressHydrationWarning>{new Date(c.requestedAt).toLocaleString()}</span>
                 </div>
               </div>
             ))}
@@ -220,7 +220,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
                   <div className="flex items-center gap-2 text-xs text-faint">
                     {u.intendedRole && <Badge tone="brand">{u.intendedRole}</Badge>}
                     {[u.city, u.country].filter(Boolean).join(', ') || '—'}
-                    <span>{new Date(u.createdAt).toLocaleDateString()}</span>
+                    <span suppressHydrationWarning>{new Date(u.createdAt).toLocaleDateString()}</span>
                     {!u.emailVerified && <Badge tone="warn">unverified</Badge>}
                   </div>
                 </div>
@@ -238,7 +238,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
               {data.recentAudit.map((r) => (
                 <div key={r.id} className="flex items-center justify-between gap-3 text-sm">
                   <span className="font-mono text-xs">{r.action}</span>
-                  <span className="text-xs text-faint">
+                  <span className="text-xs text-faint" suppressHydrationWarning>
                     {r.actorEmail} · {new Date(r.createdAt).toLocaleString()}
                   </span>
                 </div>

@@ -83,7 +83,7 @@ export function NotificationBell() {
                   <div className={`border-b border-border-soft px-4 py-3 last:border-0 ${n.readAt ? 'opacity-60' : ''}`}>
                     <div className="text-sm font-medium">{n.title}</div>
                     {n.body && <div className="mt-0.5 text-xs text-muted">{n.body}</div>}
-                    <div className="mt-1 text-[10px] text-faint">{new Date(n.createdAt).toLocaleString()}</div>
+                    <div className="mt-1 text-[10px] text-faint" suppressHydrationWarning>{new Date(n.createdAt).toLocaleString()}</div>
                   </div>
                 );
                 return n.href ? (

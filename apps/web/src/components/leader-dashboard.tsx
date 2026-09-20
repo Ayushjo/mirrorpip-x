@@ -142,7 +142,7 @@ export function LeaderDashboard({ leaders }: { leaders: LeaderData[] }) {
                       <tbody>
                         {l.recentFills.map((f) => (
                           <tr key={f.id} className="border-b border-border-soft transition-colors last:border-0 hover:bg-surface-2/50">
-                            <td className="whitespace-nowrap px-2 py-2.5 text-muted">
+                            <td className="whitespace-nowrap px-2 py-2.5 text-muted" suppressHydrationWarning>
                               {f.at ? new Date(f.at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}
                             </td>
                             <td className="px-2 py-2.5 font-medium">{f.symbol}</td>

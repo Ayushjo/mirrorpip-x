@@ -140,7 +140,7 @@ export function FollowDetail({ initial }: { initial: Detail }) {
               <tbody>
                 {d.orders.map((o) => (
                   <tr key={o.id} className="border-b border-border-soft last:border-0">
-                    <td className="py-2.5 text-muted">{o.at ? new Date(o.at).toLocaleTimeString() : '—'}</td>
+                    <td className="py-2.5 text-muted" suppressHydrationWarning>{o.at ? new Date(o.at).toLocaleTimeString() : '—'}</td>
                     <td className="py-2.5 font-medium">{o.symbol}</td>
                     <td className="py-2.5">
                       <Badge tone={o.side === 'BUY' ? 'up' : 'down'}>{o.side}</Badge>

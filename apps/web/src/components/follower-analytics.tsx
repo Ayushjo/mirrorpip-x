@@ -272,7 +272,7 @@ export function FollowerAnalytics({ data }: { data: Analytics }) {
                 <tbody>
                   {recentFiltered.map((t) => (
                     <tr key={t.id} className="border-b border-border-soft transition-colors last:border-0 hover:bg-surface-2/50">
-                      <td className="whitespace-nowrap px-2 py-2.5 text-muted">
+                      <td className="whitespace-nowrap px-2 py-2.5 text-muted" suppressHydrationWarning>
                         {t.at ? new Date(t.at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : '—'}
                       </td>
                       <td className="px-2 py-2.5">{t.leader}</td>
