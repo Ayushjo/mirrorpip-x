@@ -129,8 +129,8 @@ export function AdminUsers() {
                   <td className="px-4 py-3 text-center tabular-nums">{u.credentials}</td>
                   <td className="px-4 py-3 text-center tabular-nums">{u.follows}</td>
                   <td className="px-4 py-3">{u.leaderStatus ? <Badge tone={u.leaderStatus === 'VERIFIED' ? 'up' : 'warn'}>{u.leaderStatus}</Badge> : '—'}</td>
-                  <td className="px-4 py-3 text-xs text-muted">{u.lastSeenAt ? new Date(u.lastSeenAt).toLocaleString() : 'never'}</td>
-                  <td className="px-4 py-3 text-xs text-muted">{new Date(u.createdAt).toLocaleDateString()}</td>
+                  <td className="px-4 py-3 text-xs text-muted" suppressHydrationWarning>{u.lastSeenAt ? new Date(u.lastSeenAt).toLocaleString() : 'never'}</td>
+                  <td className="px-4 py-3 text-xs text-muted" suppressHydrationWarning>{new Date(u.createdAt).toLocaleDateString()}</td>
                   <td className="px-4 py-3 text-right">
                     <Button variant="subtle" className="!px-2.5 !py-1 text-xs" disabled={loadingId === u.id} onClick={() => openDossier(u.id)}>
                       {loadingId === u.id ? 'Loading…' : 'Details'}
@@ -164,9 +164,9 @@ export function AdminUsers() {
               <dt className="text-muted">Referral</dt>
               <dd>{dossier.user.referralCode ?? '—'}</dd>
               <dt className="text-muted">ToS accepted</dt>
-              <dd>{dossier.user.tosAcceptedAt ? new Date(dossier.user.tosAcceptedAt).toLocaleDateString() : '—'}</dd>
+              <dd suppressHydrationWarning>{dossier.user.tosAcceptedAt ? new Date(dossier.user.tosAcceptedAt).toLocaleDateString() : '—'}</dd>
               <dt className="text-muted">Risk accepted</dt>
-              <dd>{dossier.user.riskDisclosureAcceptedAt ? new Date(dossier.user.riskDisclosureAcceptedAt).toLocaleDateString() : '—'}</dd>
+              <dd suppressHydrationWarning>{dossier.user.riskDisclosureAcceptedAt ? new Date(dossier.user.riskDisclosureAcceptedAt).toLocaleDateString() : '—'}</dd>
               <dt className="text-muted">Auth providers</dt>
               <dd>{dossier.user.authProviders.join(', ') || '—'}</dd>
             </dl>
@@ -226,7 +226,7 @@ export function AdminUsers() {
                 {dossier.recentEvents.slice(0, 15).map((e) => (
                   <li key={e.id} className="flex justify-between text-muted">
                     <span>{e.type} {e.path ?? ''}</span>
-                    <span className="text-faint">{new Date(e.createdAt).toLocaleString()}</span>
+                    <span className="text-faint" suppressHydrationWarning>{new Date(e.createdAt).toLocaleString()}</span>
                   </li>
                 ))}
               </ul>

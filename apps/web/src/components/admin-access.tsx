@@ -102,7 +102,7 @@ export function AdminAccess() {
                 <td className="px-4 py-3 text-xs text-muted">{g.note || '—'}</td>
                 <td className="px-4 py-3 text-xs text-muted">{g.grantedByEmail}</td>
                 <td className="px-4 py-3">{g.revokedAt ? <Badge tone="down">revoked</Badge> : <Badge tone="up">active</Badge>}</td>
-                <td className="px-4 py-3 text-xs text-muted">{new Date(g.createdAt).toLocaleDateString()}</td>
+                <td className="px-4 py-3 text-xs text-muted" suppressHydrationWarning>{new Date(g.createdAt).toLocaleDateString()}</td>
                 <td className="px-4 py-3 text-right">
                   {!g.revokedAt && (
                     <Button variant="ghost" className="!px-2.5 !py-1 text-xs" disabled={busy} onClick={() => revoke(g.id)}>
@@ -152,7 +152,7 @@ export function AdminAudit() {
               <td className="px-4 py-3 text-xs text-muted">
                 {r.targetType ? `${r.targetType} ${r.targetId?.slice(0, 8) ?? ''}` : '—'}
               </td>
-              <td className="px-4 py-3 text-xs text-muted">{new Date(r.createdAt).toLocaleString()}</td>
+              <td className="px-4 py-3 text-xs text-muted" suppressHydrationWarning>{new Date(r.createdAt).toLocaleString()}</td>
             </tr>
           ))}
           {rows && rows.length === 0 && (
