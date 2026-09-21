@@ -210,7 +210,7 @@ export function FollowerAnalytics({ data }: { data: Analytics }) {
                       </div>
                       <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-surface-2">
                         <div
-                          className="h-full rounded-full bg-ink transition-all duration-700"
+                          className="h-full rounded-full bg-brand transition-all duration-700"
                           style={{ width: `${(l.copies / maxLeaderCopies) * 100}%` }}
                         />
                       </div>

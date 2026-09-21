@@ -280,7 +280,7 @@ export default async function LandingPage() {
               }}
             />
             <div className="relative z-10 flex h-full max-w-md flex-col justify-center p-8 sm:p-12">
-              <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-surface/80 text-ink backdrop-blur">
+              <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-surface/80 text-brand backdrop-blur">
                 <ShieldIcon className="h-5 w-5" />
               </span>
               <h3 className="mb-3 text-3xl text-fg" style={{ letterSpacing: '-0.03em' }}>
@@ -299,7 +299,7 @@ export default async function LandingPage() {
                 key={title}
                 className="rounded-3xl border border-border bg-surface p-8 transition-all duration-300 hover:-translate-y-1 hover:border-border hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]"
               >
-                <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-surface-2 text-ink">
+                <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-surface-2 text-brand">
                   <Icon className="h-5 w-5" />
                 </span>
                 <h3 className="mb-3 text-xl text-fg" style={{ letterSpacing: '-0.02em' }}>

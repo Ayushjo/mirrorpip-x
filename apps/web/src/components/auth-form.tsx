@@ -16,7 +16,7 @@ function passwordStrength(pw: string): { score: number; label: string; color: st
   if (/[^A-Za-z0-9]/.test(pw)) score++;
   const bucket = Math.min(4, score);
   const labels = ['Weak', 'Weak', 'Fair', 'Strong', 'Very strong'];
-  const colors = ['#d1293d', '#d1293d', '#b97b1a', '#1a7f4b', '#1a7f4b'];
+  const colors = ['#ef4444', '#ef4444', '#f59e0b', '#10b981', '#10b981'];
   return { score: bucket, label: labels[bucket]!, color: colors[bucket]! };
 }
 
@@ -162,7 +162,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             <div className="mt-2">
               <div className="flex gap-1">
                 {[0, 1, 2, 3].map((i) => (
-                  <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ background: strength.score > i ? strength.color : '#e5e5e5' }} />
+                  <div key={i} className="h-1 flex-1 rounded-full transition-colors" style={{ background: strength.score > i ? strength.color : '#1b3a63' }} />
                 ))}
               </div>
               <div className="mt-1 text-xs" style={{ color: strength.color }}>{strength.label}</div>

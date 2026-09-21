@@ -36,7 +36,12 @@ export function AuthShell({
       >
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        <div className="absolute bottom-0 left-0 p-12">
+        {/* bottom scrim so the caption stays readable over any hero art */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
+          style={{ background: 'linear-gradient(to top, rgba(5,11,23,0.95) 0%, rgba(5,11,23,0.6) 40%, transparent 100%)' }}
+        />
+        <div className="absolute bottom-0 left-0 z-10 p-12">
           <div className="text-4xl font-medium leading-tight text-fg" style={{ letterSpacing: '-0.035em' }}>
             {title}
           </div>

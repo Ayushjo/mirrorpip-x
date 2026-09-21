@@ -109,7 +109,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
             <div className="flex items-start justify-between gap-2">
               <div className="text-xs text-muted">{s.label}</div>
               {'spark' in s && s.spark.some((v) => v > 0) && (
-                <Sparkline points={s.spark} width={72} height={22} className="text-ink" stroke="#00b0ff" />
+                <Sparkline points={s.spark} width={72} height={22} className="text-brand" stroke="#00b0ff" />
               )}
             </div>
             <div className={`mt-1 text-2xl font-semibold tabular-nums ${'tone' in s && s.tone === 'down' ? 'text-down' : ''}`}>{s.value}</div>
