@@ -11,6 +11,25 @@ There are two ways to deploy, below:
 
 ---
 
+## ✅ Deployed (2026-09-21)
+
+Live on Railway (account `amrevjournal@gmail.com`, project **believemeguys**):
+- **web:** https://web-production-548c3.up.railway.app  (verified: landing, login, dashboard with live data)
+- **engine:** running, connected to Neon Singapore, watching leader "Leo Live Delta" (no decrypt errors)
+- DB = Neon Singapore, Redis = existing public URL, all via env vars (no GitHub used — deployed with `railway up`).
+
+> **Gotcha found:** `railway environment edit --service-config <svc> build.buildCommand/deploy.startCommand`
+> reported success but did **not** persist (build failed with "No start command detected").
+> What worked: set them via the GraphQL API —
+> `railway api 'mutation($sid:String!,$eid:String!,$input:ServiceInstanceUpdateInput!){ serviceInstanceUpdate(serviceId:$sid,environmentId:$eid,input:$input) }' --variables @cfg.json`
+> with `input:{buildCommand,startCommand}` — or set them in the service's dashboard Settings.
+
+> **For live copy trading:** the engine's Delta orders are IP-whitelisted. Railway's egress IP is
+> dynamic on Hobby, so set the Delta API keys' IP allowlist to **empty/unrestricted**, or add a
+> static-egress IP add-on and whitelist that. The frontend works regardless.
+
+---
+
 ## Deploy via the Railway CLI (no dashboard)
 
 This is a **shared** pnpm monorepo (the two apps import `packages/*`), so both
