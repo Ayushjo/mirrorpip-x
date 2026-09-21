@@ -92,7 +92,7 @@ export function Sparkline({
     <svg width={width} height={height} viewBox={`0 0 ${width} ${height}`} className={className} fill="none">
       <defs>
         <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={stroke} stopOpacity="0.18" />
+          <stop offset="0%" stopColor={stroke} stopOpacity="0.30" />
           <stop offset="100%" stopColor={stroke} stopOpacity="0" />
         </linearGradient>
       </defs>
