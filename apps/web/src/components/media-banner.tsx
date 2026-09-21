@@ -6,7 +6,7 @@ import { cx } from './ui';
 // shows — graceful, no broken-image icon (that's why it's a background-image,
 // not an <img>). A left-weighted scrim keeps overlaid black text readable.
 export const LAVENDER_GRADIENT =
-  'radial-gradient(900px 380px at 82% -10%, rgba(43,38,68,0.14), transparent 60%), linear-gradient(160deg, #ecebf4 0%, #f2f0f8 52%, #f5f5f5 100%)';
+  'radial-gradient(900px 380px at 82% -10%, rgba(0,176,255,0.18), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #08203f 52%, #050b17 100%)';
 
 export function MediaBanner({
   src,
@@ -35,7 +35,7 @@ export function MediaBanner({
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(90deg, rgba(245,245,245,0.9) 0%, rgba(245,245,245,0.4) 42%, rgba(245,245,245,0) 66%)',
+            'linear-gradient(90deg, rgba(5,11,23,0.92) 0%, rgba(5,11,23,0.5) 42%, rgba(5,11,23,0) 66%)',
         }}
       />
       <div className="relative z-10 w-full">{children}</div>

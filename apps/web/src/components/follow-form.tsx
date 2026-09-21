@@ -133,7 +133,7 @@ export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { le
         </label>
 
         <div className="rounded-xl border border-border-soft bg-surface-2 px-4 py-3 text-sm text-muted">
-          <strong className="text-black">What will be copied:</strong> every fill {leaderName} makes after you start on{' '}
+          <strong className="text-fg">What will be copied:</strong> every fill {leaderName} makes after you start on{' '}
           {leaderExchange} — mapped to the matching contract on your account's exchange, sized with your method above
           {copyReverse ? ', reversed' : ''}
           {maxPositionUsd ? `, capped at $${maxPositionUsd} per position` : ''}
@@ -141,7 +141,7 @@ export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { le
           doesn't list are skipped. Past trades are not backfilled.
         </div>
 
-        {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
+        {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={busy || !credentialId}>
           {busy ? 'Starting…' : `Start following ${leaderName}`}

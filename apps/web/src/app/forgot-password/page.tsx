@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
 
   return (
     <div className="mx-auto w-full max-w-sm py-10">
-      <h1 className="text-4xl leading-tight tracking-tight text-black" style={{ letterSpacing: '-0.03em' }}>
+      <h1 className="text-4xl leading-tight tracking-tight text-fg" style={{ letterSpacing: '-0.03em' }}>
         {step === 'email' ? 'Reset your password' : 'Choose a new password'}
       </h1>
       <p className="mt-2 text-sm text-muted">
@@ -67,7 +67,7 @@ export default function ForgotPasswordPage() {
           <Field label="Email">
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
           </Field>
-          {error && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
+          {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
           <Button type="submit" arrow className="w-full justify-center" disabled={busy || !email.includes('@')}>
             {busy ? 'Sending…' : 'Send reset code'}
           </Button>
@@ -89,7 +89,7 @@ export default function ForgotPasswordPage() {
           <Field label="New password" hint="At least 8 characters.">
             <Input type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" />
           </Field>
-          {error && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
+          {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
           <Button type="submit" arrow className="w-full justify-center" disabled={busy || otp.length !== 6 || password.length < 8}>
             {busy ? 'Resetting…' : 'Reset password'}
           </Button>
@@ -98,7 +98,7 @@ export default function ForgotPasswordPage() {
 
       <p className="mt-6 text-sm text-muted">
         Remembered it?{' '}
-        <Link href="/login" className="font-medium text-black underline-offset-4 hover:underline">
+        <Link href="/login" className="font-medium text-fg underline-offset-4 hover:underline">
           Sign in
         </Link>
       </p>

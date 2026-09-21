@@ -132,11 +132,11 @@ export function AreaChart({
       {hover !== null && (
         <>
           <div
-            className="pointer-events-none absolute z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-white"
+            className="pointer-events-none absolute z-10 h-2.5 w-2.5 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-surface"
             style={{ left: `${hx}%`, top: `${hy}%`, background: color }}
           />
           <div
-            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-lg border border-border bg-white px-2.5 py-1.5 text-xs shadow-lg"
+            className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-[calc(100%+8px)] whitespace-nowrap rounded-lg border border-border bg-surface px-2.5 py-1.5 text-xs shadow-lg"
             style={{ left: `${Math.min(92, Math.max(8, hx))}%`, top: `${hy}%` }}
           >
             <div className="font-semibold tabular-nums" style={{ color }}>
@@ -183,14 +183,14 @@ export function BarChart({
               onMouseLeave={() => setHover((v) => (v === i ? null : v))}
             >
               <motion.div
-                className={cx('w-full max-w-[22px] rounded-t-[5px] transition-colors', active ? 'bg-ink' : 'bg-ink/25')}
+                className={cx('w-full max-w-[22px] rounded-t-[5px] transition-colors', active ? 'bg-brand' : 'bg-brand/30')}
                 style={{ height: h, transformOrigin: 'bottom' }}
                 initial={{ scaleY: 0 }}
                 animate={inView ? { scaleY: 1 } : {}}
                 transition={{ duration: reduce ? 0 : 0.5, delay: reduce ? 0 : i * 0.03, ease: EASE }}
               />
               {active && (
-                <div className="pointer-events-none absolute bottom-full z-10 mb-1.5 -translate-x-0 whitespace-nowrap rounded-lg border border-border bg-white px-2 py-1 text-xs shadow-lg">
+                <div className="pointer-events-none absolute bottom-full z-10 mb-1.5 -translate-x-0 whitespace-nowrap rounded-lg border border-border bg-surface px-2 py-1 text-xs shadow-lg">
                   <span className="font-semibold tabular-nums">{d.value}</span>{' '}
                   <span className="text-faint">{d.sub ?? d.label}</span>
                 </div>

@@ -75,7 +75,7 @@ export function DashboardList({
 
   if (rows.length === 0) {
     return (
-      <div className="overflow-hidden rounded-3xl border border-border bg-white">
+      <div className="overflow-hidden rounded-3xl border border-border bg-surface">
         <div className="grid gap-0 md:grid-cols-2">
           <div className="flex flex-col justify-center p-8 sm:p-10">
             <EmptyState
@@ -88,7 +88,7 @@ export function DashboardList({
             className="relative min-h-56 overflow-hidden"
             style={{
               background:
-                'radial-gradient(500px 280px at 60% 30%, rgba(43,38,68,0.12), transparent 55%), linear-gradient(160deg, #ecebf4, #f5f5f5)',
+                'radial-gradient(500px 280px at 60% 30%, rgba(0,176,255,0.15), transparent 55%), linear-gradient(160deg, #0a1e3a, #050b17)',
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}

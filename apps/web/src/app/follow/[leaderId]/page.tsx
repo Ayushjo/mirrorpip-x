@@ -28,14 +28,14 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
 
   return (
     <div className="space-y-6">
-      <Link href={`/leaders/${leader.id}`} className="text-sm text-muted hover:text-black">
+      <Link href={`/leaders/${leader.id}`} className="text-sm text-muted hover:text-fg">
         ← {leader.displayName}
       </Link>
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Form */}
         <div>
-          <h1 className="text-3xl tracking-tight text-black sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
+          <h1 className="text-3xl tracking-tight text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Follow {leader.displayName}
           </h1>
           <p className="mt-2 text-sm text-muted">Choose how their trades are sized into your account.</p>
@@ -52,11 +52,11 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
         {/* Leader summary + risk */}
         <div className="space-y-4">
           <Card className="p-0">
-            <div className="rounded-t-2xl px-6 pt-6" style={{ background: 'linear-gradient(160deg, #efedf6, #f7f6fb)' }}>
+            <div className="rounded-t-2xl px-6 pt-6" style={{ background: 'linear-gradient(160deg, #0a1e3a, #102d5b)' }}>
               <div className="flex items-center gap-3">
                 <div
-                  className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-black ring-1 ring-black/5"
-                  style={{ background: 'radial-gradient(circle at 35% 30%, #ffffff, #e2ddf1)' }}
+                  className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-fg ring-1 ring-white/10"
+                  style={{ background: 'radial-gradient(circle at 35% 30%, #163a70, #0a1e3a)' }}
                 >
                   {leader.displayName.slice(0, 1)}
                 </div>
@@ -70,7 +70,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
                 </div>
               </div>
               <div className="-mx-2 mt-3">
-                <Sparkline points={sparkPoints(leader.equitySeries)} width={520} height={64} className="w-full text-black" stroke="#2B2644" />
+                <Sparkline points={sparkPoints(leader.equitySeries)} width={520} height={64} className="w-full text-brand" stroke="#00b0ff" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 p-6 text-sm">
@@ -94,7 +94,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
           </Card>
 
           <Card className="bg-surface-2 text-sm text-muted">
-            <strong className="text-black">Heads up:</strong> copy-trading carries real risk. Start small, set a daily
+            <strong className="text-fg">Heads up:</strong> copy-trading carries real risk. Start small, set a daily
             loss limit, and never copy with funds you can’t afford to lose.
           </Card>
         </div>

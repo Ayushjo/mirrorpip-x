@@ -28,7 +28,7 @@ export function MobileNav({
     <div className="md:hidden">
       <button
         type="button"
-        className="grid h-9 w-9 place-items-center rounded-full border border-border bg-white text-black"
+        className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-fg"
         aria-label={open ? 'Close menu' : 'Open menu'}
         aria-expanded={open}
         onClick={() => setOpen((v) => !v)}
@@ -38,14 +38,14 @@ export function MobileNav({
 
       {open && (
         <>
-          <div className="fixed inset-0 z-40 bg-black/20 backdrop-blur-sm" onClick={() => setOpen(false)} />
-          <div className="fixed inset-x-0 top-16 z-50 border-b border-border bg-[rgba(245,245,245,0.97)] px-6 py-4 shadow-lg backdrop-blur-xl">
+          <div className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm" onClick={() => setOpen(false)} />
+          <div className="fixed inset-x-0 top-16 z-50 border-b border-border bg-[rgba(5,11,23,0.9)] px-6 py-4 shadow-lg backdrop-blur-xl">
             <nav className="flex flex-col gap-1">
               {links.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="rounded-xl px-3 py-3 text-base font-medium text-black hover:bg-white"
+                  className="rounded-xl px-3 py-3 text-base font-medium text-fg hover:bg-surface"
                   onClick={() => setOpen(false)}
                 >
                   {l.label}

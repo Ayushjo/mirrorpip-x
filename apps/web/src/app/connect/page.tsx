@@ -18,10 +18,10 @@ export default async function ConnectPage() {
       <Reveal>
         <MediaBanner src="/media/connect-hero.webp" position="right center">
           <div className="p-8 sm:p-10">
-            <h1 className="text-3xl text-black sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
+            <h1 className="text-3xl text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
               Connected accounts
             </h1>
-            <p className="mt-2 max-w-md text-sm text-black/60">
+            <p className="mt-2 max-w-md text-sm text-muted">
               Manage the exchange accounts you use to follow leaders. Keys are encrypted; withdrawals are never possible.
             </p>
           </div>

@@ -99,7 +99,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="text-4xl leading-tight tracking-tight text-black" style={{ letterSpacing: '-0.03em' }}>
+      <h1 className="text-4xl leading-tight tracking-tight text-fg" style={{ letterSpacing: '-0.03em' }}>
         {isRegister ? 'Create your account' : 'Welcome back'}
       </h1>
       <p className="mt-2 text-sm text-muted">
@@ -153,7 +153,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             <button
               type="button"
               onClick={() => setShowPassword((s) => !s)}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-faint hover:text-black"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-faint hover:text-fg"
             >
               {showPassword ? 'Hide' : 'Show'}
             </button>
@@ -187,13 +187,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
         {!isRegister && (
           <div className="text-right">
-            <Link href="/forgot-password" className="text-xs text-muted underline-offset-4 hover:text-black hover:underline">
+            <Link href="/forgot-password" className="text-xs text-muted underline-offset-4 hover:text-fg hover:underline">
               Forgot password?
             </Link>
           </div>
         )}
 
-        {(error || oauthError) && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error ?? oauthError}</p>}
+        {(error || oauthError) && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error ?? oauthError}</p>}
 
         <Button type="submit" arrow className="w-full justify-center" disabled={busy || !canSubmit}>
           {busy ? 'Please wait…' : isRegister ? 'Create account' : 'Sign in'}
@@ -214,7 +214,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
       <p className="mt-6 text-sm text-muted">
         {isRegister ? 'Already have an account? ' : "Don't have an account? "}
-        <Link href={isRegister ? '/login' : '/register'} className="font-medium text-black underline-offset-4 hover:underline">
+        <Link href={isRegister ? '/login' : '/register'} className="font-medium text-fg underline-offset-4 hover:underline">
           {isRegister ? 'Sign in' : 'Sign up'}
         </Link>
       </p>

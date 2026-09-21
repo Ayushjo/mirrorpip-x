@@ -11,7 +11,7 @@ export interface GeoPoint {
 // Equirectangular projection into a 360×180 viewBox: x = lng+180, y = 90-lat.
 const VB_W = 360;
 const VB_H = 180;
-const ACCENT = '#6d5fd0';
+const ACCENT = '#00b0ff';
 
 function project(lat: number, lng: number): { x: number; y: number } {
   return { x: lng + 180, y: 90 - lat };
@@ -37,7 +37,7 @@ export function AdminUserMap({ points }: { points: GeoPoint[] }) {
     <Card className="p-0">
       <div className="flex items-center justify-between border-b border-border px-6 py-4">
         <div>
-          <h3 className="text-base font-semibold text-black">Where your users are</h3>
+          <h3 className="text-base font-semibold text-fg">Where your users are</h3>
           <p className="mt-0.5 text-sm text-muted">Geocoded from signup location.</p>
         </div>
         <span className="text-xs font-medium text-muted tabular-nums">
@@ -53,7 +53,7 @@ export function AdminUserMap({ points }: { points: GeoPoint[] }) {
             style={{
               paddingBottom: '50%',
               background:
-                'radial-gradient(600px 320px at 60% 10%, rgba(43,38,68,0.10), transparent 60%), linear-gradient(160deg, #f0eef7 0%, #f6f5fb 60%, #eef1f8 100%)',
+                'radial-gradient(600px 320px at 60% 10%, rgba(0,176,255,0.12), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #08203f 60%, #050b17 100%)',
             }}
           >
             {/* Optional real-continents backdrop; degrades gracefully if absent. */}
@@ -78,10 +78,10 @@ export function AdminUserMap({ points }: { points: GeoPoint[] }) {
               </defs>
               {/* Graticule */}
               {graticuleLng.map((lng) => (
-                <line key={`v${lng}`} x1={lng + 180} y1={0} x2={lng + 180} y2={VB_H} stroke="#2b2644" strokeOpacity="0.06" strokeWidth="0.5" />
+                <line key={`v${lng}`} x1={lng + 180} y1={0} x2={lng + 180} y2={VB_H} stroke="#7fd4ff" strokeOpacity="0.10" strokeWidth="0.5" />
               ))}
               {graticuleLat.map((lat) => (
-                <line key={`h${lat}`} x1={0} y1={90 - lat} x2={VB_W} y2={90 - lat} stroke="#2b2644" strokeOpacity="0.06" strokeWidth="0.5" />
+                <line key={`h${lat}`} x1={0} y1={90 - lat} x2={VB_W} y2={90 - lat} stroke="#7fd4ff" strokeOpacity="0.10" strokeWidth="0.5" />
               ))}
               {/* Points: soft glow halo + solid core */}
               {points.map((p, i) => {
@@ -111,7 +111,7 @@ export function AdminUserMap({ points }: { points: GeoPoint[] }) {
                 <li key={i} className="flex items-center justify-between gap-3 text-sm">
                   <span className="inline-flex items-center gap-2 truncate">
                     <span className="h-2 w-2 shrink-0 rounded-full" style={{ background: ACCENT }} />
-                    <span className="truncate text-black">{[p.city, p.country].filter(Boolean).join(', ') || 'Unknown'}</span>
+                    <span className="truncate text-fg">{[p.city, p.country].filter(Boolean).join(', ') || 'Unknown'}</span>
                   </span>
                   <span className="shrink-0 text-xs font-medium text-muted tabular-nums">{p.count}</span>
                 </li>

@@ -107,11 +107,11 @@ function VerifyForm() {
 
   return (
     <div className="w-full">
-      <h1 className="text-4xl leading-tight tracking-tight text-black" style={{ letterSpacing: '-0.03em' }}>
+      <h1 className="text-4xl leading-tight tracking-tight text-fg" style={{ letterSpacing: '-0.03em' }}>
         Check your email
       </h1>
       <p className="mt-2 text-sm text-muted">
-        We sent a 6-digit code to <span className="font-medium text-black">{email || 'your email'}</span>. Enter it below to
+        We sent a 6-digit code to <span className="font-medium text-fg">{email || 'your email'}</span>. Enter it below to
         activate your account.
       </p>
       <form onSubmit={submit} className="mt-8 space-y-4">
@@ -127,8 +127,8 @@ function VerifyForm() {
             className="text-center text-2xl tracking-[0.5em]"
           />
         </Field>
-        {error && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
-        {info && <p className="rounded-lg bg-[#e7f3ec] px-3 py-2 text-sm text-up">{info}</p>}
+        {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
+        {info && <p className="rounded-lg bg-up/15 px-3 py-2 text-sm text-up">{info}</p>}
         <Button type="submit" arrow className="w-full justify-center" disabled={busy || otp.length !== 6}>
           {busy ? 'Verifying…' : 'Verify and continue'}
         </Button>
@@ -138,14 +138,14 @@ function VerifyForm() {
         {cooldown > 0 ? (
           <span className="text-faint">Resend code in {cooldown}s</span>
         ) : (
-          <button type="button" onClick={resend} className="font-medium text-black underline-offset-4 hover:underline">
+          <button type="button" onClick={resend} className="font-medium text-fg underline-offset-4 hover:underline">
             Resend code
           </button>
         )}
       </p>
       <p className="mt-2 text-sm text-muted">
         Wrong email?{' '}
-        <Link href="/register" className="font-medium text-black underline-offset-4 hover:underline">
+        <Link href="/register" className="font-medium text-fg underline-offset-4 hover:underline">
           Start over
         </Link>
       </p>

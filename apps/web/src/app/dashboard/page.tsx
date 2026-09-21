@@ -38,10 +38,10 @@ export default async function DashboardPage() {
         <MediaBanner src="/media/dashboard-banner.webp" position="right center">
           <div className="flex flex-wrap items-center justify-between gap-4 p-8">
             <div>
-              <h1 className="text-3xl text-black" style={{ letterSpacing: '-0.03em' }}>
+              <h1 className="text-3xl text-fg" style={{ letterSpacing: '-0.03em' }}>
                 {firstName ? `Welcome back, ${firstName}` : 'Dashboard'}
               </h1>
-              <p className="mt-1.5 text-sm text-black/60">Your active copies, live P&amp;L and full trade history.</p>
+              <p className="mt-1.5 text-sm text-muted">Your active copies, live P&amp;L and full trade history.</p>
             </div>
             <LinkButton href="/leaders" variant="ghost" arrow>
               Find leaders

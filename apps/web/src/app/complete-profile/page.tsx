@@ -22,10 +22,10 @@ export default async function CompleteProfilePage() {
     <div className="mx-auto w-full max-w-xl space-y-6 py-6">
       <MediaBanner src="/media/profile-globe.webp" position="right center" className="min-h-[180px]">
         <div className="p-8">
-          <h1 className="text-3xl text-black" style={{ letterSpacing: '-0.03em' }}>
+          <h1 className="text-3xl text-fg" style={{ letterSpacing: '-0.03em' }}>
             One last step
           </h1>
-          <p className="mt-1.5 max-w-sm text-sm text-black/60">
+          <p className="mt-1.5 max-w-sm text-sm text-muted">
             Tell us where you&rsquo;re based{needsConsent ? ' and accept the terms' : ''} — required for compliance before you
             start copying.
           </p>

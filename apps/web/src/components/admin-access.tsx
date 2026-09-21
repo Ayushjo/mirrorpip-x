@@ -80,7 +80,7 @@ export function AdminAccess() {
           <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" className="max-w-xs" />
           <Button type="submit" disabled={busy}>Grant access</Button>
         </form>
-        {error && <p className="mt-3 rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
+        {error && <p className="mt-3 rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
       </Card>
 
       <Card className="overflow-x-auto p-0">

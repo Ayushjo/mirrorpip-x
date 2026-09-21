@@ -18,10 +18,10 @@ export default async function AdminPage() {
     <div className="space-y-6">
       <MediaBanner src="/media/dashboard-banner.webp" position="right center">
         <div className="p-8 sm:p-10">
-          <h1 className="text-3xl text-black sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
+          <h1 className="text-3xl text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Admin
           </h1>
-          <p className="mt-2 max-w-md text-sm text-black/60">
+          <p className="mt-2 max-w-md text-sm text-muted">
             Users, activity, leader verification, access and engine control.
           </p>
         </div>

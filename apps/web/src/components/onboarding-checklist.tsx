@@ -74,7 +74,7 @@ export function OnboardingChecklist({
     <Card className="overflow-hidden p-0">
       <div className="flex items-center justify-between border-b border-border px-6 py-4">
         <div>
-          <div className="text-base font-medium text-black">Finish setting up</div>
+          <div className="text-base font-medium text-fg">Finish setting up</div>
           <p className="mt-0.5 text-sm text-muted">A couple of steps and you&rsquo;ll be copying live.</p>
         </div>
         <span className="text-xs font-medium text-muted tabular-nums">
@@ -90,16 +90,16 @@ export function OnboardingChecklist({
                 className={cx(
                   'grid h-9 w-9 shrink-0 place-items-center rounded-full border text-sm font-medium',
                   s.done
-                    ? 'border-transparent bg-[#e7f3ec] text-up'
+                    ? 'border-transparent bg-up/15 text-up'
                     : isActive
-                      ? 'border-transparent bg-black text-white'
+                      ? 'border-transparent bg-brand text-white'
                       : 'border-border bg-surface text-muted',
                 )}
               >
                 {s.done ? <CheckIcon width={16} height={16} /> : i + 1}
               </span>
               <div className="min-w-0 flex-1">
-                <div className={cx('flex items-center gap-2 text-sm font-medium', s.done ? 'text-muted line-through' : 'text-black')}>
+                <div className={cx('flex items-center gap-2 text-sm font-medium', s.done ? 'text-muted line-through' : 'text-fg')}>
                   <s.Icon width={15} height={15} className={s.done ? 'text-up' : 'text-muted'} />
                   {s.title}
                 </div>

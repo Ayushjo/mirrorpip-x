@@ -87,7 +87,7 @@ export function LeaderDashboard({ leaders }: { leaders: LeaderData[] }) {
                 </div>
                 <Link
                   href={`/leaders/${l.id}`}
-                  className="inline-flex items-center gap-1.5 rounded-full border border-black/15 bg-white px-4 py-2 text-sm font-medium text-black transition-colors hover:bg-[#ececec]"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-border bg-surface px-4 py-2 text-sm font-medium text-fg transition-colors hover:bg-surface-2"
                 >
                   Public page <ArrowRightIcon width={15} height={15} />
                 </Link>

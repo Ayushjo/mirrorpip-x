@@ -144,8 +144,8 @@ export function AdminUsers() {
       )}
 
       {dossier && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/20" onClick={() => setDossier(null)}>
-          <div className="h-full w-full max-w-md overflow-y-auto bg-white p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
+        <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={() => setDossier(null)}>
+          <div className="h-full w-full max-w-md overflow-y-auto bg-surface p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
               <div>
                 <h3 className="text-lg font-semibold">{dossier.user.name}</h3>
@@ -177,7 +177,7 @@ export function AdminUsers() {
             ) : (
               <ul className="mt-2 space-y-1.5 text-xs">
                 {dossier.credentials.map((c) => (
-                  <li key={c.id} className="flex justify-between rounded-lg bg-[#f6f6f6] px-3 py-2">
+                  <li key={c.id} className="flex justify-between rounded-lg bg-surface-2 px-3 py-2">
                     <span>
                       {c.label} <span className="text-faint">••••{c.keyLast4} · {c.exchange}</span>
                     </span>
@@ -195,13 +195,13 @@ export function AdminUsers() {
                 </Button>
               )}
             </div>
-            {stopMsg && <p className="mt-1.5 rounded-lg bg-[#e7f3ec] px-3 py-1.5 text-xs text-up">{stopMsg}</p>}
+            {stopMsg && <p className="mt-1.5 rounded-lg bg-up/15 px-3 py-1.5 text-xs text-up">{stopMsg}</p>}
             {dossier.follows.length === 0 ? (
               <p className="mt-1 text-xs text-muted">Not following anyone.</p>
             ) : (
               <ul className="mt-2 space-y-1.5 text-xs">
                 {dossier.follows.map((f) => (
-                  <li key={f.id} className="flex justify-between rounded-lg bg-[#f6f6f6] px-3 py-2">
+                  <li key={f.id} className="flex justify-between rounded-lg bg-surface-2 px-3 py-2">
                     <span>{f.leader} · {f.sizingMode} · {f.copyOrders} orders</span>
                     <Badge tone={f.status === 'ACTIVE' ? 'up' : 'neutral'}>{f.status}</Badge>
                   </li>

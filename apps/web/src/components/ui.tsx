@@ -15,17 +15,18 @@ export function Card({ children, className }: { children: ReactNode; className?:
 type ButtonVariant = 'primary' | 'ghost' | 'danger' | 'subtle';
 
 const buttonStyles: Record<ButtonVariant, string> = {
-  primary: 'bg-black text-white hover:bg-gray-800',
-  ghost: 'border border-black/15 bg-white text-black hover:bg-[#ececec]',
+  primary:
+    'bg-gradient-to-r from-brand to-accent text-[#050b17] font-semibold shadow-[0_4px_20px_rgba(0,176,255,0.35)] hover:shadow-[0_6px_28px_rgba(0,176,255,0.5)]',
+  ghost: 'border border-brand/40 bg-transparent text-brand hover:bg-brand/10',
   danger: 'bg-(--color-down) text-white hover:opacity-90',
-  subtle: 'bg-[#ececec] text-black hover:bg-[#e2e2e2]',
+  subtle: 'bg-surface-2 text-fg hover:bg-[#163a70]',
 };
 
-// The signature Halo CTA: black pill with a trailing white arrow-circle.
+// The signature CTA: blue gradient pill with a trailing white arrow-circle.
 function ArrowCircle() {
   return (
-    <span className="grid h-7 w-7 place-items-center rounded-full bg-white">
-      <ArrowRight className="h-4 w-4 text-black" strokeWidth={2} />
+    <span className="grid h-7 w-7 place-items-center rounded-full bg-surface">
+      <ArrowRight className="h-4 w-4 text-[#050b17]" strokeWidth={2} />
     </span>
   );
 }
@@ -88,7 +89,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cx(
-        'w-full rounded-xl border border-black/12 bg-white px-4 py-2.5 text-sm text-black placeholder:text-faint outline-none transition focus:border-black',
+        'w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand',
         className,
       )}
       {...props}
@@ -102,12 +103,12 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
       className={cx(
         // appearance-none + a custom chevron so the control matches the rounded
         // inputs instead of showing the platform's native (double-arrow) select UI.
-        'w-full appearance-none rounded-xl border border-black/12 bg-white bg-no-repeat px-4 py-2.5 pr-10 text-sm text-black outline-none transition focus:border-black',
+        'w-full appearance-none rounded-xl border border-border bg-surface bg-no-repeat px-4 py-2.5 pr-10 text-sm text-fg outline-none transition focus:border-brand',
         className,
       )}
       style={{
         backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%235a5a5a' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
         backgroundPosition: 'right 0.75rem center',
         backgroundSize: '16px',
       }}
@@ -134,11 +135,11 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 
 type Tone = 'neutral' | 'brand' | 'up' | 'down' | 'warn';
 const badgeTone: Record<Tone, string> = {
-  neutral: 'bg-[#ececec] text-muted',
-  brand: 'bg-[#ecebf2] text-ink',
-  up: 'bg-[#e7f3ec] text-up',
-  down: 'bg-[#fbe9eb] text-down',
-  warn: 'bg-[#fbf1e3] text-warn',
+  neutral: 'bg-surface-2 text-muted',
+  brand: 'bg-brand/15 text-accent',
+  up: 'bg-up/15 text-up',
+  down: 'bg-down/15 text-down',
+  warn: 'bg-warn/15 text-warn',
 };
 
 export function Badge({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
@@ -172,13 +173,13 @@ export function EmptyState({ title, body, action }: { title: string; body: strin
       className="relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-border px-6 py-16 text-center"
       style={{
         background:
-          'radial-gradient(600px 260px at 50% -10%, rgba(43,38,68,0.10), transparent 60%), linear-gradient(160deg, #f0eef7 0%, #ffffff 55%, #f2f0f8 100%)',
+          'radial-gradient(600px 260px at 50% -10%, rgba(0,176,255,0.12), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #050b17 60%, #0a1e3a 100%)',
       }}
     >
       <div
         className="h-28 w-28 rounded-full border border-border shadow-sm"
         style={{
-          backgroundImage: 'url("/media/halo-object.webp"), radial-gradient(circle at 50% 40%, #e7e3f3, #ffffff)',
+          backgroundImage: 'url("/media/halo-object.webp"), radial-gradient(circle at 50% 40%, #102d5b, #0a1e3a)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

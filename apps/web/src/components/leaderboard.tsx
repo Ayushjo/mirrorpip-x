@@ -65,8 +65,8 @@ export function Leaderboard({ leaders }: { leaders: LeaderCard[] }) {
             onClick={() => setFilter(f.id)}
             className={
               filter === f.id
-                ? 'rounded-full bg-black px-3.5 py-1.5 text-xs font-medium text-white'
-                : 'rounded-full border border-border bg-white/70 px-3.5 py-1.5 text-xs text-muted backdrop-blur transition-colors hover:text-black'
+                ? 'rounded-full bg-brand px-3.5 py-1.5 text-xs font-medium text-white'
+                : 'rounded-full border border-border bg-surface/70 px-3.5 py-1.5 text-xs text-muted backdrop-blur transition-colors hover:text-fg'
             }
           >
             {f.label}
@@ -85,26 +85,26 @@ export function Leaderboard({ leaders }: { leaders: LeaderCard[] }) {
           {sorted.map((l, i) => (
             <Card
               key={l.id}
-              className="group flex h-full flex-col p-0 transition-all duration-300 hover:-translate-y-1 hover:border-black/12 hover:shadow-[0_18px_44px_rgba(0,0,0,0.07)]"
+              className="group flex h-full flex-col p-0 transition-all duration-300 hover:-translate-y-1 hover:border-border hover:shadow-[0_18px_44px_rgba(0,0,0,0.07)]"
             >
               <div
                 className="relative overflow-hidden rounded-t-2xl px-6 pt-6"
-                style={{ background: 'linear-gradient(160deg, #efedf6, #f7f6fb)' }}
+                style={{ background: 'linear-gradient(160deg, #0a1e3a, #102d5b)' }}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <div
-                      className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-black ring-1 ring-black/5"
-                      style={{ background: 'radial-gradient(circle at 35% 30%, #ffffff, #e2ddf1)' }}
+                      className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-fg ring-1 ring-white/10"
+                      style={{ background: 'radial-gradient(circle at 35% 30%, #163a70, #0a1e3a)' }}
                     >
                       {l.displayName.slice(0, 1)}
                     </div>
                     <div>
-                      <Link href={`/leaders/${l.id}`} className="font-medium hover:text-black">
+                      <Link href={`/leaders/${l.id}`} className="font-medium hover:text-fg">
                         {l.displayName}
                       </Link>
                       <div className="flex items-center gap-1.5 text-xs text-faint">
-                        <span className="rounded bg-black/5 px-1.5 py-0.5 font-medium text-black/60">#{i + 1}</span>
+                        <span className="rounded bg-white/10 px-1.5 py-0.5 font-medium text-muted">#{i + 1}</span>
                         Delta India
                       </div>
                     </div>
@@ -121,8 +121,8 @@ export function Leaderboard({ leaders }: { leaders: LeaderCard[] }) {
                     points={sparkPoints(l.equitySeries)}
                     width={520}
                     height={72}
-                    className="w-full text-black"
-                    stroke="#2B2644"
+                    className="w-full text-brand"
+                    stroke="#00b0ff"
                   />
                 </div>
               </div>

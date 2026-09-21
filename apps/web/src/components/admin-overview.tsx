@@ -105,11 +105,11 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
     <div className="space-y-6">
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-5">
         {stats.map((s) => (
-          <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-black/12 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
+          <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
             <div className="flex items-start justify-between gap-2">
               <div className="text-xs text-muted">{s.label}</div>
               {'spark' in s && s.spark.some((v) => v > 0) && (
-                <Sparkline points={s.spark} width={72} height={22} className="text-ink" stroke="#6d5fd0" />
+                <Sparkline points={s.spark} width={72} height={22} className="text-ink" stroke="#00b0ff" />
               )}
             </div>
             <div className={`mt-1 text-2xl font-semibold tabular-nums ${'tone' in s && s.tone === 'down' ? 'text-down' : ''}`}>{s.value}</div>
@@ -122,7 +122,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
         <h3 className="mb-3 text-sm font-semibold text-muted">Money at risk</h3>
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           {moneyStats.map((s) => (
-            <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-black/12 hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
+            <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
               <div className="text-xs text-muted">{s.label}</div>
               <div
                 className={`mt-1 text-2xl font-semibold tabular-nums ${s.tone === 'down' ? 'text-down' : s.tone === 'up' ? 'text-up' : ''}`}
@@ -147,14 +147,14 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
               return (
                 <div key={s.label}>
                   <div className="mb-1 flex items-center justify-between text-xs">
-                    <span className="text-black">{s.label}</span>
+                    <span className="text-fg">{s.label}</span>
                     <span className="tabular-nums text-muted">
                       {s.value}
                       {i > 0 && <span className="ml-1.5 text-faint">({pct}%)</span>}
                     </span>
                   </div>
-                  <div className="h-2 overflow-hidden rounded-full bg-[#efeef4]">
-                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.max(pct, 2)}%`, background: '#6d5fd0' }} />
+                  <div className="h-2 overflow-hidden rounded-full bg-surface-2">
+                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.max(pct, 2)}%`, background: '#00b0ff' }} />
                   </div>
                 </div>
               );
@@ -171,7 +171,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
             <ul className="space-y-2.5">
               {data.featureAdoption.map((row) => (
                 <li key={row.feature} className="flex items-center justify-between gap-3 text-sm">
-                  <span className="capitalize text-black">{row.feature}</span>
+                  <span className="capitalize text-fg">{row.feature}</span>
                   <span className="tabular-nums text-muted">{row.count}</span>
                 </li>
               ))}

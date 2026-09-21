@@ -168,7 +168,7 @@ export function CompleteProfileForm({
         </div>
       )}
 
-      {error && <p className="rounded-lg bg-[rgba(209,41,61,0.08)] px-3 py-2 text-sm text-down">{error}</p>}
+      {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
 
       <Button type="submit" arrow className="w-full justify-center" disabled={busy || !canSubmit}>
         {busy ? 'Saving…' : 'Continue'}

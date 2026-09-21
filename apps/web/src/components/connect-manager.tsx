@@ -106,7 +106,7 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
     <div className="space-y-6">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
         {exchanges.map((exchange) => (
-          <button key={exchange.id} type="button" disabled={exchange.availability !== 'ACTIVE'} onClick={() => { setExchangeId(exchange.id); setTradeCurrency(exchange.supportedCurrencies[0] ?? 'USDT'); }} className={cx('rounded-2xl border p-5 text-left transition', exchange.id === exchangeId ? 'border-brand bg-brand-soft/50' : 'border-border bg-white', exchange.availability !== 'ACTIVE' && 'cursor-not-allowed opacity-45')}>
+          <button key={exchange.id} type="button" disabled={exchange.availability !== 'ACTIVE'} onClick={() => { setExchangeId(exchange.id); setTradeCurrency(exchange.supportedCurrencies[0] ?? 'USDT'); }} className={cx('rounded-2xl border p-5 text-left transition', exchange.id === exchangeId ? 'border-brand bg-brand-soft/50' : 'border-border bg-surface', exchange.availability !== 'ACTIVE' && 'cursor-not-allowed opacity-45')}>
             <div className="font-medium">{exchange.displayName}</div>
             <div className="mt-1 text-xs text-muted">{exchange.message ?? exchange.supportedCurrencies.join(' / ')}</div>
           </button>
@@ -154,7 +154,7 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
                 autoComplete="off"
               />
             </Field>
-            {error && <p className="rounded-lg bg-[rgba(244,63,94,0.1)] px-3 py-2 text-sm text-down">{error}</p>}
+            {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
             {msg && (
               <p className="flex items-center gap-1.5 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand">
                 <CheckIcon width={15} height={15} /> {msg}
@@ -170,11 +170,11 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
       <div>
         <Card className="mb-4 border-brand/20 bg-brand-soft/40">
           <div className="flex items-start gap-3">
-            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white text-brand">
+            <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface text-brand">
               <UsersIcon width={18} height={18} />
             </div>
             <div>
-              <h2 className="text-base font-semibold text-black">Become a leader</h2>
+              <h2 className="text-base font-semibold text-fg">Become a leader</h2>
               <p className="mt-1 text-sm text-muted">
                 Connect an account, apply below, and an admin verifies you before you appear on the leaderboard. Status
                 shows as Pending or Verified on each account.
@@ -224,7 +224,7 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
                     )}
                     <button
                       onClick={() => remove(c.id)}
-                      className={cx('rounded-lg px-3 py-1.5 text-xs text-down hover:bg-[rgba(244,63,94,0.1)]')}
+                      className={cx('rounded-lg px-3 py-1.5 text-xs text-down hover:bg-down/12')}
                     >
                       Remove
                     </button>

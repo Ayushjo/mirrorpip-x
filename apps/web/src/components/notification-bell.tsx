@@ -62,7 +62,7 @@ export function NotificationBell() {
         type="button"
         onClick={toggle}
         aria-label="Notifications"
-        className="relative grid h-9 w-9 place-items-center rounded-full border border-black/10 bg-white text-black transition hover:bg-[#ececec]"
+        className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-fg transition hover:bg-surface-2"
       >
         <Bell className="h-4 w-4" />
         {unread > 0 && (
@@ -72,7 +72,7 @@ export function NotificationBell() {
         )}
       </button>
       {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-2xl border border-border bg-white shadow-xl">
+        <div className="absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
           <div className="border-b border-border-soft px-4 py-3 text-sm font-semibold">Notifications</div>
           <div className="max-h-96 overflow-y-auto">
             {items.length === 0 ? (
@@ -87,7 +87,7 @@ export function NotificationBell() {
                   </div>
                 );
                 return n.href ? (
-                  <Link key={n.id} href={n.href} onClick={() => setOpen(false)} className="block transition hover:bg-[#f7f7f7]">
+                  <Link key={n.id} href={n.href} onClick={() => setOpen(false)} className="block transition hover:bg-surface-2">
                     {inner}
                   </Link>
                 ) : (

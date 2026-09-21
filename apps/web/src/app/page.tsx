@@ -72,17 +72,17 @@ function ModeCard({
         className="absolute inset-0"
         style={{
           background:
-            'linear-gradient(180deg, rgba(245,245,245,0.82) 0%, rgba(245,245,245,0.35) 40%, transparent 75%)',
+            'linear-gradient(180deg, rgba(5,11,23,0.82) 0%, rgba(5,11,23,0.35) 40%, transparent 75%)',
         }}
       />
       <div className="relative z-10 p-10 sm:p-12">
-        <h3 className="mb-5 text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+        <h3 className="mb-5 text-4xl leading-tight text-fg sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
           {title}
         </h3>
-        <p className="mb-8 max-w-md text-base text-black/70">{body}</p>
-        <a href={href} className="group inline-flex items-center gap-3 text-base font-medium text-black">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-white/80 backdrop-blur transition-colors group-hover:bg-white">
-            <ArrowRight className="h-4 w-4 text-black" />
+        <p className="mb-8 max-w-md text-base text-muted">{body}</p>
+        <a href={href} className="group inline-flex items-center gap-3 text-base font-medium text-fg">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-surface/80 backdrop-blur transition-colors group-hover:bg-surface">
+            <ArrowRight className="h-4 w-4 text-fg" />
           </span>
           {cta}
         </a>
@@ -104,7 +104,7 @@ export default async function LandingPage() {
           style={{
             minHeight: 'clamp(560px, 76vh, 760px)',
             background:
-              'radial-gradient(1200px 480px at 78% -8%, rgba(43,38,68,0.16), transparent 60%), linear-gradient(160deg, #ecebf4 0%, #f5f5f5 46%, #e9eef7 100%)',
+              'radial-gradient(1200px 480px at 78% -8%, rgba(0,176,255,0.18), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #050b17 46%, #08203f 100%)',
           }}
         >
           <video
@@ -119,20 +119,20 @@ export default async function LandingPage() {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(90deg, rgba(245,245,245,0.92) 0%, rgba(245,245,245,0.62) 40%, rgba(245,245,245,0.08) 72%)',
+                'linear-gradient(90deg, rgba(5,11,23,0.92) 0%, rgba(5,11,23,0.62) 40%, rgba(5,11,23,0.08) 72%)',
             }}
           />
           <div className="animate-in relative z-10 flex h-full flex-col items-start justify-start p-8 pt-20 sm:p-14 sm:pt-28">
-            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-1 text-xs text-black/70 backdrop-blur">
+            <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 text-xs text-muted backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-up" /> Live on Delta Exchange India
             </div>
-            <h1 className="max-w-2xl text-5xl leading-[1.02] text-black sm:text-7xl" style={{ letterSpacing: '-0.04em' }}>
+            <h1 className="max-w-2xl text-5xl leading-[1.02] text-fg sm:text-7xl" style={{ letterSpacing: '-0.04em' }}>
               Your capital,
               <br />
               on autopilot.
             </h1>
             <p
-              className="mt-5 max-w-md text-base leading-relaxed text-black/65 sm:text-lg"
+              className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg"
               style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
             >
               Connect your exchange, follow a verified leader, and every trade they make is mirrored into your account in
@@ -151,7 +151,7 @@ export default async function LandingPage() {
               {['Trade-only API keys', 'No withdrawal access', 'Pause anytime'].map((t) => (
                 <span
                   key={t}
-                  className="rounded-full border border-black/10 bg-white/75 px-3.5 py-1.5 text-xs font-medium text-black/65 backdrop-blur"
+                  className="rounded-full border border-border bg-surface/75 px-3.5 py-1.5 text-xs font-medium text-muted backdrop-blur"
                 >
                   {t}
                 </span>
@@ -165,7 +165,7 @@ export default async function LandingPage() {
       <section>
         <Reveal className="mb-14 grid grid-cols-1 items-start gap-12 md:grid-cols-2">
           <div>
-            <h2 className="text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+            <h2 className="text-4xl leading-tight text-fg sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
               Meet BelieveMeGuys.
             </h2>
             <div className="mt-8">
@@ -174,7 +174,7 @@ export default async function LandingPage() {
               </LinkButton>
             </div>
           </div>
-          <p className="text-2xl leading-relaxed text-black/70 sm:text-3xl" style={{ letterSpacing: '-0.01em' }}>
+          <p className="text-2xl leading-relaxed text-muted sm:text-3xl" style={{ letterSpacing: '-0.01em' }}>
             A copy-trading engine that watches verified leaders and mirrors their trades into your own exchange account —
             automatically, in real time.
           </p>
@@ -189,13 +189,13 @@ export default async function LandingPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(180deg, rgba(255,255,255,0.55), rgba(255,255,255,0.15) 40%, rgba(255,255,255,0.55))',
+                  'linear-gradient(180deg, rgba(5,11,23,0.55), rgba(5,11,23,0.15) 40%, rgba(5,11,23,0.55))',
               }}
             />
-            <div className="relative text-2xl font-medium leading-snug text-black" style={{ letterSpacing: '-0.02em' }}>
+            <div className="relative text-2xl font-medium leading-snug text-fg" style={{ letterSpacing: '-0.02em' }}>
               Returns that mirror the best.
             </div>
-            <p className="relative max-w-xs text-base text-black/70">
+            <p className="relative max-w-xs text-base text-muted">
               Every fill a leader makes is sized to your account and placed within a second — you hold the exact same
               positions, proportionally.
             </p>
@@ -204,7 +204,7 @@ export default async function LandingPage() {
             ['You keep custody, always.', 'Trade-only API keys. The engine can place orders but never withdraw a cent.'],
             ['Fully automated.', 'No screens to watch. It runs in the background and mirrors trades for you, 24/7.'],
           ].map(([t, d]) => (
-            <div key={t} className="flex min-h-80 flex-col justify-between rounded-2xl p-7" style={{ background: '#2B2644' }}>
+            <div key={t} className="flex min-h-80 flex-col justify-between rounded-2xl p-7" style={{ background: '#0a1e3a' }}>
               <div className="whitespace-pre-line text-2xl font-medium leading-snug text-white" style={{ letterSpacing: '-0.02em' }}>
                 {t}
               </div>
@@ -218,12 +218,12 @@ export default async function LandingPage() {
       <section id="how-it-works">
         <div className="mb-10 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <div className="mb-2 text-sm text-black/60">Three steps</div>
-            <h2 className="text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+            <div className="mb-2 text-sm text-muted">Three steps</div>
+            <h2 className="text-4xl leading-tight text-fg sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
               How it works
             </h2>
           </div>
-          <p className="max-w-md text-base text-black/60">
+          <p className="max-w-md text-base text-muted">
             From a blank account to live mirrored positions — without ever handing over custody.
           </p>
         </div>
@@ -231,8 +231,8 @@ export default async function LandingPage() {
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           {STEPS.map(({ n, title, body, image }, i) => (
             <Reveal key={n} delay={i * 0.12}>
-              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-white shadow-[0_1px_0_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:border-black/12 hover:shadow-[0_18px_44px_rgba(0,0,0,0.07)]">
-                <div className="relative aspect-[4/3] overflow-hidden bg-[#f0eef6]">
+              <div className="group flex h-full flex-col overflow-hidden rounded-3xl border border-border bg-surface shadow-[0_1px_0_rgba(0,0,0,0.02)] transition-all duration-300 hover:-translate-y-1 hover:border-border hover:shadow-[0_18px_44px_rgba(0,0,0,0.07)]">
+                <div className="relative aspect-[4/3] overflow-hidden bg-surface-2">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img
                     src={image}
@@ -241,11 +241,11 @@ export default async function LandingPage() {
                   />
                 </div>
                 <div className="flex flex-1 flex-col p-7">
-                  <span className="mb-3 text-xs font-medium text-black/40">{n}</span>
-                  <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
+                  <span className="mb-3 text-xs font-medium text-muted">{n}</span>
+                  <h3 className="mb-3 text-xl text-fg" style={{ letterSpacing: '-0.02em' }}>
                     {title}
                   </h3>
-                  <p className="text-sm leading-relaxed text-black/60">{body}</p>
+                  <p className="text-sm leading-relaxed text-muted">{body}</p>
                 </div>
               </div>
             </Reveal>
@@ -257,12 +257,12 @@ export default async function LandingPage() {
       <section>
         <div className="mb-10 grid grid-cols-1 items-end gap-6 md:grid-cols-2">
           <div>
-            <div className="mb-2 text-sm text-black/60">Built for real money discipline</div>
-            <h2 className="text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
+            <div className="mb-2 text-sm text-muted">Built for real money discipline</div>
+            <h2 className="text-4xl leading-tight text-fg sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
               Trust, without the fake logos.
             </h2>
           </div>
-          <p className="max-w-md text-base text-black/60 md:justify-self-end">
+          <p className="max-w-md text-base text-muted md:justify-self-end">
             First exchange is Delta Exchange India. We only ask for trade permission — never withdrawal — and encrypt
             every key at rest.
           </p>
@@ -276,17 +276,17 @@ export default async function LandingPage() {
               className="absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(90deg, rgba(245,245,245,0.94) 0%, rgba(245,245,245,0.72) 38%, rgba(245,245,245,0.08) 68%)',
+                  'linear-gradient(90deg, rgba(5,11,23,0.94) 0%, rgba(5,11,23,0.72) 38%, rgba(5,11,23,0.08) 68%)',
               }}
             />
             <div className="relative z-10 flex h-full max-w-md flex-col justify-center p-8 sm:p-12">
-              <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-white/80 text-ink backdrop-blur">
+              <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-surface/80 text-ink backdrop-blur">
                 <ShieldIcon className="h-5 w-5" />
               </span>
-              <h3 className="mb-3 text-3xl text-black" style={{ letterSpacing: '-0.03em' }}>
+              <h3 className="mb-3 text-3xl text-fg" style={{ letterSpacing: '-0.03em' }}>
                 You keep custody
               </h3>
-              <p className="text-base leading-relaxed text-black/65">
+              <p className="text-base leading-relaxed text-muted">
                 Trade-enabled, withdrawal-disabled keys only. Secrets are AES-256-GCM encrypted at rest — and never shown
                 back to the client.
               </p>
@@ -297,15 +297,15 @@ export default async function LandingPage() {
             {TRUST_SIDE.map(({ title, body, Icon }) => (
               <div
                 key={title}
-                className="rounded-3xl border border-border bg-white p-8 transition-all duration-300 hover:-translate-y-1 hover:border-black/12 hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]"
+                className="rounded-3xl border border-border bg-surface p-8 transition-all duration-300 hover:-translate-y-1 hover:border-border hover:shadow-[0_16px_40px_rgba(0,0,0,0.06)]"
               >
-                <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-[#efeef4] text-ink">
+                <span className="mb-6 grid h-11 w-11 place-items-center rounded-2xl bg-surface-2 text-ink">
                   <Icon className="h-5 w-5" />
                 </span>
-                <h3 className="mb-3 text-xl text-black" style={{ letterSpacing: '-0.02em' }}>
+                <h3 className="mb-3 text-xl text-fg" style={{ letterSpacing: '-0.02em' }}>
                   {title}
                 </h3>
-                <p className="text-sm leading-relaxed text-black/60">{body}</p>
+                <p className="text-sm leading-relaxed text-muted">{body}</p>
               </div>
             ))}
           </div>
@@ -315,11 +315,11 @@ export default async function LandingPage() {
       {/* ── Use modes ────────────────────────────────────────────────── */}
       <section>
         <div className="mb-10 max-w-2xl">
-          <div className="mb-2 text-sm text-black/60">BelieveMeGuys in practice</div>
-          <h2 className="mb-4 text-5xl leading-none text-black sm:text-6xl" style={{ letterSpacing: '-0.04em' }}>
+          <div className="mb-2 text-sm text-muted">BelieveMeGuys in practice</div>
+          <h2 className="mb-4 text-5xl leading-none text-fg sm:text-6xl" style={{ letterSpacing: '-0.04em' }}>
             Use modes
           </h2>
-          <p className="max-w-lg text-base leading-relaxed text-black/60">
+          <p className="max-w-lg text-base leading-relaxed text-muted">
             Whether you’re a follower who wants hands-off returns or a trader who wants a following, BelieveMeGuys has a mode
             for you.
           </p>
@@ -351,14 +351,14 @@ export default async function LandingPage() {
         <Reveal
           className="relative flex flex-col items-center gap-5 overflow-hidden rounded-3xl p-14 text-center"
         >
-        <div className="pointer-events-none absolute inset-0" style={{ background: '#2B2644' }} />
+        <div className="pointer-events-none absolute inset-0" style={{ background: '#0a1e3a' }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
             src="/media/cta-band.webp"
             alt=""
             className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-90"
           />
-          <div className="absolute inset-0 bg-[#2B2644]/45" />
+          <div className="absolute inset-0 bg-[#0a1e3a]/45" />
           <h2 className="relative text-3xl text-white sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Ready to trade on autopilot?
           </h2>
