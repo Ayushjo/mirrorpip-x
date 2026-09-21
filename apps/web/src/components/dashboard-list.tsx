@@ -152,17 +152,19 @@ export function DashboardList({
                 <Badge tone={statusTone[r.status]}>{r.status}</Badge>
               </div>
 
-              <div className="flex items-center gap-6">
-                <div className="text-right">
-                  <div className="text-xs text-muted">Open</div>
-                  <div className={cx('font-semibold tabular-nums', r.openPnl >= 0 ? 'text-up' : 'text-down')}>
-                    {fmtUsd(r.openPnl)}
+              <div className="flex w-full flex-wrap items-center justify-between gap-4 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-6">
+                <div className="flex items-center gap-5 sm:gap-6">
+                  <div>
+                    <div className="text-xs text-muted">Open</div>
+                    <div className={cx('font-semibold tabular-nums', r.openPnl >= 0 ? 'text-up' : 'text-down')}>
+                      {fmtUsd(r.openPnl)}
+                    </div>
                   </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-xs text-muted">Realized</div>
-                  <div className={cx('font-semibold tabular-nums', r.realizedPnl >= 0 ? 'text-up' : 'text-down')}>
-                    {fmtUsd(r.realizedPnl)}
+                  <div>
+                    <div className="text-xs text-muted">Realized</div>
+                    <div className={cx('font-semibold tabular-nums', r.realizedPnl >= 0 ? 'text-up' : 'text-down')}>
+                      {fmtUsd(r.realizedPnl)}
+                    </div>
                   </div>
                 </div>
 
