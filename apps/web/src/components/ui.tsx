@@ -22,11 +22,13 @@ const buttonStyles: Record<ButtonVariant, string> = {
   subtle: 'bg-surface-2 text-fg hover:bg-[#163a70]',
 };
 
-// The signature CTA: blue gradient pill with a trailing white arrow-circle.
+// The signature CTA: blue gradient pill with a trailing arrow-circle. The circle
+// is deep navy with a white arrow so it reads clearly both on the blue gradient
+// (primary) and on dark backgrounds (ghost) — a subtle ring keeps it visible.
 function ArrowCircle() {
   return (
-    <span className="grid h-7 w-7 place-items-center rounded-full bg-surface">
-      <ArrowRight className="h-4 w-4 text-[#050b17]" strokeWidth={2} />
+    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#050b17] ring-1 ring-white/15">
+      <ArrowRight className="h-4 w-4 text-white" strokeWidth={2.25} />
     </span>
   );
 }

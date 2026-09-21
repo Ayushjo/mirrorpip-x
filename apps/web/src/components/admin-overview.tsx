@@ -212,14 +212,17 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
           ) : (
             <div className="space-y-2.5">
               {data.recentUsers.map((u) => (
-                <div key={u.id} className="flex items-center justify-between gap-3 text-sm">
+                <div
+                  key={u.id}
+                  className="flex flex-col gap-1.5 border-b border-border-soft pb-2.5 text-sm last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:border-0 sm:pb-0"
+                >
                   <div className="min-w-0">
-                    <span className="font-medium">{u.name}</span>
-                    <span className="ml-2 text-xs text-muted">{u.email}</span>
+                    <div className="font-medium">{u.name}</div>
+                    <div className="truncate text-xs text-muted">{u.email}</div>
                   </div>
-                  <div className="flex items-center gap-2 text-xs text-faint">
+                  <div className="flex flex-wrap items-center gap-2 text-xs text-faint sm:shrink-0 sm:justify-end">
                     {u.intendedRole && <Badge tone="brand">{u.intendedRole}</Badge>}
-                    {[u.city, u.country].filter(Boolean).join(', ') || '—'}
+                    <span>{[u.city, u.country].filter(Boolean).join(', ') || '—'}</span>
                     <span suppressHydrationWarning>{new Date(u.createdAt).toLocaleDateString()}</span>
                     {!u.emailVerified && <Badge tone="warn">unverified</Badge>}
                   </div>
@@ -236,9 +239,12 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
           ) : (
             <div className="space-y-2.5">
               {data.recentAudit.map((r) => (
-                <div key={r.id} className="flex items-center justify-between gap-3 text-sm">
+                <div
+                  key={r.id}
+                  className="flex flex-col gap-0.5 border-b border-border-soft pb-2.5 text-sm last:border-0 last:pb-0 sm:flex-row sm:items-center sm:justify-between sm:gap-3 sm:border-0 sm:pb-0"
+                >
                   <span className="font-mono text-xs">{r.action}</span>
-                  <span className="text-xs text-faint" suppressHydrationWarning>
+                  <span className="truncate text-xs text-faint sm:shrink-0" suppressHydrationWarning>
                     {r.actorEmail} · {new Date(r.createdAt).toLocaleString()}
                   </span>
                 </div>

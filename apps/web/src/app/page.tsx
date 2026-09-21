@@ -6,8 +6,7 @@ import { ArrowRight } from 'lucide-react';
 
 const HERO_VIDEO =
   'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_161253_c72b1869-400f-45ed-ac0c-52f68c2ed5bd.mp4';
-const CARD_IMG =
-  'https://images.higgs.ai/?default=1&output=webp&url=https%3A%2F%2Fd8j0ntlcm91z4.cloudfront.net%2Fuser_38xzZboKViGWJOttwIXH07lWA1P%2Fhf_20260423_164207_f243351d-ed59-48ec-83a0-a5e996bdbe3c.png&w=1280&q=85';
+const CARD_IMG = '/media/meet-card.webp';
 const FOLLOW_VIDEO = '/media/follow-temple.mp4';
 const LEAD_VIDEO = '/media/lighthouse.mp4';
 
