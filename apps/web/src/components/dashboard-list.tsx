@@ -92,7 +92,7 @@ export function DashboardList({
             }}
           >
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/media/halo-object.png" alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
+            <img src="/media/halo-object.webp" alt="" className="absolute inset-0 h-full w-full object-cover object-center" />
           </div>
         </div>
       </div>

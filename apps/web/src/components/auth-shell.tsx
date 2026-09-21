@@ -9,7 +9,7 @@ import { BrandMark } from './icons';
 // own art while sharing the layout.
 export function AuthShell({
   children,
-  image = '/media/auth-hero.png',
+  image = '/media/auth-hero.webp',
   title = (
     <>
       Your capital,

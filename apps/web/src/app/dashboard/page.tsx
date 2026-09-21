@@ -35,7 +35,7 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <Reveal>
-        <MediaBanner src="/media/dashboard-banner.png" position="right center">
+        <MediaBanner src="/media/dashboard-banner.webp" position="right center">
           <div className="flex flex-wrap items-center justify-between gap-4 p-8">
             <div>
               <h1 className="text-3xl text-black" style={{ letterSpacing: '-0.03em' }}>

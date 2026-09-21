@@ -20,7 +20,7 @@ export default async function CompleteProfilePage() {
 
   return (
     <div className="mx-auto w-full max-w-xl space-y-6 py-6">
-      <MediaBanner src="/media/profile-globe.png" position="right center" className="min-h-[180px]">
+      <MediaBanner src="/media/profile-globe.webp" position="right center" className="min-h-[180px]">
         <div className="p-8">
           <h1 className="text-3xl text-black" style={{ letterSpacing: '-0.03em' }}>
             One last step

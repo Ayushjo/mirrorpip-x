@@ -156,7 +156,7 @@ function VerifyForm() {
 export default function VerifyPage() {
   return (
     <AuthShell
-      image="/media/verify-hero.png"
+      image="/media/verify-hero.webp"
       title={
         <>
           Almost

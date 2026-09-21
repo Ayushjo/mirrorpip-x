@@ -24,7 +24,7 @@ function radiusFor(count: number): number {
 /**
  * Admin user-location map. Plots real signup coordinates (geocoded from
  * city/postal at signup) as glowing points on a lavender equirectangular panel.
- * A world silhouette at /media/world-map.png enhances it when present; without it
+ * A world silhouette at /media/world-map.webp enhances it when present; without it
  * the graticule keeps the panel legible. Not a gimmick — every dot is real data.
  */
 export function AdminUserMap({ points }: { points: GeoPoint[] }) {
@@ -60,7 +60,7 @@ export function AdminUserMap({ points }: { points: GeoPoint[] }) {
             <div
               className="absolute inset-0 opacity-70"
               style={{
-                backgroundImage: 'url("/media/world-map.png")',
+                backgroundImage: 'url("/media/world-map.webp")',
                 backgroundSize: 'cover',
                 backgroundPosition: 'center',
               }}

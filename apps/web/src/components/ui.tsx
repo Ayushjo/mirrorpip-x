@@ -178,7 +178,7 @@ export function EmptyState({ title, body, action }: { title: string; body: strin
       <div
         className="h-28 w-28 rounded-full border border-border shadow-sm"
         style={{
-          backgroundImage: 'url("/media/halo-object.png"), radial-gradient(circle at 50% 40%, #e7e3f3, #ffffff)',
+          backgroundImage: 'url("/media/halo-object.webp"), radial-gradient(circle at 50% 40%, #e7e3f3, #ffffff)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
         }}

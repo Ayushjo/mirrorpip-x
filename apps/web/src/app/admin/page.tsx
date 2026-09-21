@@ -16,7 +16,7 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <MediaBanner src="/media/dashboard-banner.png" position="right center">
+      <MediaBanner src="/media/dashboard-banner.webp" position="right center">
         <div className="p-8 sm:p-10">
           <h1 className="text-3xl text-black sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Admin

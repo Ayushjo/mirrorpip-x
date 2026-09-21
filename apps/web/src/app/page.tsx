@@ -16,19 +16,19 @@ const STEPS = [
     n: '01',
     title: 'Connect your exchange',
     body: 'Link a trade-only Delta India API key. Withdrawal stays off — your funds never leave your account.',
-    image: '/media/variant-a.png',
+    image: '/media/variant-a.webp',
   },
   {
     n: '02',
     title: 'Pick a verified leader',
     body: 'Browse the leaderboard, check ROI and drawdown, then set sizing and risk limits that fit you.',
-    image: '/media/variant-b.png',
+    image: '/media/variant-b.webp',
   },
   {
     n: '03',
     title: 'Mirror on autopilot',
     body: 'When they fill, the engine sizes and places your copy within a second. Pause or stop anytime.',
-    image: '/media/variant-c.png',
+    image: '/media/variant-c.webp',
   },
 ] as const;
 
@@ -271,7 +271,7 @@ export default async function LandingPage() {
         <div className="grid grid-cols-1 gap-4 lg:grid-cols-5">
           <div className="relative min-h-[360px] overflow-hidden rounded-3xl border border-border lg:col-span-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/media/custody.png" alt="" className="absolute inset-0 h-full w-full object-cover object-right" />
+            <img src="/media/custody.webp" alt="" className="absolute inset-0 h-full w-full object-cover object-right" />
             <div
               className="absolute inset-0"
               style={{
@@ -354,7 +354,7 @@ export default async function LandingPage() {
         <div className="pointer-events-none absolute inset-0" style={{ background: '#2B2644' }} />
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img
-            src="/media/cta-band.png"
+            src="/media/cta-band.webp"
             alt=""
             className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-90"
           />

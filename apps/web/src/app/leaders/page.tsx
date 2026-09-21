@@ -9,7 +9,7 @@ export default async function LeadersPage() {
 
   return (
     <div className="space-y-6">
-      <MediaBanner src="/media/leaderboard-hero.png" position="right center">
+      <MediaBanner src="/media/leaderboard-hero.webp" position="right center">
         <div className="p-8 sm:p-10">
           <h1 className="max-w-lg text-4xl leading-tight text-black sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
             Leaderboard
