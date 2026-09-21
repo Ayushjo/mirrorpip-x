@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Bell } from 'lucide-react';
 
 interface Item {
@@ -16,9 +17,13 @@ interface Item {
 
 export function NotificationBell() {
   const [open, setOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
   const [items, setItems] = useState<Item[]>([]);
   const [unread, setUnread] = useState(0);
   const ref = useRef<HTMLDivElement>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => setMounted(true), []);
 
   const load = useCallback(async () => {
     try {
@@ -40,7 +45,9 @@ export function NotificationBell() {
 
   useEffect(() => {
     const onClick = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false);
+      const t = e.target as Node;
+      if (ref.current?.contains(t) || panelRef.current?.contains(t)) return;
+      setOpen(false);
     };
     document.addEventListener('mousedown', onClick);
     return () => document.removeEventListener('mousedown', onClick);
@@ -71,8 +78,12 @@ export function NotificationBell() {
           </span>
         )}
       </button>
-      {open && (
-        <div className="absolute right-0 top-11 z-50 w-80 overflow-hidden rounded-2xl border border-border bg-surface shadow-xl">
+      {mounted && open &&
+        createPortal(
+        <div
+          ref={panelRef}
+          className="fixed right-3 top-[4.25rem] z-[70] w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-border bg-surface shadow-xl sm:right-6"
+        >
           <div className="border-b border-border-soft px-4 py-3 text-sm font-semibold">Notifications</div>
           <div className="max-h-96 overflow-y-auto">
             {items.length === 0 ? (
@@ -96,8 +107,9 @@ export function NotificationBell() {
               })
             )}
           </div>
-        </div>
-      )}
+        </div>,
+          document.body,
+        )}
     </div>
   );
 }
