@@ -14,14 +14,14 @@ const TABS: Array<{ id: AdminTab; label: string }> = [
 
 export function AdminTabs({ tab, onChange, pendingLeaders }: { tab: AdminTab; onChange: (t: AdminTab) => void; pendingLeaders: number }) {
   return (
-    <div className="flex gap-1 rounded-full border border-border bg-surface p-1">
+    <div className="flex gap-1 overflow-x-auto rounded-full border border-border bg-surface p-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
       {TABS.map((t) => (
         <button
           key={t.id}
           type="button"
           onClick={() => onChange(t.id)}
           className={cx(
-            'relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors',
+            'relative shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors sm:px-4',
             tab === t.id ? 'bg-brand text-white' : 'text-muted hover:text-fg',
           )}
         >

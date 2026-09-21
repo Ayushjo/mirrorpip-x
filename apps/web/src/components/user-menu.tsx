@@ -12,7 +12,7 @@ export function UserMenu({ user }: { user: { name: string; email: string } | nul
   if (!user) {
     return (
       <div className="flex items-center gap-2">
-        <Link href="/login" className="rounded-lg px-3 py-2 text-sm text-muted hover:text-fg">
+        <Link href="/login" className="hidden rounded-lg px-3 py-2 text-sm text-muted hover:text-fg sm:block">
           Sign in
         </Link>
         <LinkButton href="/register" className="px-3.5 py-2">

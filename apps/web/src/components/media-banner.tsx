@@ -30,9 +30,18 @@ export function MediaBanner({
         className="absolute inset-0"
         style={{ backgroundImage: `url("${src}")`, backgroundSize: 'cover', backgroundPosition: position }}
       />
-      {/* left-weighted scrim: text side stays readable, right side shows the art */}
+      {/* Scrim: on mobile the text is full-width over the art, so a flat vertical
+          darken keeps it readable; on desktop the left-weighted horizontal scrim
+          takes over so the right-side art stays visible. */}
       <div
-        className="absolute inset-0"
+        className="absolute inset-0 sm:hidden"
+        style={{
+          background:
+            'linear-gradient(180deg, rgba(5,11,23,0.88) 0%, rgba(5,11,23,0.76) 55%, rgba(5,11,23,0.68) 100%)',
+        }}
+      />
+      <div
+        className="absolute inset-0 hidden sm:block"
         style={{
           background:
             'linear-gradient(90deg, rgba(5,11,23,0.92) 0%, rgba(5,11,23,0.5) 42%, rgba(5,11,23,0) 66%)',

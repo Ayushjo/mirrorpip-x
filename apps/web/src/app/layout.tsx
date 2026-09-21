@@ -48,9 +48,9 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         <SmoothScroll />
         <header className="sticky top-0 z-40 border-b border-border bg-[rgba(5,11,23,0.7)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
-            <Link href="/" className="flex items-center gap-2">
+            <Link href="/" className="flex shrink-0 items-center gap-2">
               <BrandMark className="h-7 w-7" />
-              <span className="text-xl font-medium tracking-tight text-fg">BelieveMeGuys</span>
+              <span className="text-lg font-medium tracking-tight text-fg sm:text-xl">BelieveMeGuys</span>
             </Link>
 
             <nav className="hidden items-center gap-8 text-base font-medium text-muted md:flex">
@@ -67,7 +67,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
             <div className="flex items-center gap-2">
               {user && <NotificationBell />}
-              <MobileNav links={navLinks} />
+              <MobileNav links={navLinks} authed={!!user} />
               <UserMenu user={user ? { name: user.name, email: user.email } : null} />
             </div>
           </div>

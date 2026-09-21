@@ -1,6 +1,6 @@
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
-import { ShieldIcon, SlidersIcon, ChartIcon } from '@/components/icons';
+import { ShieldIcon, SlidersIcon, ChartIcon, BoltIcon } from '@/components/icons';
 import { Reveal } from '@/components/reveal';
 import { ArrowRight } from 'lucide-react';
 
@@ -96,7 +96,7 @@ export default async function LandingPage() {
   const primaryHref = user ? '/leaders' : '/register';
 
   return (
-    <div className="flex flex-col gap-24 pb-8">
+    <div className="flex flex-col gap-16 pb-8 sm:gap-24">
       {/* ── Hero ─────────────────────────────────────────────────────── */}
       <section className="pt-2">
         <div
@@ -119,26 +119,23 @@ export default async function LandingPage() {
             className="absolute inset-0"
             style={{
               background:
-                'linear-gradient(90deg, rgba(5,11,23,0.92) 0%, rgba(5,11,23,0.62) 40%, rgba(5,11,23,0.08) 72%)',
+                'linear-gradient(180deg, rgba(5,11,23,0.55) 0%, rgba(5,11,23,0.35) 45%, rgba(5,11,23,0.85) 100%), linear-gradient(90deg, rgba(5,11,23,0.9) 0%, rgba(5,11,23,0.55) 45%, rgba(5,11,23,0.15) 78%)',
             }}
           />
-          <div className="animate-in relative z-10 flex h-full flex-col items-start justify-start p-8 pt-20 sm:p-14 sm:pt-28">
+          <div className="animate-in relative z-10 flex h-full flex-col items-start justify-start p-6 pt-14 sm:p-14 sm:pt-28">
             <div className="mb-5 inline-flex items-center gap-2 rounded-full border border-border bg-surface/70 px-3 py-1 text-xs text-muted backdrop-blur">
               <span className="h-1.5 w-1.5 rounded-full bg-up" /> Live on Delta Exchange India
             </div>
-            <h1 className="max-w-2xl text-5xl leading-[1.02] text-fg sm:text-7xl" style={{ letterSpacing: '-0.04em' }}>
+            <h1 className="max-w-2xl text-4xl leading-[1.05] text-fg sm:text-6xl lg:text-7xl" style={{ letterSpacing: '-0.04em' }}>
               Your capital,
               <br />
               on autopilot.
             </h1>
-            <p
-              className="mt-5 max-w-md text-base leading-relaxed text-muted sm:text-lg"
-              style={{ fontFamily: "'Inter', ui-sans-serif, system-ui, sans-serif" }}
-            >
+            <p className="mt-4 max-w-md text-base leading-relaxed text-fg/70 sm:mt-5 sm:text-lg">
               Connect your exchange, follow a verified leader, and every trade they make is mirrored into your account in
               real time — while your funds never leave your custody.
             </p>
-            <div className="mt-8 flex flex-wrap items-center gap-3">
+            <div className="mt-7 flex flex-wrap items-center gap-3 sm:mt-8">
               <LinkButton href={primaryHref} arrow className="text-base">
                 {user ? 'Browse leaders' : 'Start copying'}
               </LinkButton>
@@ -147,7 +144,7 @@ export default async function LandingPage() {
               </LinkButton>
             </div>
 
-            <div className="mt-auto flex flex-wrap gap-2 pt-16">
+            <div className="mt-auto flex flex-wrap gap-2 pt-10 sm:pt-16">
               {['Trade-only API keys', 'No withdrawal access', 'Pause anytime'].map((t) => (
                 <span
                   key={t}
@@ -189,24 +186,33 @@ export default async function LandingPage() {
               className="pointer-events-none absolute inset-0"
               style={{
                 background:
-                  'linear-gradient(180deg, rgba(5,11,23,0.55), rgba(5,11,23,0.15) 40%, rgba(5,11,23,0.55))',
+                  'linear-gradient(180deg, rgba(5,11,23,0.72), rgba(5,11,23,0.5) 45%, rgba(5,11,23,0.88))',
               }}
             />
             <div className="relative text-2xl font-medium leading-snug text-fg" style={{ letterSpacing: '-0.02em' }}>
               Returns that mirror the best.
             </div>
-            <p className="relative max-w-xs text-base text-muted">
+            <p className="relative max-w-xs text-base text-fg/75">
               Every fill a leader makes is sized to your account and placed within a second — you hold the exact same
               positions, proportionally.
             </p>
           </div>
           {[
-            ['You keep custody, always.', 'Trade-only API keys. The engine can place orders but never withdraw a cent.'],
-            ['Fully automated.', 'No screens to watch. It runs in the background and mirrors trades for you, 24/7.'],
-          ].map(([t, d]) => (
-            <div key={t} className="flex min-h-80 flex-col justify-between rounded-2xl p-7" style={{ background: '#0a1e3a' }}>
-              <div className="whitespace-pre-line text-2xl font-medium leading-snug text-white" style={{ letterSpacing: '-0.02em' }}>
-                {t}
+            { t: 'You keep custody, always.', d: 'Trade-only API keys. The engine can place orders but never withdraw a cent.', Icon: ShieldIcon },
+            { t: 'Fully automated.', d: 'No screens to watch. It runs in the background and mirrors trades for you, 24/7.', Icon: BoltIcon },
+          ].map(({ t, d, Icon }) => (
+            <div
+              key={t}
+              className="flex flex-col gap-5 rounded-2xl border border-border p-7 sm:min-h-80 sm:justify-between sm:gap-0"
+              style={{ background: '#0a1e3a' }}
+            >
+              <div>
+                <span className="mb-5 grid h-11 w-11 place-items-center rounded-2xl bg-surface-2 text-brand">
+                  <Icon className="h-5 w-5" />
+                </span>
+                <div className="text-2xl font-medium leading-snug text-white" style={{ letterSpacing: '-0.02em' }}>
+                  {t}
+                </div>
               </div>
               <p className="text-base text-white/60">{d}</p>
             </div>
@@ -272,8 +278,17 @@ export default async function LandingPage() {
           <div className="relative min-h-[360px] overflow-hidden rounded-3xl border border-border lg:col-span-3">
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img src="/media/custody.webp" alt="" className="absolute inset-0 h-full w-full object-cover object-right" />
+            {/* mobile: flat vertical darken (text is full-width over the art) */}
             <div
-              className="absolute inset-0"
+              className="absolute inset-0 lg:hidden"
+              style={{
+                background:
+                  'linear-gradient(180deg, rgba(5,11,23,0.9) 0%, rgba(5,11,23,0.78) 55%, rgba(5,11,23,0.72) 100%)',
+              }}
+            />
+            {/* desktop: left-weighted so the shield art stays visible on the right */}
+            <div
+              className="absolute inset-0 hidden lg:block"
               style={{
                 background:
                   'linear-gradient(90deg, rgba(5,11,23,0.94) 0%, rgba(5,11,23,0.72) 38%, rgba(5,11,23,0.08) 68%)',
@@ -356,9 +371,15 @@ export default async function LandingPage() {
           <img
             src="/media/cta-band.webp"
             alt=""
-            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-90"
+            className="pointer-events-none absolute inset-0 h-full w-full object-cover opacity-60"
           />
-          <div className="absolute inset-0 bg-[#0a1e3a]/45" />
+          <div
+            className="pointer-events-none absolute inset-0"
+            style={{
+              background:
+                'radial-gradient(700px 320px at 50% 120%, rgba(0,176,255,0.18), transparent 60%), linear-gradient(180deg, rgba(5,11,23,0.82) 0%, rgba(10,30,58,0.72) 100%)',
+            }}
+          />
           <h2 className="relative text-3xl text-white sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
             Ready to trade on autopilot?
           </h2>

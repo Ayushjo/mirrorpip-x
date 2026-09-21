@@ -85,28 +85,34 @@ export function OnboardingChecklist({
         {steps.map((s, i) => {
           const isActive = s.key === activeKey;
           return (
-            <li key={s.key} className="flex items-center gap-4 px-6 py-4">
-              <span
-                className={cx(
-                  'grid h-9 w-9 shrink-0 place-items-center rounded-full border text-sm font-medium',
-                  s.done
-                    ? 'border-transparent bg-up/15 text-up'
-                    : isActive
-                      ? 'border-transparent bg-brand text-white'
-                      : 'border-border bg-surface text-muted',
-                )}
-              >
-                {s.done ? <CheckIcon width={16} height={16} /> : i + 1}
-              </span>
-              <div className="min-w-0 flex-1">
-                <div className={cx('flex items-center gap-2 text-sm font-medium', s.done ? 'text-muted line-through' : 'text-fg')}>
-                  <s.Icon width={15} height={15} className={s.done ? 'text-up' : 'text-muted'} />
-                  {s.title}
+            <li key={s.key} className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:gap-4">
+              <div className="flex flex-1 items-start gap-4 sm:contents">
+                <span
+                  className={cx(
+                    'grid h-9 w-9 shrink-0 place-items-center rounded-full border text-sm font-medium',
+                    s.done
+                      ? 'border-transparent bg-up/15 text-up'
+                      : isActive
+                        ? 'border-transparent bg-brand text-white'
+                        : 'border-border bg-surface text-muted',
+                  )}
+                >
+                  {s.done ? <CheckIcon width={16} height={16} /> : i + 1}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <div className={cx('flex items-center gap-2 text-sm font-medium', s.done ? 'text-muted line-through' : 'text-fg')}>
+                    <s.Icon width={15} height={15} className={s.done ? 'text-up' : 'text-muted'} />
+                    {s.title}
+                  </div>
+                  <p className="mt-0.5 text-xs text-muted">{s.body}</p>
                 </div>
-                <p className="mt-0.5 text-xs text-muted">{s.body}</p>
               </div>
               {!s.done && (
-                <LinkButton href={s.href} variant={isActive ? 'primary' : 'subtle'} className="shrink-0">
+                <LinkButton
+                  href={s.href}
+                  variant={isActive ? 'primary' : 'subtle'}
+                  className="w-full shrink-0 justify-center sm:w-auto"
+                >
                   {s.cta}
                 </LinkButton>
               )}
