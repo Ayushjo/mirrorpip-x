@@ -2,22 +2,26 @@ import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2 } from '@/components/landing/motion';
-import { Phone } from '@/components/landing/phone';
+import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
 const CHIPS = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '🏅 Verified leaders', '⚡ <1s mirroring', '🇮🇳 Delta India'];
 
 const VENUES = [
-  { name: 'Delta India', sub: 'Live · USDT & INR', live: true },
-  { name: 'USDT', sub: 'Settlement', live: true },
-  { name: 'INR', sub: 'Local currency', live: true },
-  { name: 'Binance', sub: 'Coming soon', live: false },
-  { name: 'Bybit', sub: 'Coming soon', live: false },
-  { name: 'CoinSwitch', sub: 'Coming soon', live: false },
+  { name: 'Delta India', sub: 'Live · USDT & INR', live: true, mark: 'Δ', tone: 'from-brand to-accent' },
+  { name: 'USDT', sub: 'Settlement', live: true, mark: '₮', tone: 'from-[#26a17b] to-[#50c8a0]' },
+  { name: 'INR', sub: 'Local currency', live: true, mark: '₹', tone: 'from-[#f59e0b] to-[#fbbf24]' },
+  { name: 'Binance', sub: 'Coming soon', live: false, mark: '◈', tone: 'from-[#2b2b2b] to-[#3a3a3a]' },
+  { name: 'Bybit', sub: 'Coming soon', live: false, mark: 'B', tone: 'from-[#2b2b2b] to-[#3a3a3a]' },
+  { name: 'CoinSwitch', sub: 'Coming soon', live: false, mark: 'C', tone: 'from-[#2b2b2b] to-[#3a3a3a]' },
 ];
 
 function Card({ children, className = '', hover = true }: { children: React.ReactNode; className?: string; hover?: boolean }) {
-  return <div className={`ocard relative overflow-hidden ${hover ? 'ocard-hover' : ''} ${className}`}>{children}</div>;
+  return <div className={`ocard relative flex flex-col overflow-hidden ${hover ? 'ocard-hover' : ''} ${className}`}>{children}</div>;
+}
+/** Demo area inside a feature card: fills the remaining height and centers its content. */
+function Demo({ children, className = '' }: { children: React.ReactNode; className?: string }) {
+  return <div className={`relative mt-6 flex flex-1 items-center justify-center ${className}`}>{children}</div>;
 }
 
 function CardTitle({ a, b, center = true }: { a: string; b?: string; center?: boolean }) {
@@ -105,7 +109,7 @@ export default async function LandingPage() {
         </Rise>
         <Rise delay={0.1} className="relative mt-12">
           <Light className="!top-[55%] opacity-70" />
-          <Phone />
+          <LivePhone />
           <div className="relative -mt-10 mx-auto flex w-fit max-w-[92vw] items-center gap-4 rounded-[1.75rem] bg-gradient-to-r from-brand to-accent p-3 pr-6 text-left text-[#050b17] shadow-[0_20px_60px_rgba(0,176,255,0.35)] sm:-mt-12">
             <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#050b17]/10 text-2xl">📈</div>
             <div>
@@ -140,7 +144,7 @@ export default async function LandingPage() {
         </Rise>
         <div className="mt-12 grid gap-4 sm:gap-5">
           <Rise>
-            <Card className="grid min-h-[420px] items-center gap-8 p-8 sm:grid-cols-2 sm:p-14">
+            <Card className="!grid min-h-[420px] items-center gap-8 p-8 sm:grid-cols-2 sm:p-14">
               <div className="relative z-10 text-center sm:text-left">
                 <CardTitle a="Verified leaders" b="ranked by real fills" center={false} />
                 <div className="mt-6 flex flex-col items-center gap-3 sm:items-start">
@@ -153,56 +157,43 @@ export default async function LandingPage() {
               <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/media/leaderboard-hero.webp" alt="" className="absolute -right-24 -top-32 hidden h-[560px] w-[560px] object-cover opacity-70 [mask-image:radial-gradient(circle,#000_40%,transparent_72%)] sm:block" />
-                <div className="relative space-y-2">
-                  {[
-                    { n: 'Leo Live Delta', r: '+18.4%', f: 128 },
-                    { n: 'HERO', r: '+11.2%', f: 74 },
-                    { n: 'Leo Trader', r: '+6.9%', f: 41 },
-                  ].map((l, i) => (
-                    <div key={l.n} className="flex items-center justify-between rounded-2xl bg-[#050b17]/70 px-4 py-3 backdrop-blur">
-                      <div className="flex items-center gap-3">
-                        <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-xs font-bold text-[#050b17]">{i + 1}</span>
-                        <span className="text-sm font-medium text-fg">{l.n}</span>
-                      </div>
-                      <div className="flex items-center gap-4 text-xs">
-                        <span className="text-muted">{l.f} followers</span>
-                        <span className="font-semibold text-up">{l.r}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                <LiveLeaderboard className="relative" />
               </div>
             </Card>
           </Rise>
 
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <Rise>
-              <Card className="min-h-[440px] p-8 sm:p-10">
+              <Card className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Trade-only keys" b="so funds never leave your account" />
                 <div className="mt-3 text-center"><TextLink href="/connect">Learn more</TextLink></div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/media/custody.webp" alt="" className="pointer-events-none absolute inset-x-0 bottom-0 h-[62%] w-full object-cover object-top [mask-image:linear-gradient(to_top,#000_60%,transparent)]" />
+                <Demo className="-mx-8 -mb-8 sm:-mx-10 sm:-mb-10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/media/custody.webp" alt="" className="pointer-events-none h-64 w-full object-cover object-top [mask-image:linear-gradient(to_top,#000_55%,transparent)]" />
+                </Demo>
               </Card>
             </Rise>
             <Rise delay={0.08}>
-              <Card className="min-h-[440px] p-8 sm:p-10">
+              <Card className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Risk limits" b="you set, the engine honours" />
                 <div className="mt-3 text-center"><TextLink href="/leaders">Learn more</TextLink></div>
-                <div className="absolute inset-x-8 bottom-10 grid grid-cols-3 gap-3 sm:inset-x-14">
-                  {[['Amount', '$10'], ['Multiplier', '1x'], ['Daily cap', '$50']].map(([k, v]) => (
-                    <div key={k} className="rounded-2xl bg-[#050b17] p-4 text-center">
-                      <div className="text-[11px] text-muted">{k}</div>
-                      <div className="mt-1 text-lg font-semibold text-fg">{v}</div>
-                    </div>
-                  ))}
-                </div>
+                <Demo>
+                  <div className="grid w-full max-w-sm grid-cols-3 gap-3">
+                    {[['Amount', '$10'], ['Multiplier', '1x'], ['Daily cap', '$50']].map(([k, v]) => (
+                      <div key={k} className="rounded-2xl bg-[#050b17] px-2 py-4 text-center">
+                        <div className="whitespace-nowrap text-[11px] text-muted">{k}</div>
+                        <div className="mt-1 text-lg font-semibold text-fg">{v}</div>
+                      </div>
+                    ))}
+                  </div>
+                </Demo>
               </Card>
             </Rise>
             <Rise>
-              <Card className="min-h-[440px] p-8 sm:p-10">
+              <Card className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Pause or stop" b="on your terms, any time" />
-                <div className="absolute inset-x-6 bottom-10 sm:inset-x-12">
-                  <div className="flex items-center gap-3 rounded-2xl bg-[#050b17] px-4 py-3.5">
+                <Demo>
+                  <div className="flex w-full max-w-sm items-center gap-3 rounded-2xl bg-[#050b17] px-4 py-3.5">
                     <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-[#050b17]">⏸</span>
                     <div className="flex-1 text-sm">
                       <div className="flex items-center justify-between">
@@ -212,14 +203,16 @@ export default async function LandingPage() {
                       <div className="text-xs text-muted">Resume whenever you&rsquo;re ready</div>
                     </div>
                   </div>
-                </div>
+                </Demo>
               </Card>
             </Rise>
             <Rise delay={0.08}>
-              <Card className="min-h-[440px] p-8 sm:p-10">
+              <Card className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Negative balance protection" b="so you only risk your copy amount" />
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/media/halo-object.webp" alt="" className="pointer-events-none absolute left-1/2 top-[56%] h-80 w-80 -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(circle_at_50%_50%,#000_45%,transparent_72%)]" />
+                <Demo>
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/media/halo-object.webp" alt="" className="pointer-events-none h-64 w-64 object-contain [mask-image:radial-gradient(circle_at_50%_50%,#000_45%,transparent_72%)]" />
+                </Demo>
               </Card>
             </Rise>
           </div>
@@ -229,27 +222,8 @@ export default async function LandingPage() {
       {/* ── 6. Explainer ──────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 pt-24 sm:pt-32">
         <Rise>
-          <Card hover={false} className="grid items-center gap-10 p-8 sm:grid-cols-2 sm:p-14">
-            <div className="relative h-72">
-              <svg viewBox="0 0 420 220" className="absolute inset-0 h-full w-full" fill="none">
-                <path d="M0 140 C 40 100, 60 180, 100 120 S 160 40, 200 110 S 260 200, 300 130 S 360 60, 420 90" stroke="#00b0ff" strokeWidth="2.5" strokeLinecap="round" />
-                <line x1="300" y1="0" x2="300" y2="220" stroke="rgba(255,255,255,0.15)" strokeDasharray="4 6" />
-                <line x1="0" y1="130" x2="420" y2="130" stroke="rgba(255,255,255,0.2)" />
-                <circle cx="300" cy="130" r="4" fill="#fff" />
-              </svg>
-              <div className="absolute left-[38%] top-[8%] flex items-center gap-2 rounded-full bg-up px-3 py-1.5 text-sm font-semibold text-[#050b17] shadow-[0_10px_30px_rgba(16,185,129,0.4)]">
-                $10.00 <span className="grid h-6 w-6 place-items-center rounded-full bg-[#050b17] text-white">↗</span>
-              </div>
-              <div className="absolute right-0 top-[54%] rounded-full bg-white px-3 py-1 text-xs font-semibold text-[#050b17]">81,332.5</div>
-              <div className="absolute bottom-0 left-[20%] flex gap-2">
-                {[['Amount', '$10'], ['Multiplier', '1x']].map(([k, v]) => (
-                  <div key={k} className="rounded-2xl bg-[#050b17] px-5 py-3 text-center">
-                    <div className="text-[11px] text-muted">{k}</div>
-                    <div className="text-base font-semibold text-fg">{v}</div>
-                  </div>
-                ))}
-              </div>
-            </div>
+          <Card hover={false} className="!grid items-center gap-10 p-8 sm:grid-cols-2 sm:p-14">
+            <LiveTradeChart />
             <div className="text-center">
               <h3 className="text-[1.75rem] leading-tight text-fg sm:text-[2.1rem]" style={{ letterSpacing: '-0.025em', fontWeight: 600 }}>
                 You choose
@@ -304,11 +278,13 @@ export default async function LandingPage() {
             { a: 'Track everything', b: 'live, in one dashboard', img: '/media/dashboard-banner.webp', href: '/dashboard', cta: 'Open dashboard' },
           ].map((c, i) => (
             <Rise key={c.a} delay={(i % 2) * 0.08}>
-              <Card className="min-h-[460px] p-8 sm:p-10">
+              <Card className="min-h-[440px] p-8 sm:p-10">
                 <CardTitle a={c.a} b={c.b} />
                 <div className="mt-3 text-center"><TextLink href={c.href}>{c.cta}</TextLink></div>
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src={c.img} alt="" className="pointer-events-none absolute inset-x-0 bottom-0 h-[64%] w-full object-cover [mask-image:linear-gradient(to_top,#000_55%,transparent)]" />
+                <Demo className="-mx-8 -mb-8 sm:-mx-10 sm:-mb-10">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src={c.img} alt="" className="pointer-events-none h-72 w-full object-cover [mask-image:linear-gradient(to_top,#000_55%,transparent)]" />
+                </Demo>
               </Card>
             </Rise>
           ))}
@@ -329,12 +305,19 @@ export default async function LandingPage() {
             {VENUES.map((v, i) => (
               <div
                 key={v.name}
-                className="fan-card ocard grid h-56 w-40 shrink-0 place-items-center !rounded-[1.75rem] border border-white/5 sm:h-64 sm:w-48"
+                className={`fan-card ocard relative grid h-60 w-44 shrink-0 place-items-center !rounded-[1.75rem] border border-white/5 sm:h-72 sm:w-52 ${v.live ? '' : 'opacity-70'}`}
                 style={{ zIndex: VENUES.length - i }}
               >
-                <div className="text-center">
-                  <div className={`text-lg font-semibold ${v.live ? 'text-fg' : 'text-muted'}`}>{v.name}</div>
-                  <div className={`mt-1 text-[11px] ${v.live ? 'text-up' : 'text-faint'}`}>{v.sub}</div>
+                {v.live && <span className="absolute inset-0 rounded-[1.75rem] bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,176,255,0.18),transparent)]" />}
+                <div className="relative flex flex-col items-center text-center">
+                  <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br text-2xl font-bold text-[#050b17] shadow-[0_12px_30px_rgba(0,0,0,0.5)] ${v.tone} ${v.live ? '' : 'text-white/60'}`}>
+                    {v.mark}
+                  </span>
+                  <div className={`mt-4 text-lg font-semibold ${v.live ? 'text-fg' : 'text-muted'}`}>{v.name}</div>
+                  <div className={`mt-1 inline-flex items-center gap-1 text-[11px] ${v.live ? 'text-up' : 'text-faint'}`}>
+                    {v.live && <span className="h-1.5 w-1.5 rounded-full bg-up" />}
+                    {v.sub}
+                  </div>
                 </div>
               </div>
             ))}
@@ -351,41 +334,37 @@ export default async function LandingPage() {
           <Rise>
             <Card className="min-h-[420px] p-8 sm:p-10">
               <CardTitle a="Start from $10" b="per copy" />
-              <div className="absolute left-1/2 top-[58%] -translate-x-1/2 -translate-y-1/2">
-                <div className="metal text-[7rem] font-semibold leading-none sm:text-[9rem]" style={{ letterSpacing: '-0.06em' }}>$10</div>
-              </div>
+              <Demo>
+                <LoopCounter />
+              </Demo>
             </Card>
           </Rise>
           <Rise delay={0.08}>
             <Card className="min-h-[420px] p-8 sm:p-10">
               <CardTitle a="24/7 engine" b="that never sleeps" />
-              <div className="absolute inset-x-8 bottom-10 space-y-2 sm:inset-x-12">
-                {['BTCUSD · Buy · 0.6s', 'ETHUSD · Sell · 0.8s', 'SOLUSD · Buy · 0.5s'].map((t, i) => (
-                  <div key={t} className="flex items-center justify-between rounded-2xl bg-[#050b17] px-4 py-3 text-sm" style={{ opacity: 1 - i * 0.28 }}>
-                    <span className="text-fg">{t}</span>
-                    <span className="rounded-full bg-up/15 px-2 py-0.5 text-xs font-semibold text-up">Filled</span>
-                  </div>
-                ))}
-              </div>
+              <Demo>
+                <FillsFeed className="w-full max-w-sm" />
+              </Demo>
             </Card>
           </Rise>
           <Rise>
             <Card className="min-h-[420px] p-8 sm:p-10">
               <CardTitle a="Sized to your account" b="proportionally, every time" />
-              <div className="absolute inset-x-10 bottom-12 flex items-end justify-center gap-3 sm:inset-x-16">
-                {[100, 25, 60, 40, 80].map((h, i) => (
-                  <div key={i} className="w-12 rounded-t-2xl bg-gradient-to-t from-brand/40 to-brand" style={{ height: `${h * 1.6}px` }} />
-                ))}
-              </div>
+              <Demo className="flex-col gap-4">
+                <SizingBars />
+                <div className="flex items-center gap-4 text-[11px] text-muted">
+                  <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-white/15" /> Leader</span>
+                  <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-brand" /> You · 0.25×</span>
+                </div>
+              </Demo>
             </Card>
           </Rise>
           <Rise delay={0.08}>
             <Card className="min-h-[420px] p-8 sm:p-10">
               <CardTitle a="Help when you need it" b="from real humans" />
-              <div className="absolute inset-x-8 bottom-10 sm:inset-x-12">
-                <div className="mr-auto w-fit rounded-3xl rounded-bl-md bg-[#050b17] px-4 py-3 text-sm text-fg">How do I set a daily loss cap?</div>
-                <div className="ml-auto mt-2 w-fit rounded-3xl rounded-br-md bg-brand px-4 py-3 text-sm font-medium text-[#050b17]">Open the copy, tap Risk, set the cap. Done!</div>
-              </div>
+              <Demo className="items-end">
+                <HelpChat className="w-full max-w-sm" />
+              </Demo>
             </Card>
           </Rise>
         </div>
