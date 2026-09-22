@@ -35,7 +35,6 @@ export default async function DashboardPage() {
   return (
     <div className="space-y-8">
       <PageHero
-        image="/media/dashboard-banner.webp"
         eyebrow={firstName ? `Welcome back, ${firstName}` : 'Your account'}
         title="Dashboard"
         lede="Your active copies, live P&L and full trade history in one place."
@@ -61,9 +60,9 @@ export default async function DashboardPage() {
 
       {leaderAnalytics && leaderAnalytics.length > 0 && <LeaderDashboard leaders={leaderAnalytics} />}
 
-      <section className="space-y-4">
+      <section className="space-y-8 pt-6">
         <Reveal>
-          <h2 className="text-lg font-semibold tracking-tight">Live copies</h2>
+          <h2 className="text-center text-[1.75rem] leading-[1.05] text-fg sm:text-[2.25rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>Live copies</h2>
         </Reveal>
         <DashboardList
           todayCopies={todayCopies}
@@ -80,9 +79,9 @@ export default async function DashboardPage() {
         />
       </section>
 
-      <section className="space-y-4">
+      <section className="space-y-8 pt-6">
         <Reveal>
-          <h2 className="text-lg font-semibold tracking-tight">Performance</h2>
+          <h2 className="text-center text-[1.75rem] leading-[1.05] text-fg sm:text-[2.25rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>Performance</h2>
         </Reveal>
         <FollowerAnalytics data={analytics} />
       </section>

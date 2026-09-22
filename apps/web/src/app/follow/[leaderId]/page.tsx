@@ -4,6 +4,8 @@ import { getSessionUser } from '@/lib/session';
 import { getLeaderPublic, listCredentials } from '@/lib/services/copy';
 import { getExchangeRegistryItem } from '@belivemeguys/exchange';
 import { Badge, Card, fmtPct, fmtUsd } from '@/components/ui';
+import { PageHero } from '@/components/page-hero';
+import { ArrowLeft } from 'lucide-react';
 import { ShieldIcon, Sparkline } from '@/components/icons';
 import { FollowForm } from '@/components/follow-form';
 
@@ -27,19 +29,23 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
   const s = leader.stats;
 
   return (
-    <div className="space-y-6">
-      <Link href={`/leaders/${leader.id}`} className="text-sm text-muted hover:text-fg">
-        ← {leader.displayName}
-      </Link>
+    <div className="space-y-8">
+      <PageHero
+        compact
+        back={
+          <Link href={`/leaders/${leader.id}`} className="inline-flex items-center gap-1.5 text-xs font-medium text-muted transition-colors hover:text-fg">
+            <ArrowLeft className="h-3.5 w-3.5" /> {leader.displayName}
+          </Link>
+        }
+        eyebrow="Set up your copy"
+        title={<>Follow {leader.displayName}</>}
+        lede="Choose how their trades are sized into your account. You can pause or stop any time."
+      />
 
       <div className="grid gap-6 lg:grid-cols-[1fr_360px]">
         {/* Form */}
         <div>
-          <h1 className="text-3xl tracking-tight text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
-            Follow {leader.displayName}
-          </h1>
-          <p className="mt-2 text-sm text-muted">Choose how their trades are sized into your account.</p>
-          <div className="mt-6">
+          <div>
             <FollowForm
               leaderId={leader.id}
               leaderName={leader.displayName}
@@ -52,7 +58,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
         {/* Leader summary + risk */}
         <div className="space-y-4">
           <Card className="p-0">
-            <div className="rounded-t-2xl px-6 pt-6" style={{ background: 'linear-gradient(160deg, #0a1e3a, #102d5b)' }}>
+            <div className="px-6 pt-6">
               <div className="flex items-center gap-3">
                 <div
                   className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-fg ring-1 ring-white/10"
@@ -93,7 +99,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
             </div>
           </Card>
 
-          <Card className="bg-surface-2 text-sm text-muted">
+          <Card className="text-sm text-muted">
             <strong className="text-fg">Heads up:</strong> copy-trading carries real risk. Start small, set a daily
             loss limit, and never copy with funds you can’t afford to lose.
           </Card>

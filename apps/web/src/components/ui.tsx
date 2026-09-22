@@ -9,7 +9,7 @@ export function cx(...parts: Array<string | false | null | undefined>): string {
 }
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cx('card-surface rounded-2xl p-6', className)}>{children}</div>;
+  return <div className={cx('card-surface p-6', className)}>{children}</div>;
 }
 
 type ButtonVariant = 'primary' | 'ghost' | 'danger' | 'subtle';
@@ -91,7 +91,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cx(
-        'w-full rounded-xl border border-border bg-surface px-4 py-2.5 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand',
+        'w-full rounded-2xl border border-transparent bg-[#050b17] px-4 py-3 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand/60',
         className,
       )}
       {...props}
@@ -105,7 +105,7 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
       className={cx(
         // appearance-none + a custom chevron so the control matches the rounded
         // inputs instead of showing the platform's native (double-arrow) select UI.
-        'w-full appearance-none rounded-xl border border-border bg-surface bg-no-repeat px-4 py-2.5 pr-10 text-sm text-fg outline-none transition focus:border-brand',
+        'w-full appearance-none rounded-2xl border border-transparent bg-[#050b17] bg-no-repeat px-4 py-3 pr-10 text-sm text-fg outline-none transition focus:border-brand/60',
         className,
       )}
       style={{
@@ -172,7 +172,7 @@ export function Stat({ label, value, tone }: { label: string; value: ReactNode; 
 export function EmptyState({ title, body, action, className }: { title: string; body: string; action?: ReactNode; className?: string }) {
   return (
     <div
-      className={cx('relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-border px-6 py-16 text-center', className)}
+      className={cx('card-surface relative flex flex-col items-center gap-4 overflow-hidden px-6 py-16 text-center', className)}
       style={{
         background:
           'radial-gradient(600px 260px at 50% -10%, rgba(0,176,255,0.12), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #050b17 60%, #0a1e3a 100%)',

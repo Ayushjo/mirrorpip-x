@@ -17,7 +17,6 @@ export default async function AdminPage() {
   return (
     <div className="space-y-6">
       <PageHero
-        image="/media/dashboard-banner.webp"
         eyebrow="Control room"
         title="Admin"
         lede="Users, activity, leader verification, access and engine control."

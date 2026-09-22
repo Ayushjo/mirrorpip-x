@@ -38,7 +38,6 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
   return (
     <div className="space-y-6 sm:space-y-8">
       <PageHero
-        image="/media/leaderboard-hero.webp"
         eyebrow="Verified leader"
         back={
           <Link href="/leaders" className="inline-flex items-center gap-1.5 text-xs font-medium text-muted transition-colors hover:text-fg">
@@ -46,19 +45,17 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
             Leaderboard
           </Link>
         }
-        title={
-          <span className="flex items-center gap-4">
-            <span className="shrink-0 rounded-2xl bg-gradient-to-br from-brand to-accent p-[2px] shadow-[0_8px_28px_rgba(0,176,255,0.28)]">
-              <span className="grid h-14 w-14 place-items-center rounded-[14px] bg-surface text-2xl font-bold text-fg sm:h-16 sm:w-16">
-                {leader.displayName.slice(0, 1).toUpperCase()}
-              </span>
+        above={
+          <span className="rounded-3xl bg-gradient-to-br from-brand to-accent p-[2px] shadow-[0_12px_40px_rgba(0,176,255,0.35)]">
+            <span className="grid h-20 w-20 place-items-center rounded-[22px] bg-[#0b1a33] text-3xl font-bold text-fg">
+              {leader.displayName.slice(0, 1).toUpperCase()}
             </span>
-            <span className="truncate">{leader.displayName}</span>
           </span>
         }
+        title={leader.displayName}
         lede={
           <span className="block">
-            <span className="flex flex-wrap items-center gap-2">
+            <span className="flex flex-wrap items-center justify-center gap-2">
               <Badge tone="brand">
                 <span className="inline-flex items-center gap-1">
                   <ShieldIcon width={12} height={12} /> Verified

@@ -16,7 +16,6 @@ export default async function ConnectPage() {
   return (
     <div className="space-y-6">
       <PageHero
-        image="/media/connect-hero.webp"
         eyebrow="Exchange keys"
         title="Connected accounts"
         lede="Manage the exchange accounts you use to follow leaders. Keys are encrypted at rest; withdrawals are never possible."

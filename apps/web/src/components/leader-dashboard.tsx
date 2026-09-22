@@ -42,13 +42,8 @@ const statusTone: Record<string, 'up' | 'warn' | 'down' | 'neutral'> = {
 
 export function LeaderDashboard({ leaders }: { leaders: LeaderData[] }) {
   return (
-    <div className="space-y-5">
-      <div className="flex items-center gap-2">
-        <span className="inline-grid h-6 w-6 place-items-center rounded-full bg-brand text-white">
-          <ChartIcon width={13} height={13} />
-        </span>
-        <h2 className="text-lg font-semibold tracking-tight">Your leader {leaders.length > 1 ? 'accounts' : 'account'}</h2>
-      </div>
+    <div className="space-y-8 pt-6">
+<h2 className="text-center text-[1.75rem] leading-[1.05] text-fg sm:text-[2.25rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>Your leader {leaders.length > 1 ? 'accounts' : 'account'}</h2>
 
       {leaders.map((l, idx) => {
         const tiles = [

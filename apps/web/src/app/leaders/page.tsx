@@ -4,8 +4,6 @@ import { PageHero } from '@/components/page-hero';
 
 export const dynamic = 'force-dynamic';
 
-const BANNER = '/media/leaderboard-hero.webp';
-
 export default async function LeadersPage() {
   const leaders = await listLeaders();
 
@@ -23,7 +21,6 @@ export default async function LeadersPage() {
   return (
     <div className="space-y-6 sm:space-y-8">
       <PageHero
-        image={BANNER}
         eyebrow="Verified traders"
         title="Leaderboard"
         lede="Every trader here is verified on Delta Exchange India. Pick one, set your sizing, and mirror their fills in real time."

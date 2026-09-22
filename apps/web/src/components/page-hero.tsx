@@ -1,94 +1,74 @@
 import type { ReactNode } from 'react';
 import { cx } from './ui';
+import { Light } from './landing/motion';
 
 export type HeroStat = { v: string; l: string };
 
 /**
- * The page-top hero used on Leaderboard, Dashboard, Accounts and Admin.
- * Full-bleed under the header on phones, a framed card from `sm` up. Eyebrow
- * rule + headline + lede, an optional action, and a hairline stat strip.
+ * Page-top hero in the landing's voice: centered, big, tight headline over a
+ * breathing light, muted lede, optional action, and stats as quiet pills.
+ * `image` (optional) floats a masked object above the headline.
  */
 export function PageHero({
   image,
-  position = 'right center',
   eyebrow,
   title,
   lede,
   stats,
   action,
   back,
+  above,
   className,
+  compact = false,
 }: {
-  image: string;
+  image?: string;
   position?: string;
-  eyebrow: string;
+  eyebrow?: string;
   title: ReactNode;
   lede?: ReactNode;
   stats?: HeroStat[];
   action?: ReactNode;
   back?: ReactNode;
+  above?: ReactNode;
   className?: string;
+  compact?: boolean;
 }) {
   return (
-    <section className={cx('-mx-6 -mt-10 sm:mx-0 sm:mt-0', className)}>
-      <div
-        className="relative overflow-hidden rounded-b-[2rem] border-b border-border sm:rounded-3xl sm:border"
-        style={{
-          background:
-            'radial-gradient(900px 380px at 82% -10%, rgba(0,176,255,0.18), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #08203f 52%, #050b17 100%)',
-        }}
-      >
-        <div
-          className="absolute inset-0"
-          style={{ backgroundImage: `url("${image}")`, backgroundSize: 'cover', backgroundPosition: position }}
-        />
-        <div
-          className="absolute inset-0 sm:hidden"
-          style={{
-            background: 'linear-gradient(180deg, rgba(5,11,23,0.6) 0%, rgba(5,11,23,0.8) 45%, rgba(5,11,23,0.96) 100%)',
-          }}
-        />
-        <div
-          className="absolute inset-0 hidden sm:block"
-          style={{
-            background:
-              'linear-gradient(90deg, rgba(5,11,23,0.94) 0%, rgba(5,11,23,0.72) 40%, rgba(5,11,23,0.15) 70%), linear-gradient(180deg, transparent 50%, rgba(5,11,23,0.85) 100%)',
-          }}
-        />
-
-        <div className="relative z-10 flex flex-col px-6 pb-6 pt-14 sm:p-10 sm:pt-10 lg:p-12 lg:pt-10">
-          {back && <div className="mb-5">{back}</div>}
-          <div className="flex flex-wrap items-end justify-between gap-6">
-            <div className="min-w-0">
-              <div className="mb-3 flex items-center gap-2.5 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand sm:text-xs">
-                <span className="h-px w-6 bg-brand" />
-                {eyebrow}
-              </div>
-              <h1
-                className="max-w-2xl text-[2.6rem] leading-[0.96] text-fg sm:text-5xl sm:leading-[1.02] lg:text-6xl"
-                style={{ letterSpacing: '-0.04em' }}
-              >
-                {title}
-              </h1>
-              {lede && <p className="mt-3 max-w-md text-[15px] leading-relaxed text-fg/70 sm:text-base">{lede}</p>}
-            </div>
-            {action && <div className="hidden shrink-0 sm:block">{action}</div>}
+    <section className={cx('relative -mx-6 -mt-10 overflow-hidden px-6 text-center', compact ? 'pb-6 pt-12 sm:pt-16' : 'pb-8 pt-14 sm:pb-12 sm:pt-20', className)}>
+      <Light className={cx('!top-[30%] opacity-60', compact && 'opacity-40')} />
+      <div className="relative mx-auto max-w-4xl">
+        {back && <div className="mb-6 flex justify-center">{back}</div>}
+        {image && (
+          <div className="relative mx-auto mb-[-2.5rem] h-40 w-full max-w-md sm:mb-[-3.5rem] sm:h-56">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image}
+              alt=""
+              className="hero-float absolute left-1/2 top-1/2 h-[130%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(ellipse_44%_46%_at_50%_50%,#000_45%,transparent_76%)]"
+            />
           </div>
-          {action && <div className="mt-6 sm:hidden">{action}</div>}
-
-          {stats && stats.length > 0 && (
-            <div className="mt-7 grid grid-cols-2 gap-y-5 border-t border-white/10 pt-5 sm:mt-10 sm:flex sm:gap-10 sm:border-t-0 sm:pt-0 lg:mt-12">
-              {stats.map(({ v, l }) => (
-                <div key={l}>
-                  <div className="text-2xl font-semibold leading-none text-fg sm:text-3xl" style={{ letterSpacing: '-0.03em' }}>
-                    {v}
-                  </div>
-                  <div className="mt-1.5 text-[11px] text-muted sm:text-xs">{l}</div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
+        )}
+        {above && <div className="mb-5 flex justify-center">{above}</div>}
+        {eyebrow && (
+          <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand sm:text-xs">{eyebrow}</div>
+        )}
+        <h1
+          className={cx('mx-auto text-fg', compact ? 'text-[2.2rem] sm:text-[2.75rem]' : 'text-[2.6rem] sm:text-[3.25rem] lg:text-[3.75rem]')}
+          style={{ letterSpacing: '-0.035em', lineHeight: 1.02, fontWeight: 600 }}
+        >
+          {title}
+        </h1>
+        {lede && <div className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-muted sm:text-base">{lede}</div>}
+        {action && <div className="mt-7 flex justify-center">{action}</div>}
+        {stats && stats.length > 0 && (
+          <div className="mt-8 flex flex-wrap justify-center gap-2">
+            {stats.map(({ v, l }) => (
+              <span key={l} className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-3.5 py-2 text-[13px] text-muted backdrop-blur">
+                <span className="font-semibold text-fg">{v}</span> {l}
+              </span>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );

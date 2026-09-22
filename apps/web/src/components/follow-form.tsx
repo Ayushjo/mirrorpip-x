@@ -91,10 +91,10 @@ export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { le
                 key={s.value}
                 onClick={() => setSizingMode(s.value)}
                 className={cx(
-                  'rounded-xl border px-3 py-2.5 text-sm transition',
+                  'rounded-2xl px-2 py-2.5 text-[13px] font-medium leading-tight transition sm:text-sm',
                   sizingMode === s.value
-                    ? 'border-brand bg-brand-soft text-brand'
-                    : 'border-border text-muted hover:text-fg',
+                    ? 'bg-brand text-[#050b17] shadow-[0_6px_18px_rgba(0,176,255,0.3)]'
+                    : 'bg-[#050b17] text-muted hover:text-fg',
                 )}
               >
                 {s.label}
