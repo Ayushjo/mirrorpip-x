@@ -35,7 +35,7 @@ export function PageHero({
 }) {
   return (
     <section className={cx('relative -mx-6 -mt-10 overflow-hidden px-6 text-center', compact ? 'pb-6 pt-12 sm:pt-16' : 'pb-8 pt-14 sm:pb-12 sm:pt-20', className)}>
-      <Light className={cx('!top-[30%] opacity-60', compact && 'opacity-40')} />
+      <Light className={cx('!top-[28%] opacity-[0.28]', compact && 'opacity-20')} />
       <div className="relative mx-auto max-w-4xl">
         {back && <div className="mb-6 flex justify-center">{back}</div>}
         {image && (

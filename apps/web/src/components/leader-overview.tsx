@@ -1,6 +1,6 @@
 'use client';
 
-import { Badge, Card, cx, fmtPct, fmtUsd } from './ui';
+import { Badge, Card, EmptyBlock, cx, fmtPct, fmtUsd } from './ui';
 import { UsersIcon, SlidersIcon, BoltIcon, ChartIcon } from './icons';
 import { AreaChart, Ring } from './charts';
 import { CountUp } from './count-up';
@@ -53,19 +53,26 @@ export function LeaderOverview({ stats: s, equity, hasShape }: { stats: Stats; e
               </div>
               {s.roiPct !== 0 && <Badge tone={s.roiPct > 0 ? 'up' : 'down'}>{fmtPct(s.roiPct)}</Badge>}
             </div>
-            <AreaChart
-              data={equity.map((v) => ({ value: v }))}
-              height={200}
-              zeroBaseline={false}
-              valueFormat={hasShape ? (v) => fmtUsd(v, 0) : (v) => `${(v * 100).toFixed(0)}`}
-              emptyLabel="Equity curve builds as this leader trades"
-            />
+            {hasShape ? (
+              <AreaChart data={equity.map((v) => ({ value: v }))} height={200} zeroBaseline={false} valueFormat={(v) => fmtUsd(v, 0)} />
+            ) : (
+              <EmptyBlock
+                className="h-[200px]"
+                icon={<ChartIcon width={22} height={22} />}
+                title="Equity curve builds as this leader trades"
+                body="Samples are recorded on every sync. The first few fills will draw the line here."
+              />
+            )}
           </Card>
         </Reveal>
         <Reveal delay={0.1}>
           <Card className="flex h-full flex-col items-center justify-center gap-4 text-center">
             <h2 className="text-base font-semibold">Win rate</h2>
-            <Ring pct={s.winRatePct} label="of closed trades" />
+            {s.tradeCount > 0 ? (
+              <Ring pct={s.winRatePct} label="of closed trades" />
+            ) : (
+              <div className="grid h-[108px] w-[108px] place-items-center rounded-full border-[9px] border-dashed border-white/10 text-xs text-muted">No trades yet</div>
+            )}
             <div className="flex gap-6 text-sm">
               <div>
                 <div className="font-semibold tabular-nums">{s.tradeCount}</div>

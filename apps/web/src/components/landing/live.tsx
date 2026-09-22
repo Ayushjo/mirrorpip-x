@@ -482,3 +482,104 @@ export function HelpChat({ className }: { className?: string }) {
     </div>
   );
 }
+
+/* ─── Pause / resume demo ──────────────────────────────────────────────── */
+
+export function PauseDemo({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [on, setOn] = useState(true);
+  const [toast, setToast] = useState<{ id: number; on: boolean } | null>(null);
+  useTicker(ref, 2600, () => {
+    setOn((v) => {
+      const next = !v;
+      setToast({ id: Date.now(), on: next });
+      return next;
+    });
+  });
+  return (
+    <div ref={ref} className={cx('w-full max-w-sm space-y-3', className)}>
+      <div className="flex items-center justify-between rounded-2xl bg-[#050b17] px-4 py-3.5">
+        <div className="flex items-center gap-3">
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-xs font-bold text-[#050b17]">L</span>
+          <div>
+            <div className="text-sm font-medium text-fg">Leo Live Delta</div>
+            <div className={cx('flex items-center gap-1.5 text-[11px]', on ? 'text-up' : 'text-muted')}>
+              <span className={cx('h-1.5 w-1.5 rounded-full', on ? 'animate-pulse bg-up' : 'bg-white/30')} />
+              {on ? 'Copying live' : 'Paused'}
+            </div>
+          </div>
+        </div>
+        {/* toggle */}
+        <button type="button" aria-pressed={on} onClick={() => { setOn(!on); setToast({ id: Date.now(), on: !on }); }} className={cx('relative h-8 w-14 rounded-full transition-colors', on ? 'bg-up' : 'bg-white/15')}>
+          <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 32 }} className={cx('absolute top-1 h-6 w-6 rounded-full bg-white shadow', on ? 'left-7' : 'left-1')} />
+        </button>
+      </div>
+      <div className="h-[64px]">
+        <AnimatePresence mode="wait">
+          {toast && (
+            <motion.div key={toast.id} initial={{ y: 14, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-3 rounded-2xl bg-[#050b17] px-4 py-3">
+              <span className={cx('grid h-9 w-9 place-items-center rounded-xl text-[#050b17]', toast.on ? 'bg-up' : 'bg-brand')}>{toast.on ? '▶' : '⏸'}</span>
+              <div className="flex-1 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium text-fg">{toast.on ? 'Copying resumed' : 'Copying paused'}</span>
+                  <span className="text-xs text-muted">just now</span>
+                </div>
+                <div className="text-xs text-muted">{toast.on ? 'Next fill will be mirrored' : 'Open positions stay untouched'}</div>
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
+    </div>
+  );
+}
+
+/* ─── Risk limits demo: animated sliders ───────────────────────────────── */
+
+const RISK_STEPS = [
+  { amount: 10, mult: 1, cap: 50 },
+  { amount: 25, mult: 1.5, cap: 100 },
+  { amount: 50, mult: 2, cap: 150 },
+  { amount: 20, mult: 0.5, cap: 40 },
+];
+
+export function RiskDemo({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [i, setI] = useState(0);
+  useTicker(ref, 2000, () => setI((v) => (v + 1) % RISK_STEPS.length));
+  const st = RISK_STEPS[i]!;
+  const rows = [
+    { k: 'Amount per copy', v: `$${st.amount}`, pct: st.amount / 60 },
+    { k: 'Multiplier', v: `${st.mult}x`, pct: st.mult / 2.5 },
+    { k: 'Daily loss cap', v: `$${st.cap}`, pct: st.cap / 180 },
+  ];
+  const risk = Math.round((st.amount * st.mult) / 1.2);
+  return (
+    <div ref={ref} className={cx('w-full max-w-sm rounded-2xl bg-[#050b17] p-4', className)}>
+      <div className="space-y-3.5">
+        {rows.map((r) => (
+          <div key={r.k}>
+            <div className="flex items-center justify-between text-[12px]">
+              <span className="text-muted">{r.k}</span>
+              <AnimatePresence mode="popLayout" initial={false}>
+                <motion.span key={r.v} initial={{ y: 8, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: -8, opacity: 0 }} className="font-semibold tabular-nums text-fg">
+                  {r.v}
+                </motion.span>
+              </AnimatePresence>
+            </div>
+            <div className="relative mt-2 h-2 rounded-full bg-white/10">
+              <motion.div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-brand to-accent" animate={{ width: `${Math.min(100, r.pct * 100)}%` }} transition={{ type: 'spring', stiffness: 160, damping: 22 }} />
+              <motion.span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-brand bg-[#050b17]" animate={{ left: `calc(${Math.min(100, r.pct * 100)}% - 8px)` }} transition={{ type: 'spring', stiffness: 160, damping: 22 }} />
+            </div>
+          </div>
+        ))}
+      </div>
+      <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-[12px]">
+        <span className="text-muted">Max risk per trade</span>
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up">
+          <span className="h-1.5 w-1.5 rounded-full bg-up" /> ${risk} · protected
+        </span>
+      </div>
+    </div>
+  );
+}

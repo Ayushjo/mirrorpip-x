@@ -2,7 +2,8 @@
 
 import { useMemo, useState } from 'react';
 import { ChevronDown } from 'lucide-react';
-import { Badge, Card, cx, fmtNum } from './ui';
+import { Badge, Card, EmptyBlock, cx, fmtNum } from './ui';
+import { Activity, Inbox } from 'lucide-react';
 import { BarChart } from './charts';
 import { Reveal } from './reveal';
 
@@ -62,7 +63,11 @@ export function LeaderTrades({ trades }: { trades: LeaderTrade[] }) {
             <h2 className="text-base font-semibold">Trade activity</h2>
             <p className="text-xs text-muted">Fills per day · last 14 days</p>
           </div>
-          <BarChart data={activity} height={150} />
+          {trades.length > 0 ? (
+            <BarChart data={activity} height={150} />
+          ) : (
+            <EmptyBlock className="h-[150px] !py-4" icon={<Activity className="h-5 w-5" />} title="No activity in the last 14 days" />
+          )}
           <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border-soft pt-4">
             <div>
               <div className="text-xs text-muted">Buys</div>
@@ -107,7 +112,13 @@ export function LeaderTrades({ trades }: { trades: LeaderTrade[] }) {
           </div>
 
           {visible.length === 0 ? (
-            <p className="px-6 pb-12 pt-6 text-center text-sm text-muted">No fills to show.</p>
+            <div className="px-5 pb-5 sm:px-6 sm:pb-6">
+              <EmptyBlock
+                icon={<Inbox className="h-5 w-5" />}
+                title={trades.length === 0 ? 'No fills captured yet' : `No ${side === 'BUY' ? 'buys' : 'sells'} in the latest fills`}
+                body={trades.length === 0 ? 'Fills appear here the moment this leader trades. Follow now to mirror them from the first one.' : 'Try the other side, or All.'}
+              />
+            </div>
           ) : (
             <>
               {/* mobile rows */}

@@ -3,7 +3,7 @@ import { notFound } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 import { getLeaderPublic } from '@/lib/services/copy';
 import { getSessionUser } from '@/lib/session';
-import { Badge, LinkButton } from '@/components/ui';
+import { Badge, LinkButton, fmtPct } from '@/components/ui';
 import { UsersIcon, ShieldIcon, SlidersIcon, BoltIcon } from '@/components/icons';
 import { LeaderOverview } from '@/components/leader-overview';
 import { Reveal } from '@/components/reveal';
@@ -26,8 +26,7 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
   // direction follows ROI so the chart never renders as a dead flat box.
   const raw = leader.equitySeries ?? [];
   const hasShape = raw.length >= 2 && Math.max(...raw) - Math.min(...raw) > 1e-6;
-  const demo = [0.34, 0.48, 0.42, 0.56, 0.5, 0.64, 0.59, 0.72, 0.68, 0.82];
-  const equity = hasShape ? raw : s.roiPct >= 0 ? demo : [...demo].reverse();
+  const equity = raw;
 
   const HOW = [
     { Icon: SlidersIcon, t: 'You set the size', d: 'Fixed amount or multiplier, with a max position and daily loss cap.' },
@@ -46,9 +45,15 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
           </Link>
         }
         above={
-          <span className="rounded-3xl bg-gradient-to-br from-brand to-accent p-[2px] shadow-[0_12px_40px_rgba(0,176,255,0.35)]">
-            <span className="grid h-20 w-20 place-items-center rounded-[22px] bg-[#0b1a33] text-3xl font-bold text-fg">
-              {leader.displayName.slice(0, 1).toUpperCase()}
+          <span className="relative">
+            <span className="absolute inset-0 -m-3 rounded-full bg-brand/25 blur-2xl" />
+            <span className="relative grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-brand to-accent p-[3px] shadow-[0_16px_50px_rgba(0,176,255,0.35)]">
+              <span className="grid h-full w-full place-items-center rounded-full bg-[#0b1a33] text-3xl font-bold text-fg">
+                {leader.displayName.slice(0, 1).toUpperCase()}
+              </span>
+            </span>
+            <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-4 border-bg bg-up text-[#050b17]">
+              <ShieldIcon width={14} height={14} />
             </span>
           </span>
         }
@@ -76,6 +81,12 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
             {followLabel}
           </LinkButton>
         }
+        stats={[
+          { v: s.roiPct === 0 ? '—' : fmtPct(s.roiPct), l: 'all-time ROI' },
+          { v: `${s.winRatePct.toFixed(0)}%`, l: 'win rate' },
+          { v: String(s.tradeCount), l: 'trades' },
+          { v: String(s.followerCount), l: 'followers' },
+        ]}
       />
 
       <LeaderOverview stats={s} equity={equity} hasShape={hasShape} />

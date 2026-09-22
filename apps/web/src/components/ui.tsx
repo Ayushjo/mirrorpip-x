@@ -257,3 +257,27 @@ export function Checkbox({
     </div>
   );
 }
+
+/** Compact in-card empty state: icon disc, title, one line, optional action. */
+export function EmptyBlock({
+  icon,
+  title,
+  body,
+  action,
+  className,
+}: {
+  icon: ReactNode;
+  title: string;
+  body?: string;
+  action?: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div className={cx('flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/10 px-6 py-10 text-center', className)}>
+      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.05] text-brand">{icon}</span>
+      <div className="text-sm font-semibold text-fg">{title}</div>
+      {body && <p className="max-w-xs text-xs leading-relaxed text-muted">{body}</p>}
+      {action && <div className="mt-1">{action}</div>}
+    </div>
+  );
+}

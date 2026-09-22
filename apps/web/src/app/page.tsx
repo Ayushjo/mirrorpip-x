@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2 } from '@/components/landing/motion';
-import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat } from '@/components/landing/live';
+import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
 const CHIPS = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '🏅 Verified leaders', '⚡ <1s mirroring', '🇮🇳 Delta India'];
@@ -178,14 +178,7 @@ export default async function LandingPage() {
                 <CardTitle a="Risk limits" b="you set, the engine honours" />
                 <div className="mt-3 text-center"><TextLink href="/leaders">Learn more</TextLink></div>
                 <Demo>
-                  <div className="grid w-full max-w-sm grid-cols-3 gap-3">
-                    {[['Amount', '$10'], ['Multiplier', '1x'], ['Daily cap', '$50']].map(([k, v]) => (
-                      <div key={k} className="rounded-2xl bg-[#050b17] px-2 py-4 text-center">
-                        <div className="whitespace-nowrap text-[11px] text-muted">{k}</div>
-                        <div className="mt-1 text-lg font-semibold text-fg">{v}</div>
-                      </div>
-                    ))}
-                  </div>
+                  <RiskDemo />
                 </Demo>
               </Card>
             </Rise>
@@ -193,16 +186,7 @@ export default async function LandingPage() {
               <Card className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Pause or stop" b="on your terms, any time" />
                 <Demo>
-                  <div className="flex w-full max-w-sm items-center gap-3 rounded-2xl bg-[#050b17] px-4 py-3.5">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-brand text-[#050b17]">⏸</span>
-                    <div className="flex-1 text-sm">
-                      <div className="flex items-center justify-between">
-                        <span className="font-medium text-fg">Copying paused</span>
-                        <span className="text-xs text-muted">9:41 AM</span>
-                      </div>
-                      <div className="text-xs text-muted">Resume whenever you&rsquo;re ready</div>
-                    </div>
-                  </div>
+                  <PauseDemo />
                 </Demo>
               </Card>
             </Rise>
