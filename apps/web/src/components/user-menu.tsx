@@ -39,7 +39,7 @@ export function UserMenu({ user }: { user: { name: string; email: string } | nul
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="grid h-9 w-9 place-items-center rounded-full border border-border bg-surface-2 text-sm font-semibold"
+        className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold"
         aria-label="Account menu"
       >
         {initials}
@@ -47,7 +47,7 @@ export function UserMenu({ user }: { user: { name: string; email: string } | nul
       {open && (
         <>
           <div className="fixed inset-0 z-10" onClick={() => setOpen(false)} />
-          <div className="absolute right-0 z-20 mt-2 w-56 rounded-xl border border-border bg-surface p-2 shadow-xl">
+          <div className="absolute right-0 z-20 mt-2 w-60 rounded-[1.5rem] border border-white/10 bg-[#0b1a33] p-2 shadow-[0_30px_80px_rgba(0,0,0,0.6)]">
             <div className="px-3 py-2">
               <div className="truncate text-sm font-medium">{user.name}</div>
               <div className="truncate text-xs text-muted">{user.email}</div>

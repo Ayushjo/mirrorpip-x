@@ -82,7 +82,7 @@ export function NotificationBell() {
         createPortal(
         <div
           ref={panelRef}
-          className="fixed right-3 top-[4.25rem] z-[70] w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-2xl border border-border bg-surface shadow-xl sm:right-6"
+          className="fixed right-3 top-[4.25rem] z-[70] w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b1a33] shadow-[0_30px_80px_rgba(0,0,0,0.6)] sm:right-6"
         >
           <div className="border-b border-border-soft px-4 py-3 text-sm font-semibold">Notifications</div>
           <div className="max-h-96 overflow-y-auto">
