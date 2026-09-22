@@ -5,9 +5,6 @@ import { Rise, Light, TextLink, Bars, H2 } from '@/components/landing/motion';
 import { Phone } from '@/components/landing/phone';
 import { ArrowRight, Plus } from 'lucide-react';
 
-const HERO_VIDEO =
-  'https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260423_161253_c72b1869-400f-45ed-ac0c-52f68c2ed5bd.mp4';
-
 const CHIPS = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '🏅 Verified leaders', '⚡ <1s mirroring', '🇮🇳 Delta India'];
 
 const VENUES = [
@@ -44,16 +41,13 @@ export default async function LandingPage() {
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg to-transparent" />
         <div className="relative mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-end px-6 pb-8 text-center sm:pb-12">
           {/* object */}
-          <div className="relative mb-[-4rem] h-[46vh] w-full max-w-3xl sm:mb-[-6rem] sm:h-[56vh]">
-            <Light className="!top-[60%]" />
-            <video
-              className="absolute inset-0 h-full w-full object-cover"
-              style={{ WebkitMaskImage: 'radial-gradient(ellipse 60% 70% at 50% 45%, #000 45%, transparent 75%)', maskImage: 'radial-gradient(ellipse 60% 70% at 50% 45%, #000 45%, transparent 75%)' }}
-              src={HERO_VIDEO}
-              autoPlay
-              muted
-              loop
-              playsInline
+          <div className="relative mb-[-3rem] h-[34vh] w-full max-w-3xl sm:mb-[-6rem] sm:h-[56vh]">
+            <Light className="!top-[62%]" />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src="/media/halo-object.webp"
+              alt=""
+              className="hero-float absolute left-1/2 top-1/2 h-[120%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(ellipse_44%_46%_at_50%_50%,#000_50%,transparent_76%)]"
             />
           </div>
           <Rise>
@@ -225,7 +219,7 @@ export default async function LandingPage() {
               <Card className="min-h-[440px] p-8 sm:p-10">
                 <CardTitle a="Negative balance protection" b="so you only risk your copy amount" />
                 {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img src="/media/halo-object.webp" alt="" className="pointer-events-none absolute left-1/2 top-[52%] h-72 w-72 -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_30px_60px_rgba(0,176,255,0.35)]" />
+                <img src="/media/halo-object.webp" alt="" className="pointer-events-none absolute left-1/2 top-[56%] h-80 w-80 -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(circle_at_50%_50%,#000_45%,transparent_72%)]" />
               </Card>
             </Rise>
           </div>
@@ -289,7 +283,7 @@ export default async function LandingPage() {
         <Rise delay={0.1} className="relative mt-4 h-[380px] sm:h-[520px]">
           <Light className="!top-[65%]" />
           {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/media/halo-object.webp" alt="" className="absolute left-1/2 top-1/2 h-[90%] -translate-x-1/2 -translate-y-1/2 object-contain drop-shadow-[0_60px_120px_rgba(0,176,255,0.35)]" />
+          <img src="/media/halo-object.webp" alt="" className="absolute left-1/2 top-1/2 h-[90%] -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(ellipse_48%_48%_at_50%_50%,#000_55%,transparent_78%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-bg to-transparent" />
         </Rise>
       </section>
@@ -330,8 +324,8 @@ export default async function LandingPage() {
           </H2>
           <div className="mt-4"><TextLink href="/connect">Connect an account</TextLink></div>
         </Rise>
-        <Rise delay={0.1} className="fan mt-14 flex justify-center gap-[-1rem] sm:mt-20">
-          <div className="flex -space-x-12 sm:-space-x-8">
+        <Rise delay={0.1} className="fan no-scrollbar -mx-6 mt-14 overflow-x-auto px-6 sm:mx-0 sm:mt-20 sm:overflow-visible sm:px-0">
+          <div className="flex w-max -space-x-10 sm:mx-auto sm:-space-x-8">
             {VENUES.map((v, i) => (
               <div
                 key={v.name}

@@ -100,7 +100,7 @@ export function Bars({ className }: { className?: string }) {
 export function H2({ children, sub, className }: { children: ReactNode; sub?: ReactNode; className?: string }) {
   return (
     <div className={cx('text-center', className)}>
-      <h2 className="mx-auto max-w-3xl text-[2rem] leading-[1.05] text-fg sm:text-[2.75rem] lg:text-[3.5rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>
+      <h2 className="mx-auto max-w-4xl text-[2rem] leading-[1.05] text-fg sm:text-[2.6rem] lg:text-[3.25rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>
         {children}
       </h2>
       {sub && <p className="mx-auto mt-4 max-w-2xl text-[15px] text-muted sm:text-base">{sub}</p>}
