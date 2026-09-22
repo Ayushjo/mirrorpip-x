@@ -4,7 +4,18 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import { toast } from 'sonner';
 import { COUNTRIES } from '@/lib/countries';
-import { Button, Field, Input, Select } from '@/components/ui';
+import { Button, Checkbox, Field, Input, Select, cx } from '@/components/ui';
+import { Users, TrendingUp, Layers } from 'lucide-react';
+
+function flag(code: string) {
+  return String.fromCodePoint(...code.toUpperCase().split('').map((c) => 0x1f1e6 + c.charCodeAt(0) - 65));
+}
+
+const ROLES = [
+  { id: 'follower', label: 'Copy leaders', hint: 'Mirror verified traders', Icon: Users },
+  { id: 'leader', label: 'Lead', hint: 'Share my trades', Icon: TrendingUp },
+  { id: 'both', label: 'Both', hint: 'Copy and lead', Icon: Layers },
+] as const;
 
 type PostalHit = { city: string | null; state: string | null; country: string | null; countryCode: string | null };
 
@@ -112,63 +123,96 @@ export function CompleteProfileForm({
   }
 
   return (
-    <form onSubmit={submit} className="mt-8 space-y-4">
-      <Field label="Country">
-        <Select value={country} onChange={(e) => setCountry(e.target.value)} required autoComplete="country">
-          <option value="">Select country…</option>
-          {COUNTRIES.map((c) => (
-            <option key={c.code} value={c.code}>
-              {c.name}
-            </option>
-          ))}
-        </Select>
-      </Field>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="City">
-          <Input value={city} onChange={(e) => setCity(e.target.value)} required placeholder="Mumbai" autoComplete="address-level2" />
-        </Field>
-        <Field label="PIN / ZIP code" hint={pinHint ? `Detected: ${pinHint}` : 'City & country autofill from your PIN'}>
-          <Input
-            value={postalCode}
-            onChange={(e) => setPostalCode(e.target.value)}
-            required
-            placeholder="400001"
-            autoComplete="postal-code"
-            inputMode="numeric"
-          />
-        </Field>
-      </div>
-      <div className="grid grid-cols-2 gap-3">
-        <Field label="Phone (optional)">
-          <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91…" autoComplete="tel" />
-        </Field>
-        <Field label="I want to…">
-          <Select value={intendedRole} onChange={(e) => setIntendedRole(e.target.value)}>
-            <option value="">Choose…</option>
-            <option value="follower">Copy verified leaders</option>
-            <option value="leader">Lead and share my trades</option>
-            <option value="both">Both</option>
-          </Select>
-        </Field>
-      </div>
+    <form onSubmit={submit} className="space-y-6">
+      <section className="card-surface rounded-3xl p-5 sm:p-6">
+        <div className="mb-4 flex items-center gap-2.5">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-[#050b17]">1</span>
+          <h2 className="text-sm font-semibold text-fg">Where you&rsquo;re based</h2>
+        </div>
+        <div className="space-y-4">
+          <Field label="Country">
+            <Select value={country} onChange={(e) => setCountry(e.target.value)} required autoComplete="country">
+              <option value="">Select country…</option>
+              {COUNTRIES.map((c) => (
+                <option key={c.code} value={c.code}>
+                  {`${flag(c.code)}\u2003${c.name}`}
+                </option>
+              ))}
+            </Select>
+          </Field>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="PIN / ZIP code" hint={pinHint ? `Detected: ${pinHint}` : 'City and country autofill from this'}>
+              <Input
+                value={postalCode}
+                onChange={(e) => setPostalCode(e.target.value)}
+                required
+                placeholder="400001"
+                autoComplete="postal-code"
+                inputMode="numeric"
+              />
+            </Field>
+            <Field label="City">
+              <Input value={city} onChange={(e) => setCity(e.target.value)} required placeholder="Mumbai" autoComplete="address-level2" />
+            </Field>
+          </div>
+          <Field label="Phone (optional)">
+            <Input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} placeholder="+91 98765 43210" autoComplete="tel" />
+          </Field>
+        </div>
+      </section>
+
+      <section className="card-surface rounded-3xl p-5 sm:p-6">
+        <div className="mb-4 flex items-center gap-2.5">
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-[#050b17]">2</span>
+          <h2 className="text-sm font-semibold text-fg">How you&rsquo;ll use BelieveMeGuys</h2>
+        </div>
+        <div className="grid grid-cols-3 gap-2 sm:gap-3">
+          {ROLES.map(({ id, label, hint, Icon }) => {
+            const active = intendedRole === id;
+            return (
+              <button
+                key={id}
+                type="button"
+                onClick={() => setIntendedRole(id)}
+                aria-pressed={active}
+                className={cx(
+                  'flex flex-col items-start gap-2 rounded-2xl border p-3 text-left transition-all sm:p-4',
+                  active ? 'border-brand/50 bg-brand/[0.08] shadow-[0_0_0_1px_rgba(0,176,255,0.2)]' : 'border-border bg-surface/60 hover:border-white/15',
+                )}
+              >
+                <span className={cx('grid h-8 w-8 place-items-center rounded-lg', active ? 'bg-brand text-[#050b17]' : 'bg-white/[0.05] text-brand')}>
+                  <Icon className="h-4 w-4" />
+                </span>
+                <span className="text-[13px] font-medium leading-tight text-fg">{label}</span>
+                <span className="text-[11px] leading-tight text-muted">{hint}</span>
+              </button>
+            );
+          })}
+        </div>
+      </section>
 
       {needsConsent && (
-        <div className="space-y-2.5">
-          <label className="flex items-start gap-2.5 text-xs text-muted">
-            <input type="checkbox" checked={agreeTos} onChange={(e) => setAgreeTos(e.target.checked)} className="mt-0.5" required />
-            <span>
-              I accept the <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
-            </span>
-          </label>
-          <label className="flex items-start gap-2.5 text-xs text-muted">
-            <input type="checkbox" checked={agreeRisk} onChange={(e) => setAgreeRisk(e.target.checked)} className="mt-0.5" required />
-            <span>I understand copy-trading involves substantial risk of loss and past leader performance does not guarantee future results.</span>
-          </label>
-        </div>
+        <section className="card-surface rounded-3xl p-5 sm:p-6">
+          <div className="mb-4 flex items-center gap-2.5">
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-[#050b17]">3</span>
+            <h2 className="text-sm font-semibold text-fg">Terms and risk</h2>
+          </div>
+          <div className="space-y-2">
+            <Checkbox checked={agreeTos} onChange={setAgreeTos}>
+              I accept the{' '}
+              <Link href="/terms" className="font-medium text-fg underline underline-offset-2">Terms</Link> and{' '}
+              <Link href="/privacy" className="font-medium text-fg underline underline-offset-2">Privacy Policy</Link>.
+            </Checkbox>
+            <Checkbox checked={agreeRisk} onChange={setAgreeRisk}>
+              I understand copy-trading involves substantial risk of loss and past leader performance does not guarantee
+              future results.
+            </Checkbox>
+          </div>
+        </section>
       )}
 
-      <Button type="submit" arrow className="w-full justify-center" disabled={busy || !canSubmit}>
-        {busy ? 'Saving…' : 'Continue'}
+      <Button type="submit" arrow className="w-full justify-center py-2.5" disabled={busy || !canSubmit}>
+        {busy ? 'Saving…' : 'Continue to dashboard'}
       </Button>
     </form>
   );

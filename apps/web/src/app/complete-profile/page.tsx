@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
-import { MediaBanner } from '@/components/media-banner';
 import { CompleteProfileForm } from '@/components/complete-profile-form';
 
 export const dynamic = 'force-dynamic';
@@ -19,18 +18,19 @@ export default async function CompleteProfilePage() {
   if (!needsConsent && !needsProfile) redirect('/dashboard');
 
   return (
-    <div className="mx-auto w-full max-w-xl space-y-6 py-6">
-      <MediaBanner src="/media/profile-globe.webp" position="right center" className="min-h-[180px]">
-        <div className="p-8">
-          <h1 className="text-3xl text-fg" style={{ letterSpacing: '-0.03em' }}>
-            One last step
-          </h1>
-          <p className="mt-1.5 max-w-sm text-sm text-muted">
-            Tell us where you&rsquo;re based{needsConsent ? ' and accept the terms' : ''} — required for compliance before you
-            start copying.
-          </p>
+    <div className="mx-auto w-full max-w-xl space-y-6 py-2 sm:py-6">
+      <div className="text-center">
+        <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-accent shadow-[0_10px_30px_rgba(0,176,255,0.35)]">
+          <span className="text-2xl">🌍</span>
         </div>
-      </MediaBanner>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">One last step</div>
+        <h1 className="mt-2 text-3xl text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
+          Tell us where you&rsquo;re based
+        </h1>
+        <p className="mx-auto mt-2 max-w-sm text-sm text-muted">
+          Required for compliance before you start copying{needsConsent ? ', plus a quick agreement to the terms' : ''}.
+        </p>
+      </div>
       <CompleteProfileForm needsConsent={needsConsent} defaultRole={user.intendedRole ?? ''} />
     </div>
   );

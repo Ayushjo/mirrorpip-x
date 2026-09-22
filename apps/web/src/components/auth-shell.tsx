@@ -49,13 +49,24 @@ export function AuthShell({
         </div>
       </div>
 
-      {/* Form half */}
-      <div className="relative flex items-center justify-center overflow-y-auto px-6 py-16">
-        <Link href="/" className="absolute left-6 top-6 flex items-center gap-2 text-fg">
+      {/* Form half — a scroll container with the form vertically centered via
+          auto margins (not flex centering, which clips the top when the form is
+          taller than the viewport on phones). */}
+      <div
+        className="relative flex flex-col overflow-y-auto px-6 pb-10 pt-6 sm:px-10"
+        style={{
+          paddingTop: 'max(1.5rem, env(safe-area-inset-top))',
+          background:
+            'radial-gradient(520px 260px at 50% -10%, rgba(0,176,255,0.14), transparent 65%), #050b17',
+        }}
+      >
+        <Link href="/" className="flex w-fit items-center gap-2 text-fg">
           <BrandMark className="h-7 w-7" />
-          <span className="text-lg font-medium tracking-tight">BelieveMeGuys</span>
+          <span className="text-lg font-semibold tracking-tight">
+            BelieveMe<span className="text-brand">Guys</span>
+          </span>
         </Link>
-        <div className="w-full max-w-sm">{children}</div>
+        <div className="mx-auto my-auto w-full max-w-sm py-10">{children}</div>
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Check } from 'lucide-react';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
 
 // ─── UI kit — light premium fintech (Halo-style) ────────────────────────────
@@ -209,4 +209,51 @@ export function fmtPct(n: number | null | undefined): string {
 export function fmtNum(n: number | null | undefined, digits = 4): string {
   if (n == null) return '—';
   return n.toLocaleString('en-US', { maximumFractionDigits: digits });
+}
+
+/**
+ * Custom checkbox: a real button with role="checkbox" so it renders identically
+ * on iOS/Android, has a proper 44px tap target, and never fights native
+ * `required` validation. Links inside the label don't toggle it.
+ */
+export function Checkbox({
+  checked,
+  onChange,
+  children,
+  className,
+}: {
+  checked: boolean;
+  onChange: (next: boolean) => void;
+  children: ReactNode;
+  className?: string;
+}) {
+  return (
+    <div
+      role="checkbox"
+      aria-checked={checked}
+      tabIndex={0}
+      onClick={() => onChange(!checked)}
+      onKeyDown={(e) => {
+        if (e.key === ' ' || e.key === 'Enter') {
+          e.preventDefault();
+          onChange(!checked);
+        }
+      }}
+      className={cx(
+        'group flex cursor-pointer select-none items-start gap-3 rounded-xl border px-3.5 py-3 text-left text-xs leading-relaxed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50',
+        checked ? 'border-brand/40 bg-brand/[0.07] text-fg' : 'border-border bg-surface/60 text-muted hover:border-white/15',
+        className,
+      )}
+    >
+      <span
+        className={cx(
+          'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-all duration-200',
+          checked ? 'border-brand bg-brand text-[#050b17] shadow-[0_2px_10px_rgba(0,176,255,0.45)]' : 'border-white/20 bg-transparent',
+        )}
+      >
+        <Check className={cx('h-3.5 w-3.5 transition-transform', checked ? 'scale-100' : 'scale-0')} strokeWidth={3} />
+      </span>
+      <span onClick={(e) => (e.target as HTMLElement).closest('a') && e.stopPropagation()}>{children}</span>
+    </div>
+  );
 }

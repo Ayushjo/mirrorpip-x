@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { toast } from 'sonner';
 import { signIn, signUp } from '@/lib/auth-client';
-import { Button, Field, Input } from './ui';
+import { Button, Checkbox, Field, Input } from './ui';
 import { CheckIcon } from './icons';
 
 function passwordStrength(pw: string): { score: number; label: string; color: string } {
@@ -96,7 +96,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
 
   return (
     <div className="w-full max-w-sm">
-      <h1 className="text-4xl leading-tight tracking-tight text-fg" style={{ letterSpacing: '-0.03em' }}>
+      <h1 className="text-3xl leading-tight tracking-tight text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
         {isRegister ? 'Create your account' : 'Welcome back'}
       </h1>
       <p className="mt-2 text-sm text-muted">
@@ -168,17 +168,16 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
         </Field>
 
         {isRegister && (
-          <div className="space-y-2.5">
-            <label className="flex items-start gap-2.5 text-xs text-muted">
-              <input type="checkbox" checked={agreeTos} onChange={(e) => setAgreeTos(e.target.checked)} className="mt-0.5" required />
-              <span>
-                I accept the <Link href="/terms" className="underline">Terms</Link> and <Link href="/privacy" className="underline">Privacy Policy</Link>.
-              </span>
-            </label>
-            <label className="flex items-start gap-2.5 text-xs text-muted">
-              <input type="checkbox" checked={agreeRisk} onChange={(e) => setAgreeRisk(e.target.checked)} className="mt-0.5" required />
-              <span>I understand copy-trading involves substantial risk of loss and past leader performance does not guarantee future results.</span>
-            </label>
+          <div className="space-y-2">
+            <Checkbox checked={agreeTos} onChange={setAgreeTos}>
+              I accept the{' '}
+              <Link href="/terms" className="font-medium text-fg underline underline-offset-2">Terms</Link> and{' '}
+              <Link href="/privacy" className="font-medium text-fg underline underline-offset-2">Privacy Policy</Link>.
+            </Checkbox>
+            <Checkbox checked={agreeRisk} onChange={setAgreeRisk}>
+              I understand copy-trading involves substantial risk of loss and past leader performance does not guarantee
+              future results.
+            </Checkbox>
           </div>
         )}
 
