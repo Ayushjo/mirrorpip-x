@@ -202,34 +202,42 @@ export function FillsFeed({ rows = 3, className }: { rows?: number; className?: 
 
 /* ─── Live leaderboard (rows reorder) ──────────────────────────────────── */
 
-type Row = { id: string; name: string; roi: number; followers: number };
+type Row = { id: string; name: string; roi: number; followers: number; prev: number };
 
 export function LiveLeaderboard({ className }: { className?: string }) {
   const ref = useRef<HTMLDivElement>(null);
   const [rows, setRows] = useState<Row[]>([
-    { id: 'a', name: 'Leo Live Delta', roi: 18.4, followers: 128 },
-    { id: 'b', name: 'HERO', roi: 16.9, followers: 74 },
-    { id: 'c', name: 'Leo Trader', roi: 15.2, followers: 41 },
+    { id: 'a', name: 'Leo Live Delta', roi: 18.4, followers: 128, prev: 0 },
+    { id: 'b', name: 'HERO', roi: 17.1, followers: 74, prev: 1 },
+    { id: 'c', name: 'Leo Trader', roi: 16.2, followers: 41, prev: 2 },
+    { id: 'd', name: 'Nova Swing', roi: 15.4, followers: 33, prev: 3 },
+    { id: 'e', name: 'Quant Ria', roi: 14.6, followers: 27, prev: 4 },
   ]);
-  useTicker(ref, 2200, () =>
-    setRows((rs) =>
-      rs
-        .map((r) => ({
+  useTicker(ref, 1500, () =>
+    setRows((rs) => {
+      const withIdx = rs.map((r, i) => ({ ...r, prev: i }));
+      // one or two leaders get a real move so ranks actually swap
+      const movers = new Set([Math.floor(Math.random() * rs.length), Math.floor(Math.random() * rs.length)]);
+      return withIdx
+        .map((r, i) => ({
           ...r,
-          roi: Math.max(2, +(r.roi + rnd(-1.6, 1.9)).toFixed(1)),
-          followers: r.followers + (Math.random() > 0.5 ? Math.round(rnd(1, 4)) : 0),
+          roi: Math.max(4, +(r.roi + (movers.has(i) ? rnd(-3.2, 3.8) : rnd(-0.4, 0.5))).toFixed(1)),
+          followers: r.followers + (Math.random() > 0.4 ? Math.round(rnd(1, 6)) : 0),
         }))
-        .sort((a, b) => b.roi - a.roi),
-    ),
+        .sort((a, b) => b.roi - a.roi);
+    }),
   );
   return (
     <div ref={ref} className={cx('space-y-2', className)}>
-      {rows.map((r, i) => (
+      {rows.map((r, i) => {
+        const delta = r.prev - i; // + moved up, - moved down
+        return (
         <motion.div
           key={r.id}
           layout
-          transition={{ type: 'spring', stiffness: 380, damping: 34 }}
-          className="flex items-center justify-between rounded-2xl bg-[#050b17]/80 px-4 py-3 backdrop-blur"
+          transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+          animate={{ backgroundColor: delta > 0 ? 'rgba(16,185,129,0.14)' : delta < 0 ? 'rgba(239,68,68,0.12)' : 'rgba(5,11,23,0.8)' }}
+          className={cx('flex items-center justify-between rounded-2xl px-4 py-3 backdrop-blur', i === 0 && 'ring-1 ring-brand/40')}
         >
           <div className="flex items-center gap-3">
             <motion.span
@@ -242,6 +250,19 @@ export function LiveLeaderboard({ className }: { className?: string }) {
               {i + 1}
             </motion.span>
             <span className="text-sm font-medium text-fg">{r.name}</span>
+            <AnimatePresence>
+              {delta !== 0 && (
+                <motion.span
+                  key={`${r.id}-${r.prev}-${i}`}
+                  initial={{ opacity: 0, y: delta > 0 ? 6 : -6 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className={cx('text-[11px] font-semibold', delta > 0 ? 'text-up' : 'text-down')}
+                >
+                  {delta > 0 ? '▲' : '▼'} {Math.abs(delta)}
+                </motion.span>
+              )}
+            </AnimatePresence>
           </div>
           <div className="flex items-center gap-4 text-xs">
             <span className="tabular-nums text-muted">
@@ -255,7 +276,8 @@ export function LiveLeaderboard({ className }: { className?: string }) {
             <span className="w-14 text-right font-semibold tabular-nums text-up">+{r.roi.toFixed(1)}%</span>
           </div>
         </motion.div>
-      ))}
+        );
+      })}
     </div>
   );
 }
@@ -272,7 +294,7 @@ export function LiveTradeChart({ className }: { className?: string }) {
   const [price, setPrice] = useState(81332.5);
   const [marker, setMarker] = useState<{ id: number; up: boolean; x: number; y: number } | null>(null);
 
-  useTicker(ref, 1100, () => {
+  useTicker(ref, 520, () => {
     setSeries((s) => {
       const last = s[s.length - 1]!;
       const next = Math.max(18, Math.min(85, last + rnd(-9, 9)));
@@ -295,9 +317,9 @@ export function LiveTradeChart({ className }: { className?: string }) {
     <div ref={ref} className={cx('relative h-72', className)}>
       <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full overflow-visible" fill="none">
         <line x1={last.x} y1="0" x2={last.x} y2={H} stroke="rgba(255,255,255,0.15)" strokeDasharray="4 6" />
-        <motion.line x1="0" x2={W} stroke="rgba(255,255,255,0.2)" animate={{ y1: last.y, y2: last.y }} transition={{ duration: 0.7 }} />
-        <motion.path d={d} stroke="#00b0ff" strokeWidth="2.5" strokeLinecap="round" animate={{ d }} transition={{ duration: 0.7, ease: 'easeOut' }} />
-        <motion.circle r="4.5" fill="#fff" animate={{ cx: last.x, cy: last.y }} transition={{ duration: 0.7 }} />
+        <motion.line x1="0" x2={W} stroke="rgba(255,255,255,0.2)" animate={{ y1: last.y, y2: last.y }} transition={{ duration: 0.35 }} />
+        <motion.path d={d} stroke="#00b0ff" strokeWidth="2.5" strokeLinecap="round" animate={{ d }} transition={{ duration: 0.35, ease: 'easeOut' }} />
+        <motion.circle r="4.5" fill="#fff" animate={{ cx: last.x, cy: last.y }} transition={{ duration: 0.35 }} />
         <AnimatePresence>
           {marker && (
             <motion.g key={marker.id} initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }} style={{ transformOrigin: `${marker.x}px ${marker.y}px` }}>
@@ -325,7 +347,7 @@ export function LiveTradeChart({ className }: { className?: string }) {
       <motion.div
         className="absolute right-0 rounded-full bg-white px-3 py-1 text-xs font-semibold tabular-nums text-[#050b17]"
         animate={{ top: `${(last.y / H) * 100}%`, y: '-50%' }}
-        transition={{ duration: 0.7 }}
+        transition={{ duration: 0.35 }}
       >
         {price.toLocaleString('en-US', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}
       </motion.div>
@@ -431,8 +453,8 @@ export function HelpChat({ className }: { className?: string }) {
   });
   const shown = CHAT.slice(Math.max(0, n - 3), n);
   return (
-    <div ref={ref} className={cx('space-y-2', className)}>
-      <AnimatePresence initial={false}>
+    <div ref={ref} className={cx('flex h-[230px] flex-col justify-end gap-2 overflow-hidden', className)}>
+      <AnimatePresence initial={false} mode="popLayout">
         {shown.map((m, i) => (
           <motion.div
             key={`${n}-${i}-${m.t}`}

@@ -300,23 +300,26 @@ export default async function LandingPage() {
           </H2>
           <div className="mt-4"><TextLink href="/connect">Connect an account</TextLink></div>
         </Rise>
-        <Rise delay={0.1} className="fan no-scrollbar -mx-6 mt-14 overflow-x-auto px-6 sm:mx-0 sm:mt-20 sm:overflow-visible sm:px-0">
-          <div className="flex w-max -space-x-10 sm:mx-auto sm:-space-x-8">
+        <Rise delay={0.1} className="no-scrollbar -mx-6 mt-14 overflow-x-auto px-6 sm:mx-0 sm:mt-20 sm:overflow-visible sm:px-0">
+          <div className="flex w-max gap-3 sm:mx-auto sm:-space-x-6 sm:gap-0">
             {VENUES.map((v, i) => (
               <div
                 key={v.name}
-                className={`fan-card ocard relative grid h-60 w-44 shrink-0 place-items-center !rounded-[1.75rem] border border-white/5 sm:h-72 sm:w-52 ${v.live ? '' : 'opacity-70'}`}
+                className={`vcard relative h-64 w-48 shrink-0 overflow-hidden rounded-[1.5rem] sm:h-72 sm:w-[13.5rem] ${v.live ? '' : 'vcard-dim'}`}
                 style={{ zIndex: VENUES.length - i }}
               >
-                {v.live && <span className="absolute inset-0 rounded-[1.75rem] bg-[radial-gradient(60%_50%_at_50%_100%,rgba(0,176,255,0.18),transparent)]" />}
-                <div className="relative flex flex-col items-center text-center">
-                  <span className={`grid h-16 w-16 place-items-center rounded-2xl bg-gradient-to-br text-2xl font-bold text-[#050b17] shadow-[0_12px_30px_rgba(0,0,0,0.5)] ${v.tone} ${v.live ? '' : 'text-white/60'}`}>
-                    {v.mark}
-                  </span>
-                  <div className={`mt-4 text-lg font-semibold ${v.live ? 'text-fg' : 'text-muted'}`}>{v.name}</div>
-                  <div className={`mt-1 inline-flex items-center gap-1 text-[11px] ${v.live ? 'text-up' : 'text-faint'}`}>
-                    {v.live && <span className="h-1.5 w-1.5 rounded-full bg-up" />}
-                    {v.sub}
+                <div className="vcard-sheen pointer-events-none absolute inset-0" />
+                <div className="relative flex h-full flex-col justify-between p-5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">{i < 3 ? (i === 0 ? 'Venue' : 'Currency') : 'Venue'}</span>
+                    <span className={`h-2 w-2 rounded-full ${v.live ? 'bg-up shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-white/20'}`} />
+                  </div>
+                  <div className="flex items-center gap-3">
+                    <span className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-xl font-bold ${v.tone} ${v.live ? 'text-[#050b17]' : 'text-white/50'}`}>{v.mark}</span>
+                    <div className="min-w-0">
+                      <div className={`truncate text-[15px] font-semibold ${v.live ? 'text-fg' : 'text-muted'}`}>{v.name}</div>
+                      <div className={`text-[11px] ${v.live ? 'text-up' : 'text-faint'}`}>{v.sub}</div>
+                    </div>
                   </div>
                 </div>
               </div>
