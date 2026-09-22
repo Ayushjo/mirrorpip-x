@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
+import { toast } from 'sonner';
 import { signIn, signUp } from '@/lib/auth-client';
 import { Button, Field, Input } from './ui';
 import { CheckIcon } from './icons';
@@ -29,15 +30,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const [referralCode, setReferralCode] = useState('');
   const [agreeTos, setAgreeTos] = useState(false);
   const [agreeRisk, setAgreeRisk] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const isRegister = mode === 'register';
   const googleEnabled = process.env.NEXT_PUBLIC_GOOGLE_AUTH_ENABLED === 'true';
-  const [oauthError, setOauthError] = useState<string | null>(null);
   useEffect(() => {
     if (new URLSearchParams(window.location.search).get('error') === 'oauth') {
-      setOauthError('Google sign-in was cancelled or could not be completed. Please try again or use email and password.');
+      toast.error('Google sign-in was cancelled or could not be completed. Please try again or use email and password.');
     }
   }, []);
 
@@ -47,13 +46,12 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
     : email.includes('@') && password.length >= 8;
 
   async function signInWithGoogle() {
-    setError(null);
     setBusy(true);
     try {
       const result = await signIn.social({ provider: 'google', callbackURL: '/dashboard', errorCallbackURL: '/login?error=oauth' });
-      if (result?.error) setError('Google sign-in could not be completed. Please try again.');
+      if (result?.error) toast.error('Google sign-in could not be completed. Please try again.');
     } catch {
-      setError('Google sign-in could not be completed. Please try again.');
+      toast.error('Google sign-in could not be completed. Please try again.');
       setBusy(false);
     }
   }
@@ -61,7 +59,6 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
-    setError(null);
     setBusy(true);
     try {
       const res = isRegister
@@ -80,7 +77,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           router.push(`/verify?email=${encodeURIComponent(email)}`);
           return;
         }
-        setError(msg);
+        toast.error(msg);
         return;
       }
       if (isRegister) {
@@ -91,7 +88,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
       // (avatar/nav correct immediately — no stale menu until a manual refresh).
       window.location.assign('/dashboard');
     } catch {
-      setError('Could not reach the server. Please try again.');
+      toast.error('Could not reach the server. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -192,8 +189,6 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             </Link>
           </div>
         )}
-
-        {(error || oauthError) && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error ?? oauthError}</p>}
 
         <Button type="submit" arrow className="w-full justify-center" disabled={busy || !canSubmit}>
           {busy ? 'Please wait…' : isRegister ? 'Create account' : 'Sign in'}

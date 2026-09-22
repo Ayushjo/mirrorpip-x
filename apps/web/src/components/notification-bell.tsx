@@ -69,9 +69,9 @@ export function NotificationBell() {
         type="button"
         onClick={toggle}
         aria-label="Notifications"
-        className="relative grid h-9 w-9 place-items-center rounded-full border border-border bg-surface text-fg transition hover:bg-surface-2"
+        className="relative grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-fg transition-colors hover:bg-white/10 md:h-9 md:w-9"
       >
-        <Bell className="h-4 w-4" />
+        <Bell className="h-[18px] w-[18px] md:h-4 md:w-4" />
         {unread > 0 && (
           <span className="absolute -right-0.5 -top-0.5 grid h-4 min-w-4 place-items-center rounded-full bg-down px-1 text-[10px] font-semibold text-white">
             {unread > 9 ? '9+' : unread}

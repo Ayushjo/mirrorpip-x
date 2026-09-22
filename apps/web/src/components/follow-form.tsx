@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Button, Card, Field, Input, Select, cx } from './ui';
 
 interface Cred {
@@ -25,14 +26,12 @@ export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { le
   const [maxPositionUsd, setMaxPositionUsd] = useState('');
   const [dailyLossLimitUsd, setDailyLossLimitUsd] = useState('');
   const [copyReverse, setCopyReverse] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const activeSizing = SIZING.find((s) => s.value === sizingMode)!;
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setBusy(true);
     try {
       const res = await fetch('/api/follows', {
@@ -50,7 +49,7 @@ export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { le
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? 'Could not start following.');
+        toast.error(body.error ?? 'Could not start following.');
         return;
       }
       router.push('/dashboard');
@@ -140,8 +139,6 @@ export function FollowForm({ leaderId, leaderName, leaderExchange, creds }: { le
           {dailyLossLimitUsd ? `, auto-paused after $${dailyLossLimitUsd} daily loss` : ''}. Instruments your exchange
           doesn't list are skipped. Past trades are not backfilled.
         </div>
-
-        {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
 
         <Button type="submit" className="w-full" disabled={busy || !credentialId}>
           {busy ? 'Starting…' : `Start following ${leaderName}`}

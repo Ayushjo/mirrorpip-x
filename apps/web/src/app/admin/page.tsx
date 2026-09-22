@@ -3,7 +3,7 @@ import { getSessionUser, isAdmin } from '@/lib/session';
 import { getKillSwitch, listLeadersAdmin } from '@/lib/services/copy';
 import { getAdminOverview } from '@/lib/services/admin';
 import { AdminDashboard } from '@/components/admin-dashboard';
-import { MediaBanner } from '@/components/media-banner';
+import { PageHero } from '@/components/page-hero';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,16 +16,18 @@ export default async function AdminPage() {
 
   return (
     <div className="space-y-6">
-      <MediaBanner src="/media/dashboard-banner.webp" position="right center">
-        <div className="p-8 sm:p-10">
-          <h1 className="text-3xl text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
-            Admin
-          </h1>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Users, activity, leader verification, access and engine control.
-          </p>
-        </div>
-      </MediaBanner>
+      <PageHero
+        image="/media/dashboard-banner.webp"
+        eyebrow="Control room"
+        title="Admin"
+        lede="Users, activity, leader verification, access and engine control."
+        stats={[
+          { v: overview.totals.users.toLocaleString('en-US'), l: 'users' },
+          { v: String(overview.totals.activeFollows), l: 'active follows' },
+          { v: String(overview.totals.pendingLeaders), l: 'pending leaders' },
+          { v: String(overview.activity.copies24h), l: 'copies · 24h' },
+        ]}
+      />
       <AdminDashboard overview={overview} leaders={leaders} kill={kill} />
     </div>
   );

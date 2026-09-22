@@ -9,7 +9,7 @@ export function cx(...parts: Array<string | false | null | undefined>): string {
 }
 
 export function Card({ children, className }: { children: ReactNode; className?: string }) {
-  return <div className={cx('rounded-2xl border border-border bg-surface p-6', className)}>{children}</div>;
+  return <div className={cx('card-surface rounded-2xl p-6', className)}>{children}</div>;
 }
 
 type ButtonVariant = 'primary' | 'ghost' | 'danger' | 'subtle';
@@ -169,10 +169,10 @@ export function Stat({ label, value, tone }: { label: string; value: ReactNode; 
   );
 }
 
-export function EmptyState({ title, body, action }: { title: string; body: string; action?: ReactNode }) {
+export function EmptyState({ title, body, action, className }: { title: string; body: string; action?: ReactNode; className?: string }) {
   return (
     <div
-      className="relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-border px-6 py-16 text-center"
+      className={cx('relative flex flex-col items-center gap-4 overflow-hidden rounded-3xl border border-border px-6 py-16 text-center', className)}
       style={{
         background:
           'radial-gradient(600px 260px at 50% -10%, rgba(0,176,255,0.12), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #050b17 60%, #0a1e3a 100%)',

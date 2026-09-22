@@ -1,24 +1,34 @@
 import { listLeaders } from '@/lib/services/copy';
-import { MediaBanner } from '@/components/media-banner';
 import { Leaderboard } from '@/components/leaderboard';
+import { PageHero } from '@/components/page-hero';
 
 export const dynamic = 'force-dynamic';
+
+const BANNER = '/media/leaderboard-hero.webp';
 
 export default async function LeadersPage() {
   const leaders = await listLeaders();
 
+  const followers = leaders.reduce((n, l) => n + l.stats.followerCount, 0);
+  const topRoi = leaders.reduce((m, l) => Math.max(m, l.stats.roiPct), 0);
+  const trades = leaders.reduce((n, l) => n + l.stats.tradeCount, 0);
+
+  const stats = [
+    { v: String(leaders.length), l: 'verified leaders' },
+    { v: followers.toLocaleString('en-US'), l: 'active followers' },
+    { v: trades.toLocaleString('en-US'), l: 'fills mirrored' },
+    { v: topRoi > 0 ? `+${topRoi.toFixed(1)}%` : '—', l: 'top ROI' },
+  ];
+
   return (
-    <div className="space-y-6">
-      <MediaBanner src="/media/leaderboard-hero.webp" position="right center">
-        <div className="p-8 sm:p-10">
-          <h1 className="max-w-lg text-4xl leading-tight text-fg sm:text-5xl" style={{ letterSpacing: '-0.03em' }}>
-            Leaderboard
-          </h1>
-          <p className="mt-2 max-w-md text-sm text-muted">
-            Verified traders you can mirror — sort by ROI, win rate, followers, or drawdown.
-          </p>
-        </div>
-      </MediaBanner>
+    <div className="space-y-6 sm:space-y-8">
+      <PageHero
+        image={BANNER}
+        eyebrow="Verified traders"
+        title="Leaderboard"
+        lede="Every trader here is verified on Delta Exchange India. Pick one, set your sizing, and mirror their fills in real time."
+        stats={stats}
+      />
 
       <Leaderboard leaders={leaders} />
     </div>

@@ -7,8 +7,8 @@ import {
   getFollowerAnalytics,
   getLeaderAnalytics,
 } from '@/lib/services/copy';
-import { LinkButton } from '@/components/ui';
-import { MediaBanner } from '@/components/media-banner';
+import { LinkButton, fmtUsd } from '@/components/ui';
+import { PageHero } from '@/components/page-hero';
 import { DashboardList } from '@/components/dashboard-list';
 import { OnboardingChecklist } from '@/components/onboarding-checklist';
 import { FollowerAnalytics } from '@/components/follower-analytics';
@@ -34,21 +34,23 @@ export default async function DashboardPage() {
 
   return (
     <div className="space-y-8">
-      <Reveal>
-        <MediaBanner src="/media/dashboard-banner.webp" position="right center">
-          <div className="flex flex-wrap items-center justify-between gap-4 p-8">
-            <div>
-              <h1 className="text-3xl text-fg" style={{ letterSpacing: '-0.03em' }}>
-                {firstName ? `Welcome back, ${firstName}` : 'Dashboard'}
-              </h1>
-              <p className="mt-1.5 text-sm text-muted">Your active copies, live P&amp;L and full trade history.</p>
-            </div>
-            <LinkButton href="/leaders" variant="ghost" arrow>
-              Find leaders
-            </LinkButton>
-          </div>
-        </MediaBanner>
-      </Reveal>
+      <PageHero
+        image="/media/dashboard-banner.webp"
+        eyebrow={firstName ? `Welcome back, ${firstName}` : 'Your account'}
+        title="Dashboard"
+        lede="Your active copies, live P&L and full trade history in one place."
+        action={
+          <LinkButton href="/leaders" variant="ghost" arrow>
+            Find leaders
+          </LinkButton>
+        }
+        stats={[
+          { v: String(follows.filter((f) => f.status === 'ACTIVE').length), l: 'active copies' },
+          { v: String(todayCopies), l: "today's copies" },
+          { v: String(creds.length), l: creds.length === 1 ? 'connected account' : 'connected accounts' },
+          { v: fmtUsd(follows.reduce((n, f) => n + f.realizedPnl, 0)), l: 'realized P&L' },
+        ]}
+      />
 
       <OnboardingChecklist
         hasCredential={hasCredential}

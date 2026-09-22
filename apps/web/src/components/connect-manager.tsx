@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { Badge, Button, Card, EmptyState, Field, Input, Select, cx, fmtUsd } from './ui';
 import { ShieldIcon, LinkIcon, CheckIcon, UsersIcon } from './icons';
 
@@ -35,8 +36,6 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
   const [exchangeId, setExchangeId] = useState('DELTA_INDIA');
   const selected = exchanges.find((exchange) => exchange.id === exchangeId)!;
   const [tradeCurrency, setTradeCurrency] = useState<'USDT' | 'INR'>('USDT');
-  const [error, setError] = useState<string | null>(null);
-  const [msg, setMsg] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   const [applyId, setApplyId] = useState<string | null>(null);
@@ -48,8 +47,6 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
   }
 
   async function apply(id: string) {
-    setError(null);
-    setMsg(null);
     const res = await fetch('/api/leaders/apply', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -57,10 +54,10 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
     });
     const body = await res.json();
     if (!res.ok) {
-      setError(body.error ?? 'Could not submit application.');
+      toast.error(body.error ?? 'Could not submit application.');
       return;
     }
-    setMsg('Applied to be a leader — an admin will review it shortly.');
+    toast.success('Applied to be a leader — an admin will review it shortly.');
     setApplyId(null);
     setApplyName('');
     await refresh();
@@ -68,8 +65,6 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
 
   async function add(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
-    setMsg(null);
     setBusy(true);
     try {
       const res = await fetch('/api/credentials', {
@@ -79,10 +74,10 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
       });
       const body = await res.json();
       if (!res.ok) {
-        setError(body.error ?? 'Could not connect that account.');
+        toast.error(body.error ?? 'Could not connect that account.');
         return;
       }
-      setMsg('Account connected and verified.');
+      toast.success('Account connected and verified.');
       setApiKey('');
       setApiSecret('');
       setLabel('My account');
@@ -93,10 +88,9 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
   }
 
   async function remove(id: string) {
-    setError(null);
     const res = await fetch(`/api/credentials/${id}`, { method: 'DELETE' });
     if (!res.ok) {
-      setError((await res.json()).error ?? 'Could not remove that account.');
+      toast.error((await res.json()).error ?? 'Could not remove that account.');
       return;
     }
     await refresh();
@@ -104,16 +98,16 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
 
   return (
     <div className="space-y-6">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="no-scrollbar -mx-6 flex snap-x gap-3 overflow-x-auto px-6 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
         {exchanges.map((exchange) => (
-          <button key={exchange.id} type="button" disabled={exchange.availability !== 'ACTIVE'} onClick={() => { setExchangeId(exchange.id); setTradeCurrency(exchange.supportedCurrencies[0] ?? 'USDT'); }} className={cx('rounded-2xl border p-5 text-left transition', exchange.id === exchangeId ? 'border-brand bg-brand-soft/50' : 'border-border bg-surface', exchange.availability !== 'ACTIVE' && 'cursor-not-allowed opacity-45')}>
+          <button key={exchange.id} type="button" disabled={exchange.availability !== 'ACTIVE'} onClick={() => { setExchangeId(exchange.id); setTradeCurrency(exchange.supportedCurrencies[0] ?? 'USDT'); }} className={cx('w-[68vw] shrink-0 snap-start rounded-2xl border p-5 text-left transition sm:w-auto', exchange.id === exchangeId ? 'border-brand bg-brand-soft/50' : 'border-border bg-surface', exchange.availability !== 'ACTIVE' && 'cursor-not-allowed opacity-45')}>
             <div className="font-medium">{exchange.displayName}</div>
             <div className="mt-1 text-xs text-muted">{exchange.message ?? exchange.supportedCurrencies.join(' / ')}</div>
           </button>
         ))}
       </div>
       <div className="grid gap-6 lg:grid-cols-2">
-      <div>
+      <div className="min-w-0">
         <Card>
           <div className="flex items-center gap-3">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-brand-soft text-brand">
@@ -154,12 +148,6 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
                 autoComplete="off"
               />
             </Field>
-            {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
-            {msg && (
-              <p className="flex items-center gap-1.5 rounded-lg bg-brand-soft px-3 py-2 text-sm text-brand">
-                <CheckIcon width={15} height={15} /> {msg}
-              </p>
-            )}
             <Button type="submit" className="w-full" disabled={busy}>
               {busy ? 'Verifying with exchange…' : 'Connect account'}
             </Button>
@@ -167,7 +155,7 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
         </Card>
       </div>
 
-      <div>
+      <div className="min-w-0">
         <Card className="mb-4 border-brand/20 bg-brand-soft/40">
           <div className="flex items-start gap-3">
             <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface text-brand">
@@ -182,23 +170,24 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
             </div>
           </div>
         </Card>
-        <h2 className="mb-3 text-base font-semibold">Connected accounts</h2>
+        <h2 className="mb-3 px-0 text-base font-semibold">Connected accounts</h2>
         {creds.length === 0 ? (
           <EmptyState
+           
             title="No accounts connected"
-            body="Connect your first exchange account on the left. Your keys are encrypted and can never withdraw funds."
+            body="Connect your first exchange account above. Your keys are encrypted and can never withdraw funds."
           />
         ) : (
           <div className="space-y-3">
             {creds.map((c) => (
               <Card key={c.id}>
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="grid h-10 w-10 place-items-center rounded-xl bg-surface-2 text-muted">
+                <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                  <div className="flex min-w-0 items-start gap-3">
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-2 text-muted">
                       <LinkIcon width={18} height={18} />
                     </div>
-                    <div>
-                      <div className="flex items-center gap-2">
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-1.5">
                         <span className="font-medium">{c.label}</span>
                         <Badge tone={c.status === 'ACTIVE' ? 'up' : 'down'}>{c.status}</Badge>
                         {c.leaderStatus === 'PENDING' && <Badge tone="warn">Pending</Badge>}
@@ -213,18 +202,18 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
                       {c.lastError && <div className="mt-1 text-xs text-down">Reconnect required: {c.lastError}</div>}
                     </div>
                   </div>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-2 border-t border-border-soft pt-3 sm:border-0 sm:pt-0">
                     {!c.leaderStatus && c.status === 'ACTIVE' && (
                       <button
                         onClick={() => setApplyId(applyId === c.id ? null : c.id)}
-                        className="rounded-lg px-3 py-1.5 text-xs text-brand hover:bg-brand-soft"
+                        className="flex-1 whitespace-nowrap rounded-full border border-brand/30 px-3 py-1.5 text-xs font-medium text-brand hover:bg-brand/10 sm:flex-none"
                       >
                         Become a leader
                       </button>
                     )}
                     <button
                       onClick={() => remove(c.id)}
-                      className={cx('rounded-lg px-3 py-1.5 text-xs text-down hover:bg-down/12')}
+                      className="flex-1 whitespace-nowrap rounded-full border border-white/10 px-3 py-1.5 text-xs text-muted hover:border-down/40 hover:text-down sm:flex-none"
                     >
                       Remove
                     </button>

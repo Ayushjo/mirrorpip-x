@@ -2,7 +2,7 @@ import { redirect } from 'next/navigation';
 import { getSessionUser } from '@/lib/session';
 import { listCredentials } from '@/lib/services/copy';
 import { ConnectManager } from '@/components/connect-manager';
-import { MediaBanner } from '@/components/media-banner';
+import { PageHero } from '@/components/page-hero';
 import { Reveal } from '@/components/reveal';
 import { exchangeRegistry } from '@belivemeguys/exchange';
 
@@ -15,18 +15,18 @@ export default async function ConnectPage() {
 
   return (
     <div className="space-y-6">
-      <Reveal>
-        <MediaBanner src="/media/connect-hero.webp" position="right center">
-          <div className="p-8 sm:p-10">
-            <h1 className="text-3xl text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
-              Connected accounts
-            </h1>
-            <p className="mt-2 max-w-md text-sm text-muted">
-              Manage the exchange accounts you use to follow leaders. Keys are encrypted; withdrawals are never possible.
-            </p>
-          </div>
-        </MediaBanner>
-      </Reveal>
+      <PageHero
+        image="/media/connect-hero.webp"
+        eyebrow="Exchange keys"
+        title="Connected accounts"
+        lede="Manage the exchange accounts you use to follow leaders. Keys are encrypted at rest; withdrawals are never possible."
+        stats={[
+          { v: String(creds.length), l: creds.length === 1 ? 'account linked' : 'accounts linked' },
+          { v: String(creds.filter((c) => c.status === 'VERIFIED' || c.verifiedAt).length), l: 'verified' },
+          { v: String(creds.filter((c) => Boolean(c.leaderStatus)).length), l: 'leader profiles' },
+          { v: 'AES-256', l: 'key encryption' },
+        ]}
+      />
       <Reveal delay={0.1}>
         <ConnectManager initial={creds} exchanges={exchangeRegistry} />
       </Reveal>

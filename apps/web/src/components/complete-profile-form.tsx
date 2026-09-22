@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { COUNTRIES } from '@/lib/countries';
 import { Button, Field, Input, Select } from '@/components/ui';
 
@@ -26,7 +27,6 @@ export function CompleteProfileForm({
   const [intendedRole, setIntendedRole] = useState(defaultRole);
   const [agreeTos, setAgreeTos] = useState(false);
   const [agreeRisk, setAgreeRisk] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [pinHint, setPinHint] = useState<string | null>(null);
   // Tracks the city we auto-filled so a new PIN can replace it, but we never
@@ -82,7 +82,6 @@ export function CompleteProfileForm({
   async function submit(e: React.FormEvent) {
     e.preventDefault();
     if (!canSubmit) return;
-    setError(null);
     setBusy(true);
     try {
       const res = await fetch('/api/account/consent', {
@@ -99,14 +98,14 @@ export function CompleteProfileForm({
         }),
       });
       if (!res.ok) {
-        setError(((await res.json().catch(() => ({}))) as { error?: string }).error ?? 'Could not save. Please try again.');
+        toast.error(((await res.json().catch(() => ({}))) as { error?: string }).error ?? 'Could not save. Please try again.');
         return;
       }
       // Full navigation so the dashboard renders fresh with the completed profile
       // (checklist + header correct immediately).
       window.location.assign('/dashboard');
     } catch {
-      setError('Could not reach the server. Please try again.');
+      toast.error('Could not reach the server. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -167,8 +166,6 @@ export function CompleteProfileForm({
           </label>
         </div>
       )}
-
-      {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
 
       <Button type="submit" arrow className="w-full justify-center" disabled={busy || !canSubmit}>
         {busy ? 'Saving…' : 'Continue'}

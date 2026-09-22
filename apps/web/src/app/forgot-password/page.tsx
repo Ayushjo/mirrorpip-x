@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useState } from 'react';
+import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
 import { Button, Field, Input } from '@/components/ui';
 
@@ -12,22 +13,20 @@ export default function ForgotPasswordPage() {
   const [email, setEmail] = useState('');
   const [otp, setOtp] = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
 
   async function sendCode(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setBusy(true);
     try {
       const res = await authClient.emailOtp.sendVerificationOtp({ email, type: 'forget-password' });
       if (res.error) {
-        setError(res.error.message ?? 'Could not send the code. Please try again.');
+        toast.error(res.error.message ?? 'Could not send the code. Please try again.');
         return;
       }
       setStep('reset');
     } catch {
-      setError('Could not send the code. Please try again.');
+      toast.error('Could not send the code. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -35,17 +34,16 @@ export default function ForgotPasswordPage() {
 
   async function reset(e: React.FormEvent) {
     e.preventDefault();
-    setError(null);
     setBusy(true);
     try {
       const res = await authClient.emailOtp.resetPassword({ email, otp, password });
       if (res.error) {
-        setError(res.error.message ?? 'Reset failed — check the code and try again.');
+        toast.error(res.error.message ?? 'Reset failed — check the code and try again.');
         return;
       }
       router.push('/login');
     } catch {
-      setError('Could not reach the server. Please try again.');
+      toast.error('Could not reach the server. Please try again.');
     } finally {
       setBusy(false);
     }
@@ -67,7 +65,6 @@ export default function ForgotPasswordPage() {
           <Field label="Email">
             <Input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required placeholder="you@example.com" />
           </Field>
-          {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
           <Button type="submit" arrow className="w-full justify-center" disabled={busy || !email.includes('@')}>
             {busy ? 'Sending…' : 'Send reset code'}
           </Button>
@@ -89,7 +86,6 @@ export default function ForgotPasswordPage() {
           <Field label="New password" hint="At least 8 characters.">
             <Input type="password" minLength={8} value={password} onChange={(e) => setPassword(e.target.value)} required autoComplete="new-password" />
           </Field>
-          {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
           <Button type="submit" arrow className="w-full justify-center" disabled={busy || otp.length !== 6 || password.length < 8}>
             {busy ? 'Resetting…' : 'Reset password'}
           </Button>

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge, Button, Card, EmptyState, LinkButton, cx, fmtUsd } from './ui';
 import { ChartIcon, BoltIcon } from './icons';
 
@@ -62,11 +63,16 @@ export function DashboardList({
   async function setStatus(id: string, status: 'ACTIVE' | 'PAUSED' | 'STOPPED') {
     setBusyId(id);
     try {
-      await fetch(`/api/follows/${id}`, {
+      const res = await fetch(`/api/follows/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ status }),
       });
+      if (!res.ok) {
+        toast.error('Could not update that copy. Please try again.');
+      } else {
+        toast.success(status === 'ACTIVE' ? 'Copying resumed.' : status === 'PAUSED' ? 'Copying paused.' : 'Copy stopped.');
+      }
       await refresh();
     } finally {
       setBusyId(null);

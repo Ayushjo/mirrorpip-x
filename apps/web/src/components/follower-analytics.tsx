@@ -62,7 +62,7 @@ function StatCard({
 }) {
   return (
     <Reveal delay={delay}>
-      <div className="group rounded-2xl border border-border bg-surface p-5 transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
+      <div className="card-surface card-surface-hover group rounded-2xl p-5">
         <div className="mb-2 text-brand transition-transform duration-300 group-hover:scale-110">
           <Icon width={18} height={18} />
         </div>

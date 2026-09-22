@@ -72,12 +72,12 @@ export function OnboardingChecklist({
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="flex items-center justify-between border-b border-border px-6 py-4">
-        <div>
-          <div className="text-base font-medium text-fg">Finish setting up</div>
-          <p className="mt-0.5 text-sm text-muted">A couple of steps and you&rsquo;ll be copying live.</p>
+      <div className="flex items-center justify-between gap-4 border-b border-border px-6 py-5">
+        <div className="min-w-0">
+          <div className="text-base font-semibold text-fg">Finish setting up</div>
+          <p className="mt-1 text-sm text-muted">A couple of steps and you&rsquo;ll be copying live.</p>
         </div>
-        <span className="text-xs font-medium text-muted tabular-nums">
+        <span className="shrink-0 whitespace-nowrap text-xs font-medium tabular-nums text-muted">
           {doneCount}/{steps.length} done
         </span>
       </div>
@@ -85,33 +85,33 @@ export function OnboardingChecklist({
         {steps.map((s, i) => {
           const isActive = s.key === activeKey;
           return (
-            <li key={s.key} className="flex flex-col gap-3 px-6 py-4 sm:flex-row sm:items-center sm:gap-4">
-              <div className="flex flex-1 items-start gap-4 sm:contents">
+            <li key={s.key} className="flex flex-col gap-4 px-6 py-5 sm:flex-row sm:items-center sm:gap-6">
+              <div className="flex flex-1 items-start gap-4">
                 <span
                   className={cx(
                     'grid h-9 w-9 shrink-0 place-items-center rounded-full border text-sm font-medium',
                     s.done
                       ? 'border-transparent bg-up/15 text-up'
                       : isActive
-                        ? 'border-transparent bg-brand text-white'
+                        ? 'border-transparent bg-brand text-[#050b17]'
                         : 'border-border bg-surface text-muted',
                   )}
                 >
                   {s.done ? <CheckIcon width={16} height={16} /> : i + 1}
                 </span>
-                <div className="min-w-0 flex-1">
-                  <div className={cx('flex items-center gap-2 text-sm font-medium', s.done ? 'text-muted line-through' : 'text-fg')}>
+                <div className="min-w-0 flex-1 pt-1.5">
+                  <div className={cx('flex items-center gap-2 text-sm font-medium leading-tight', s.done ? 'text-muted line-through' : 'text-fg')}>
                     <s.Icon width={15} height={15} className={s.done ? 'text-up' : 'text-muted'} />
                     {s.title}
                   </div>
-                  <p className="mt-0.5 text-xs text-muted">{s.body}</p>
+                  <p className="mt-1.5 text-xs leading-relaxed text-muted">{s.body}</p>
                 </div>
               </div>
               {!s.done && (
                 <LinkButton
                   href={s.href}
                   variant={isActive ? 'primary' : 'subtle'}
-                  className="w-full shrink-0 justify-center sm:w-auto"
+                  className="w-full shrink-0 justify-center py-2.5 sm:w-auto sm:py-2"
                 >
                   {s.cta}
                 </LinkButton>

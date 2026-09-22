@@ -10,6 +10,7 @@ import { UsageTracker } from '@/components/usage-tracker';
 import { NotificationBell } from '@/components/notification-bell';
 import { OnboardingGate } from '@/components/consent-gate';
 import { SmoothScroll } from '@/components/smooth-scroll';
+import { Toaster } from '@/components/toaster';
 
 export const metadata: Metadata = {
   title: 'BelieveMeGuys — Copy the best crypto traders',
@@ -46,11 +47,14 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="flex min-h-screen flex-col">
         <SmoothScroll />
+        <Toaster />
         <header className="sticky top-0 z-40 border-b border-border bg-[rgba(5,11,23,0.7)] backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
             <Link href="/" className="flex shrink-0 items-center gap-2">
               <BrandMark className="h-7 w-7" />
-              <span className="text-lg font-medium tracking-tight text-fg sm:text-xl">BelieveMeGuys</span>
+              <span className="text-lg font-semibold tracking-tight text-fg sm:text-xl">
+                BelieveMe<span className="text-brand">Guys</span>
+              </span>
             </Link>
 
             <nav className="hidden items-center gap-8 text-base font-medium text-muted md:flex">
@@ -67,8 +71,10 @@ export default async function RootLayout({ children }: { children: React.ReactNo
 
             <div className="flex items-center gap-2">
               {user && <NotificationBell />}
-              <MobileNav links={navLinks} authed={!!user} />
-              <UserMenu user={user ? { name: user.name, email: user.email } : null} />
+              <MobileNav links={navLinks} user={user ? { name: user.name, email: user.email } : null} />
+              <div className="hidden md:block">
+                <UserMenu user={user ? { name: user.name, email: user.email } : null} />
+              </div>
             </div>
           </div>
         </header>

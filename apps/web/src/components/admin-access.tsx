@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 import { Badge, Button, Card, Input } from './ui';
 
 interface Grant {
@@ -27,7 +28,6 @@ export function AdminAccess() {
   const [email, setEmail] = useState('');
   const [note, setNote] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState<string | null>(null);
 
   const load = async () => {
     const res = await fetch('/api/admin/grants');
@@ -38,7 +38,6 @@ export function AdminAccess() {
   async function create(e: React.FormEvent) {
     e.preventDefault();
     setBusy(true);
-    setError(null);
     try {
       const res = await fetch('/api/admin/grants', {
         method: 'POST',
@@ -47,7 +46,7 @@ export function AdminAccess() {
       });
       if (!res.ok) {
         const j = (await res.json().catch(() => ({}))) as { error?: string };
-        setError(j.error ?? `Could not create grant (${res.status}).`);
+        toast.error(j.error ?? `Could not create grant (${res.status}).`);
         return;
       }
       setEmail('');
@@ -80,7 +79,6 @@ export function AdminAccess() {
           <Input value={note} onChange={(e) => setNote(e.target.value)} placeholder="Note (optional)" className="max-w-xs" />
           <Button type="submit" disabled={busy}>Grant access</Button>
         </form>
-        {error && <p className="mt-3 rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
       </Card>
 
       <Card className="overflow-x-auto p-0">

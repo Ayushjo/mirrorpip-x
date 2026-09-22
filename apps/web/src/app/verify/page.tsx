@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
 import { Suspense, useCallback, useEffect, useRef, useState } from 'react';
+import { toast } from 'sonner';
 import { authClient } from '@/lib/auth-client';
 import { Button, Field, Input } from '@/components/ui';
 import { AuthShell } from '@/components/auth-shell';
@@ -16,8 +17,6 @@ function VerifyForm() {
   const params = useSearchParams();
   const email = params.get('email') ?? '';
   const [otp, setOtp] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const [info, setInfo] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [cooldown, setCooldown] = useState(0);
   // Refs (not state) so `verify` stays referentially stable — otherwise it would
@@ -31,7 +30,6 @@ function VerifyForm() {
       if (busyRef.current) return;
       busyRef.current = true;
       setBusy(true);
-      setError(null);
       try {
         let otpToUse = code;
         if (DEMO_OTP_BYPASS) {
@@ -49,7 +47,7 @@ function VerifyForm() {
         if (res.error) {
           // Leave submittedFor set to this code so the auto-submit effect won't
           // immediately retry it; the user edits the code to try again.
-          setError(res.error.message ?? 'That code did not work. Check it and try again.');
+          toast.error(res.error.message ?? 'That code did not work. Check it and try again.');
           return;
         }
         // New signups always need the profile step next — go straight there with a
@@ -57,7 +55,7 @@ function VerifyForm() {
         // no stale account menu).
         window.location.assign('/complete-profile');
       } catch {
-        setError('Could not reach the server. Please try again.');
+        toast.error('Could not reach the server. Please try again.');
       } finally {
         busyRef.current = false;
         setBusy(false);
@@ -88,20 +86,18 @@ function VerifyForm() {
 
   async function resend() {
     if (cooldown > 0) return;
-    setError(null);
-    setInfo(null);
     setCooldown(RESEND_COOLDOWN_SEC);
     try {
       const res = await authClient.emailOtp.sendVerificationOtp({ email, type: 'email-verification' });
       if (res.error) {
         setCooldown(0);
-        setError(res.error.message ?? 'Could not resend the code. Try again in a moment.');
+        toast.error(res.error.message ?? 'Could not resend the code. Try again in a moment.');
         return;
       }
-      setInfo('A new code is on its way.');
+      toast.success('A new code is on its way.');
     } catch {
       setCooldown(0);
-      setError('Could not resend the code. Try again in a moment.');
+      toast.error('Could not resend the code. Try again in a moment.');
     }
   }
 
@@ -127,8 +123,6 @@ function VerifyForm() {
             className="text-center text-2xl tracking-[0.5em]"
           />
         </Field>
-        {error && <p className="rounded-lg bg-down/12 px-3 py-2 text-sm text-down">{error}</p>}
-        {info && <p className="rounded-lg bg-up/15 px-3 py-2 text-sm text-up">{info}</p>}
         <Button type="submit" arrow className="w-full justify-center" disabled={busy || otp.length !== 6}>
           {busy ? 'Verifying…' : 'Verify and continue'}
         </Button>
