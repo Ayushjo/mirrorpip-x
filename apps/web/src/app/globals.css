@@ -161,3 +161,26 @@ h4 {
 }
 .pulse-ring { animation: pulse-ring 1.4s cubic-bezier(0.22, 1, 0.36, 1) infinite; }
 
+
+/* ── Landing (Olymptrade-inspired) motion ─────────────────────────────── */
+@keyframes light-breathe {
+  0% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  40% { opacity: 1; transform: translate(-50%, -50%) scale(0.75); }
+  60% { opacity: 0.7; transform: translate(-50%, -50%) scale(1); }
+  100% { opacity: 1; transform: translate(-50%, -50%) scale(0.75); }
+}
+.light-breathe { animation: light-breathe 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s infinite alternate both; }
+@keyframes chevron-pulse { 0%, 100% { opacity: 0.35; transform: translateX(0); } 50% { opacity: 1; transform: translateX(2px); } }
+.chevron-pulse { animation: chevron-pulse 1.2s ease-in-out infinite; }
+/* Olymp card: no border, big radius, near-ground tint */
+.ocard { background: #0b1a33; border-radius: 2rem; }
+@media (min-width: 640px) { .ocard { border-radius: 3rem; } }
+.ocard-hover { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.ocard-hover:hover { transform: translateY(-4px); }
+/* metallic number */
+.metal { background: linear-gradient(180deg, #ffffff 0%, #c9d6ea 40%, #7f93b5 70%, #dbe6f7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* 3D fanned cards */
+.fan { perspective: 1400px; }
+.fan-card { transform: rotateY(38deg); transform-style: preserve-3d; transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
+.fan-card:hover { transform: rotateY(0deg) translateZ(20px); }
+@media (prefers-reduced-motion: reduce) { .light-breathe, .chevron-pulse { animation: none; } }

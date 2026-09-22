@@ -5,6 +5,17 @@ import { toast } from 'sonner';
 import { Badge, Button, Card, EmptyState, Field, Input, Select, cx, fmtUsd } from './ui';
 import { ShieldIcon, LinkIcon, CheckIcon, UsersIcon } from './icons';
 
+// Our servers call the exchange from these fixed egress IPs (Railway static
+// outbound IPs, shared regional pool — same set for web + engine). If a user
+// enables IP whitelisting on their Delta key, they must allow all of them.
+// Overridable via env in case the region/pool ever changes.
+const WHITELIST_IPS = (
+  process.env.NEXT_PUBLIC_DELTA_WHITELIST_IPS ?? '208.77.246.240,208.77.246.241,208.77.246.242'
+)
+  .split(',')
+  .map((s) => s.trim())
+  .filter(Boolean);
+
 interface Credential {
   id: string;
   exchange: string;
@@ -40,6 +51,15 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
 
   const [applyId, setApplyId] = useState<string | null>(null);
   const [applyName, setApplyName] = useState('');
+
+  async function copyText(text: string, msg = 'Copied') {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success(msg);
+    } catch {
+      toast.error('Could not copy — copy it manually.');
+    }
+  }
 
   async function refresh() {
     const res = await fetch('/api/credentials');
@@ -124,6 +144,44 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
               and never show the secret again.
             </span>
           </div>
+
+          {WHITELIST_IPS.length > 0 && (
+            <div className="mt-4 rounded-xl border border-brand/25 bg-brand-soft/40 px-4 py-3.5">
+              <div className="flex items-center gap-2 text-sm font-medium text-fg">
+                <ShieldIcon width={16} height={16} className="text-brand" />
+                Optional: restrict your key by IP
+              </div>
+              <p className="mt-1.5 text-xs leading-relaxed text-muted">
+                On Delta, you can turn on <strong className="font-medium text-fg">IP Whitelisting</strong> for your API
+                key. If you do, add <strong className="font-medium text-fg">all</strong> of these addresses — our servers
+                place your trades from them:
+              </p>
+              <div className="mt-3 space-y-1.5">
+                {WHITELIST_IPS.map((ip) => (
+                  <button
+                    key={ip}
+                    type="button"
+                    onClick={() => copyText(ip, `Copied ${ip}`)}
+                    className="flex w-full items-center justify-between gap-3 rounded-lg border border-border bg-surface px-3 py-2 text-left font-mono text-sm text-fg transition-colors hover:border-brand/40"
+                  >
+                    <span>{ip}</span>
+                    <span className="font-sans text-xs text-muted">Copy</span>
+                  </button>
+                ))}
+              </div>
+              <div className="mt-2.5 flex items-center justify-between">
+                <button
+                  type="button"
+                  onClick={() => copyText(WHITELIST_IPS.join(', '), 'Copied all IPs')}
+                  className="text-xs font-medium text-accent transition-colors hover:text-brand"
+                >
+                  Copy all
+                </button>
+                <span className="text-xs text-faint">Leaving the allowlist empty also works.</span>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={add} className="mt-5 space-y-4">
             <Field label="Label">
               <Input value={label} onChange={(e) => setLabel(e.target.value)} maxLength={40} required />
