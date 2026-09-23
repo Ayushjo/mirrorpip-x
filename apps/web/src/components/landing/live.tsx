@@ -734,3 +734,70 @@ export function Milestones() {
     </div>
   );
 }
+
+/* ─── Orbiting notifications around the phone ──────────────────────────── */
+type Note = { icon: string; title: string; sub: string; tone?: 'up' | 'brand' | 'warn' };
+const NOTES: Note[] = [
+  { icon: '⚡', title: 'BTCUSD mirrored', sub: 'Leader 1.0 → You 0.25 · 0.6s', tone: 'up' },
+  { icon: '🏅', title: 'Leo Live Delta is #1', sub: '+18.4% all-time ROI', tone: 'brand' },
+  { icon: '👥', title: 'Riya started copying', sub: 'Proportional · $40 daily cap' },
+  { icon: '🛡️', title: 'Daily cap protected you', sub: 'Copying paused until tomorrow', tone: 'warn' },
+  { icon: '✅', title: 'Delta India connected', sub: 'Trade-only key · withdrawals off', tone: 'up' },
+  { icon: '📈', title: 'ETHUSD closed +2.1%', sub: 'Take-profit hit on your copy', tone: 'up' },
+];
+// Arc slots anchored to the container edges (x = inset from that edge, y = % down),
+// so cards always stay inside the section at any width ≥ lg.
+const SLOTS: { side: 'l' | 'r'; x: number; y: number }[] = [
+  { side: 'l', x: 6, y: 22 },
+  { side: 'r', x: 6, y: 22 },
+  { side: 'l', x: 0, y: 50 },
+  { side: 'r', x: 0, y: 50 },
+  { side: 'l', x: 6, y: 78 },
+  { side: 'r', x: 6, y: 78 },
+];
+
+export function OrbitNotes({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [tick, setTick] = useState(0);
+  useTicker(ref, 2400, () => setTick((t) => t + 1));
+  // Three notes visible at a time, rotating through slots.
+  const visible = [0, 1, 2].map((k) => {
+    const idx = (tick + k * 2) % NOTES.length;
+    const slot = SLOTS[(tick * 2 + k * 2 + (k % 2)) % SLOTS.length]!;
+    return { key: `${tick}-${k}`, note: NOTES[idx]!, slot };
+  });
+  return (
+    <div ref={ref} aria-hidden className={cx('pointer-events-none absolute inset-0 hidden lg:block', className)}>
+      <AnimatePresence>
+        {visible.map(({ key, note, slot }) => {
+          return (
+            <motion.div
+              key={key}
+              initial={{ opacity: 0, scale: 0.9, y: 16 }}
+              animate={{ opacity: 1, scale: 1, y: [0, -6, 0] }}
+              exit={{ opacity: 0, scale: 0.94, y: -14 }}
+              transition={{ opacity: { duration: 0.6 }, scale: { duration: 0.6 }, y: { duration: 4.5, repeat: Infinity, ease: 'easeInOut' } }}
+              className="absolute w-56 xl:w-64"
+              style={{ [slot.side === 'l' ? 'left' : 'right']: `${slot.x}%`, top: `${slot.y}%`, translate: '0 -50%' }}
+            >
+              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1a33]/90 px-4 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.55)] backdrop-blur">
+                <span
+                  className={cx(
+                    'grid h-9 w-9 shrink-0 place-items-center rounded-xl text-base',
+                    note.tone === 'up' ? 'bg-up/15' : note.tone === 'warn' ? 'bg-warn/15' : note.tone === 'brand' ? 'bg-brand/15' : 'bg-white/[0.06]',
+                  )}
+                >
+                  {note.icon}
+                </span>
+                <div className="min-w-0">
+                  <div className="truncate text-[13px] font-semibold text-fg">{note.title}</div>
+                  <div className="truncate text-[11px] text-muted">{note.sub}</div>
+                </div>
+              </div>
+            </motion.div>
+          );
+        })}
+      </AnimatePresence>
+    </div>
+  );
+}

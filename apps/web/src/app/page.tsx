@@ -4,7 +4,7 @@ import { listLeaders } from '@/lib/services/copy';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2, Words, PointerLight, ScrollFade, CountIn } from '@/components/landing/motion';
 import { Tilt } from '@/components/landing/magnetic';
-import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta, Testimonials, Milestones } from '@/components/landing/live';
+import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta, Testimonials, Milestones, OrbitNotes } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
 const CHIPS_BASE = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '⚡ <1s mirroring', '🇮🇳 Delta India'];
@@ -123,6 +123,7 @@ export default async function LandingPage() {
         </Rise>
         <Rise delay={0.1} className="relative mt-12">
           <Light className="!top-[55%] opacity-70" />
+          <OrbitNotes />
           <LivePhone />
           <div className="relative -mt-10 mx-auto flex w-fit max-w-[92vw] items-center gap-4 rounded-[1.75rem] bg-gradient-to-r from-brand to-accent p-3 pr-6 text-left text-[#050b17] shadow-[0_20px_60px_rgba(0,176,255,0.35)] sm:-mt-12">
             <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#050b17]/10 text-2xl">📈</div>
