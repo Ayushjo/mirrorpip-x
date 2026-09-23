@@ -180,6 +180,7 @@ function serializeLeaderCard(l: {
   exchange: string;
   stats: Array<{ roiPct: unknown; winRatePct: unknown; maxDrawdownPct: unknown; totalCopiedUsd: unknown; tradeCount: number; followerCount: number }>;
   equityPoints?: Array<{ equityUsd: unknown }>;
+  createdAt?: Date;
 }) {
   const s = l.stats[0];
   const equitySeries = (l.equityPoints ?? [])
@@ -192,6 +193,7 @@ function serializeLeaderCard(l: {
     avatarUrl: l.avatarUrl,
     status: l.status,
     exchange: l.exchange,
+    createdAt: l.createdAt ? l.createdAt.toISOString() : null,
     stats: {
       roiPct: dec(s?.roiPct) ?? 0,
       winRatePct: dec(s?.winRatePct) ?? 0,

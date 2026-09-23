@@ -1,8 +1,8 @@
 import type { ReactNode } from 'react';
 import { cx } from './ui';
-import { Light } from './landing/motion';
+import { Light, Words } from './landing/motion';
 
-export type HeroStat = { v: string; l: string };
+export type HeroStat = { v: ReactNode; l: string };
 
 /**
  * Page-top hero in the landing's voice: centered, big, tight headline over a
@@ -56,7 +56,7 @@ export function PageHero({
           className={cx('mx-auto text-fg', compact ? 'text-[2.2rem] sm:text-[2.75rem]' : 'text-[2.6rem] sm:text-[3.25rem] lg:text-[3.75rem]')}
           style={{ letterSpacing: '-0.035em', lineHeight: 1.02, fontWeight: 600 }}
         >
-          {title}
+          {typeof title === 'string' ? <Words text={title} stagger={0.05} /> : title}
         </h1>
         {lede && <div className="mx-auto mt-4 max-w-2xl text-[15px] leading-relaxed text-muted sm:text-base">{lede}</div>}
         {action && <div className="mt-7 flex justify-center">{action}</div>}

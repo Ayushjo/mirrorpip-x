@@ -1,5 +1,7 @@
 import { listLeaders } from '@/lib/services/copy';
-import { Leaderboard } from '@/components/leaderboard';
+import { Leaderboard, TickingStat } from '@/components/leaderboard';
+import { CountIn } from '@/components/landing/motion';
+import { Suspense } from 'react';
 import { PageHero } from '@/components/page-hero';
 
 export const dynamic = 'force-dynamic';
@@ -12,9 +14,9 @@ export default async function LeadersPage() {
   const trades = leaders.reduce((n, l) => n + l.stats.tradeCount, 0);
 
   const stats = [
-    { v: String(leaders.length), l: 'verified leaders' },
-    { v: followers.toLocaleString('en-US'), l: 'active followers' },
-    { v: trades.toLocaleString('en-US'), l: 'fills mirrored' },
+    { v: <CountIn to={leaders.length} from={0} />, l: 'verified leaders' },
+    { v: <CountIn to={followers} from={0} />, l: 'active followers' },
+    { v: <TickingStat value={trades} />, l: 'fills mirrored' },
     { v: topRoi > 0 ? `+${topRoi.toFixed(1)}%` : '—', l: 'top ROI' },
   ];
 
@@ -27,7 +29,9 @@ export default async function LeadersPage() {
         stats={stats}
       />
 
-      <Leaderboard leaders={leaders} />
+      <Suspense>
+        <Leaderboard leaders={leaders} />
+      </Suspense>
     </div>
   );
 }
