@@ -1,7 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Badge, Card, cx, fmtNum, fmtPct, fmtUsd } from './ui';
+import { Badge, Card, EmptyBlock, cx, fmtNum, fmtPct, fmtUsd } from './ui';
+import { Inbox } from 'lucide-react';
 import { UsersIcon, ChartIcon, BoltIcon, ArrowRightIcon } from './icons';
 import { AreaChart } from './charts';
 import { CountUp } from './count-up';
@@ -121,7 +122,7 @@ export function LeaderDashboard({ leaders }: { leaders: LeaderData[] }) {
               <div className="mt-6">
                 <div className="mb-3 text-sm font-semibold">Recent fills</div>
                 {l.recentFills.length === 0 ? (
-                  <p className="py-6 text-center text-sm text-muted">No fills captured yet.</p>
+                  <EmptyBlock icon={<Inbox className="h-5 w-5" />} title="No fills captured yet" body="Your fills show here the moment you trade on Delta. Followers mirror them automatically." />
                 ) : (
                   <div className="-mx-2 overflow-x-auto">
                     <table className="w-full min-w-[520px] text-sm">

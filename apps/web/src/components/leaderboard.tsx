@@ -9,6 +9,7 @@ import { EmptyBlock, EmptyState, LinkButton, cx, fmtPct, fmtUsd } from './ui';
 import { UsersIcon } from './icons';
 import { Tilt } from './landing/magnetic';
 import { CountIn } from './landing/motion';
+import { DrawSparkline } from './charts';
 
 export type LeaderCard = {
   id: string;
@@ -59,32 +60,6 @@ function sparkPoints(series: number[]): number[] {
 }
 
 const isNew = (l: LeaderCard) => !!l.createdAt && Date.now() - new Date(l.createdAt).getTime() < 7 * 86400e3;
-
-/* ─── Sparkline that draws in on enter ─────────────────────────────────── */
-function DrawSparkline({ points, stroke, className, height = 56 }: { points: number[]; stroke: string; className?: string; height?: number }) {
-  const ref = useRef<SVGSVGElement>(null);
-  const inView = useInView(ref, { once: true, amount: 0.5 });
-  const reduce = useReducedMotion();
-  const W = 360;
-  const max = Math.max(...points);
-  const min = Math.min(...points);
-  const range = max - min || 1;
-  const step = W / (points.length - 1);
-  const d = points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i * step).toFixed(1)} ${(height - ((v - min) / range) * height).toFixed(1)}`).join(' ');
-  const id = `dsp-${stroke.replace('#', '')}-${points.length}-${Math.round(points[0]! * 100)}`;
-  return (
-    <svg ref={ref} viewBox={`0 0 ${W} ${height}`} className={className} fill="none" preserveAspectRatio="none">
-      <defs>
-        <linearGradient id={id} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={stroke} stopOpacity="0.3" />
-          <stop offset="100%" stopColor={stroke} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      <motion.path d={`${d} L ${W} ${height} L 0 ${height} Z`} fill={`url(#${id})`} initial={{ opacity: 0 }} animate={inView ? { opacity: 1 } : {}} transition={{ duration: reduce ? 0 : 0.8, delay: 0.5 }} />
-      <motion.path d={d} stroke={stroke} strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" initial={{ pathLength: 0 }} animate={inView ? { pathLength: 1 } : {}} transition={{ duration: reduce ? 0 : 1.1, ease: 'easeOut' }} />
-    </svg>
-  );
-}
 
 /* ─── Hero stat that slowly ticks (live feel) ──────────────────────────── */
 export function TickingStat({ value, every = 6000 }: { value: number; every?: number }) {
