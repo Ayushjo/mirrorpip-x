@@ -2,7 +2,7 @@ import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2, Words, PointerLight, ScrollFade, CountIn } from '@/components/landing/motion';
-import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo } from '@/components/landing/live';
+import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
 const CHIPS = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '🏅 Verified leaders', '⚡ <1s mirroring', '🇮🇳 Delta India'];
@@ -67,12 +67,14 @@ export default async function LandingPage() {
             <TextLink href="/leaders">See the leaderboard</TextLink>
           </Rise>
           <Rise delay={0.16} className="mt-10 w-full">
-            <div className="no-scrollbar -mx-6 flex gap-2 overflow-x-auto px-6 sm:mx-0 sm:flex-wrap sm:justify-center sm:px-0">
-              {CHIPS.map((c) => (
-                <span key={c} className="shrink-0 rounded-xl bg-white/[0.06] px-3.5 py-2 text-[13px] font-medium text-fg backdrop-blur">
-                  {c}
-                </span>
-              ))}
+            <div className="-mx-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)] sm:mx-0 sm:[mask-image:none]">
+              <div className="marquee-track gap-2 sm:!animate-none sm:!w-auto sm:flex-wrap sm:justify-center">
+                {[...CHIPS, ...CHIPS].map((c, i) => (
+                  <span key={i} className={`shrink-0 rounded-xl bg-white/[0.06] px-3.5 py-2 text-[13px] font-medium text-fg backdrop-blur ${i >= CHIPS.length ? 'sm:hidden' : ''}`}>
+                    {c}
+                  </span>
+                ))}
+              </div>
             </div>
           </Rise>
         </div>
@@ -124,12 +126,19 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 4. Statement ─────────────────────────────────────────────── */}
-      <section className="mx-auto max-w-5xl px-6 py-32 text-center sm:py-44">
+      <section className="mx-auto max-w-5xl px-6 pb-16 pt-32 text-center sm:pb-20 sm:pt-44">
         <Rise>
           <p className="text-[2.6rem] leading-[1.02] text-fg sm:text-[4rem] lg:text-[5.25rem]" style={{ letterSpacing: '-0.04em', fontWeight: 600 }}>
             Discover the perfect blend of <span className="text-brand">custody</span>, <span className="text-brand">speed</span> and{' '}
             <span className="text-brand">control</span>
           </p>
+        </Rise>
+      </section>
+
+      {/* ── 4b. Fills marquee ────────────────────────────────────────── */}
+      <section className="mx-auto max-w-6xl px-6 pb-24 sm:pb-32">
+        <Rise>
+          <FillsMarquee />
         </Rise>
       </section>
 
@@ -418,6 +427,8 @@ export default async function LandingPage() {
           </Rise>
         </div>
       </section>
+
+      <StickyCta href={primaryHref} label={user ? 'Browse leaders' : 'Start copying'} />
 
       {/* ── 13. CTA band ──────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 pt-5">

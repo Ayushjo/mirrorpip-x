@@ -1,6 +1,8 @@
 'use client';
 
-import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
+import { AnimatePresence, motion, useInView, useReducedMotion, useScroll, useMotionValueEvent } from 'framer-motion';
+import Link from 'next/link';
+import { ArrowRight } from 'lucide-react';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { cx } from '../ui';
 
@@ -581,5 +583,66 @@ export function RiskDemo({ className }: { className?: string }) {
         </span>
       </div>
     </div>
+  );
+}
+
+/* ─── Fills marquee ────────────────────────────────────────────────────── */
+const NAMES = ['Fay', 'Arjun', 'Riya', 'Kabir', 'Sana', 'Dev', 'Meera', 'Ishaan'];
+const MARQUEE_SEED = Array.from({ length: 10 }, (_, i) => ({
+  id: i,
+  sym: SYMBOLS[i % SYMBOLS.length]!,
+  side: i % 3 === 0 ? 'Sell' : 'Buy',
+  ms: 420 + (i * 137) % 500,
+  who: NAMES[i % NAMES.length]!,
+}));
+
+export function FillsMarquee({ className }: { className?: string }) {
+  const items = [...MARQUEE_SEED, ...MARQUEE_SEED];
+  return (
+    <div aria-hidden className={cx('group relative overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]', className)}>
+      <div className="marquee-track slow gap-3 group-hover:[animation-play-state:paused]">
+        {items.map((f, i) => (
+          <span key={i} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/[0.05] px-4 py-2 text-[13px] text-muted">
+            <span className={cx('h-1.5 w-1.5 rounded-full', f.side === 'Buy' ? 'bg-up' : 'bg-down')} />
+            <span className="font-medium text-fg">{f.sym}</span> · {f.side} · mirrored in {(f.ms / 1000).toFixed(1)}s
+            <span className="text-faint">→ {f.who}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Sticky CTA after the hero ────────────────────────────────────────── */
+export function StickyCta({ href, label }: { href: string; label: string }) {
+  const { scrollY } = useScroll();
+  const [show, setShow] = useState(false);
+  useMotionValueEvent(scrollY, 'change', (y) => {
+    const nearEnd = y + window.innerHeight > document.body.scrollHeight - 900;
+    setShow(y > 700 && !nearEnd);
+  });
+  return (
+    <AnimatePresence>
+      {show && (
+        <motion.div
+          initial={{ y: 40, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          exit={{ y: 40, opacity: 0 }}
+          transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4 sm:inset-x-auto sm:right-6 sm:justify-end"
+          style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}
+        >
+          <Link
+            href={href}
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand to-accent py-2.5 pl-5 pr-2 text-sm font-semibold text-[#050b17] shadow-[0_18px_50px_rgba(0,176,255,0.45)]"
+          >
+            {label}
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-[#050b17]">
+              <ArrowRight className="h-4 w-4 text-white" />
+            </span>
+          </Link>
+        </motion.div>
+      )}
+    </AnimatePresence>
   );
 }
