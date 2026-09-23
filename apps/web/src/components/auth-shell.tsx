@@ -1,6 +1,7 @@
 import type { ReactNode } from 'react';
 import Link from 'next/link';
 import { BrandMark } from './icons';
+import { AuthShowcase } from './landing/auth-showcase';
 
 // Full-bleed auth split (Neon-style): the coin hero fills one entire half of the
 // viewport edge-to-edge; the form sits on the other half. Fixed over everything
@@ -9,7 +10,6 @@ import { BrandMark } from './icons';
 // own art while sharing the layout.
 export function AuthShell({
   children,
-  image = '/media/auth-hero.webp',
   title = (
     <>
       Your capital,
@@ -20,33 +20,17 @@ export function AuthShell({
   subtitle = 'Copy verified leaders, keep custody of your funds, and pause anytime.',
 }: {
   children: ReactNode;
-  image?: string;
   title?: ReactNode;
   subtitle?: string;
 }) {
   return (
     <div className="fixed inset-0 z-50 grid grid-cols-1 bg-bg lg:grid-cols-2">
-      {/* Image half — full bleed, full height */}
+      {/* Showcase half — live phone + orbiting notes (lg+) */}
       <div
         className="relative hidden overflow-hidden lg:block"
-        style={{
-          background:
-            'radial-gradient(1000px 700px at 70% 20%, rgba(0,176,255,0.20), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #08203f 55%, #050b17 100%)',
-        }}
+        style={{ background: 'radial-gradient(1000px 700px at 70% 20%, rgba(0,176,255,0.14), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #08203f 55%, #050b17 100%)' }}
       >
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={image} alt="" className="absolute inset-0 h-full w-full object-cover" />
-        {/* bottom scrim so the caption stays readable over any hero art */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-2/3"
-          style={{ background: 'linear-gradient(to top, rgba(5,11,23,0.95) 0%, rgba(5,11,23,0.6) 40%, transparent 100%)' }}
-        />
-        <div className="absolute bottom-0 left-0 z-10 p-12">
-          <div className="text-4xl font-medium leading-tight text-fg" style={{ letterSpacing: '-0.035em' }}>
-            {title}
-          </div>
-          <p className="mt-3 max-w-sm text-base text-muted">{subtitle}</p>
-        </div>
+        <AuthShowcase title={title} subtitle={subtitle} />
       </div>
 
       {/* Form half — a scroll container with the form vertically centered via
