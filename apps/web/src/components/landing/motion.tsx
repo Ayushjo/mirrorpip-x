@@ -1,6 +1,6 @@
 'use client';
 
-import { motion, useInView, useReducedMotion } from 'framer-motion';
+import { motion, useInView, useReducedMotion, useMotionValue, useSpring, useScroll, useTransform } from 'framer-motion';
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import Link from 'next/link';
 import { ChevronRight } from 'lucide-react';
@@ -105,5 +105,121 @@ export function H2({ children, sub, className }: { children: ReactNode; sub?: Re
       </h2>
       {sub && <p className="mx-auto mt-4 max-w-2xl text-[15px] text-muted sm:text-base">{sub}</p>}
     </div>
+  );
+}
+
+/* ─── Word-by-word reveal ──────────────────────────────────────────────── */
+export function Words({
+  text,
+  className,
+  stagger = 0.04,
+  delay = 0,
+  as: Tag = 'span',
+}: {
+  text: string;
+  className?: string;
+  stagger?: number;
+  delay?: number;
+  as?: 'span' | 'h1' | 'h2';
+}) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.4 });
+  const lines = text.split('\n');
+  const MTag = (motion as unknown as Record<string, typeof motion.span>)[Tag] ?? motion.span;
+  return (
+    <MTag
+      ref={ref as never}
+      className={className}
+      style={{ letterSpacing: '-0.035em' }}
+      initial="hidden"
+      animate={inView ? 'show' : 'hidden'}
+      variants={{ show: { transition: { staggerChildren: reduce ? 0 : stagger, delayChildren: reduce ? 0 : delay } } }}
+    >
+      {lines.map((line, li) => (
+        <span key={li} className="block">
+          {line.split(' ').map((w, wi) => (
+            <motion.span
+              key={wi}
+              className="inline-block will-change-transform"
+              variants={{
+                hidden: { opacity: 0, y: '0.6em', filter: 'blur(8px)' },
+                show: { opacity: 1, y: 0, filter: 'blur(0px)', transition: { duration: reduce ? 0 : 0.6, ease: EASE_OUT } },
+              }}
+            >
+              {w}
+              {wi < line.split(' ').length - 1 ? '\u00A0' : ''}
+            </motion.span>
+          ))}
+        </span>
+      ))}
+    </MTag>
+  );
+}
+
+/* ─── Pointer-reactive light (desktop only) ────────────────────────────── */
+export function PointerLight({ className, color }: { className?: string; color?: string }) {
+  const reduce = useReducedMotion();
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+  const sx = useSpring(x, { stiffness: 60, damping: 20 });
+  const sy = useSpring(y, { stiffness: 60, damping: 20 });
+  useEffect(() => {
+    if (reduce || typeof window === 'undefined' || !window.matchMedia('(hover: hover) and (pointer: fine)').matches) return;
+    const onMove = (e: PointerEvent) => {
+      x.set(((e.clientX / window.innerWidth) - 0.5) * 40);
+      y.set(((e.clientY / window.innerHeight) - 0.5) * 24);
+    };
+    window.addEventListener('pointermove', onMove, { passive: true });
+    return () => window.removeEventListener('pointermove', onMove);
+  }, [reduce, x, y]);
+  return (
+    <motion.div style={{ x: sx, y: sy }} className="pointer-events-none absolute inset-0 -z-10">
+      <Light className={className} color={color} />
+    </motion.div>
+  );
+}
+
+/* ─── Scroll-linked fade/scale for the hero object ─────────────────────── */
+export function ScrollFade({ children, className }: { children: ReactNode; className?: string }) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLDivElement>(null);
+  const { scrollY } = useScroll();
+  const opacity = useTransform(scrollY, [0, 420], [1, 0]);
+  const scale = useTransform(scrollY, [0, 420], [1, 0.82]);
+  const y = useTransform(scrollY, [0, 420], [0, 60]);
+  return (
+    <motion.div ref={ref} className={className} style={reduce ? undefined : { opacity, scale, y }}>
+      {children}
+    </motion.div>
+  );
+}
+
+/* ─── Count-up digit on enter ──────────────────────────────────────────── */
+export function CountIn({ to, from, className, suffix = '', duration = 1.1 }: { to: number; from?: number; className?: string; suffix?: string; duration?: number }) {
+  const reduce = useReducedMotion();
+  const ref = useRef<HTMLSpanElement>(null);
+  const inView = useInView(ref, { once: true, amount: 0.5 });
+  const [v, setV] = useState(from ?? (to > 20 ? 0 : 9));
+  useEffect(() => {
+    if (!inView) return;
+    if (reduce) { setV(to); return; }
+    const start = from ?? (to > 20 ? 0 : 9);
+    const t0 = performance.now();
+    let raf = 0;
+    const tick = (t: number) => {
+      const p = Math.min(1, (t - t0) / (duration * 1000));
+      const e = 1 - Math.pow(1 - p, 3);
+      setV(Math.round(start + (to - start) * e));
+      if (p < 1) raf = requestAnimationFrame(tick);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, [inView, reduce, to, from, duration]);
+  return (
+    <span ref={ref} className={cx('tabular-nums', className)}>
+      {v}
+      {suffix}
+    </span>
   );
 }

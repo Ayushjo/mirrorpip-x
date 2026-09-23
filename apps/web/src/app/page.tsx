@@ -1,7 +1,7 @@
 import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
-import { Rise, Light, TextLink, Bars, H2 } from '@/components/landing/motion';
+import { Rise, Light, TextLink, Bars, H2, Words, PointerLight, ScrollFade, CountIn } from '@/components/landing/motion';
 import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
@@ -40,27 +40,26 @@ export default async function LandingPage() {
   return (
     <div className="-mx-6 -mt-10 overflow-x-clip pb-4 sm:-mt-10">
       {/* ── 1. Hero ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[92svh] overflow-hidden">
+      <section className="relative min-h-[min(92svh,820px)] overflow-hidden">
         <Bars className="opacity-90" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg to-transparent" />
-        <div className="relative mx-auto flex min-h-[92svh] max-w-6xl flex-col items-center justify-end px-6 pb-8 text-center sm:pb-12">
+        <div className="relative mx-auto flex min-h-[min(92svh,820px)] max-w-6xl flex-col items-center justify-end px-6 pb-8 text-center sm:pb-12">
           {/* object */}
-          <div className="relative mb-[-3rem] h-[34vh] w-full max-w-3xl sm:mb-[-6rem] sm:h-[56vh]">
-            <Light className="!top-[62%]" />
+          <ScrollFade className="relative mb-[-3rem] h-[34vh] w-full max-w-3xl sm:mb-[-6rem] sm:h-[56vh]">
+            <PointerLight className="!top-[62%]" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/media/halo-object.webp"
               alt=""
               className="hero-float absolute left-1/2 top-1/2 h-[120%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(ellipse_44%_46%_at_50%_50%,#000_50%,transparent_76%)]"
             />
-          </div>
-          <Rise>
-            <h1 className="relative text-[2.75rem] leading-[1] text-fg sm:text-[3.5rem] lg:text-[4.25rem]" style={{ letterSpacing: '-0.035em', fontWeight: 600 }}>
-              Your capital,
-              <br />
-              on autopilot
-            </h1>
-          </Rise>
+          </ScrollFade>
+          <Words
+            as="h1"
+            text={'Your capital,\non autopilot'}
+            className="relative text-[2.75rem] leading-[1] !font-semibold text-fg sm:text-[3.5rem] lg:text-[4.25rem]"
+            delay={0.15}
+          />
           <Rise delay={0.08} className="mt-7 flex flex-col items-center gap-4">
             <LinkButton href={primaryHref} className="px-7 py-3 text-base">
               {user ? 'Browse leaders' : 'Start copying for $0'}
@@ -85,7 +84,7 @@ export default async function LandingPage() {
           <Light className="!top-[70%]" color="rgba(0,176,255,1)" />
           <Rise>
             <div className="metal text-[9rem] font-semibold leading-none sm:text-[15rem] lg:text-[18rem]" style={{ letterSpacing: '-0.06em' }}>
-              &lt;1s
+              &lt;<CountIn to={1} from={9} duration={1.4} />s
             </div>
           </Rise>
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent" />
@@ -365,7 +364,7 @@ export default async function LandingPage() {
           <Rise>
             <H2>
               Traders copying
-              <br /> from 40+ countries
+              <br /> from <CountIn to={40} suffix="+" />&nbsp;countries
             </H2>
             <div className="mt-8 flex items-center justify-center">
               {['A', 'R', 'K', 'S', 'M', 'J'].map((l, i) => (
