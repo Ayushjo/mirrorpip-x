@@ -13,6 +13,10 @@ export interface SessionUser {
   city: string | null;
   postalCode: string | null;
   intendedRole: string | null;
+  image: string | null;
+  phone: string | null;
+  emailVerified: boolean;
+  createdAt: string | null;
 }
 
 /** Resolve the current signed-in user (server-side), or null. */
@@ -33,6 +37,10 @@ export async function getSessionUser(): Promise<SessionUser | null> {
         city: true,
         postalCode: true,
         intendedRole: true,
+        image: true,
+        phone: true,
+        emailVerified: true,
+        createdAt: true,
       },
     });
     return {
@@ -46,6 +54,10 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       city: db?.city ?? null,
       postalCode: db?.postalCode ?? null,
       intendedRole: db?.intendedRole ?? null,
+      image: db?.image ?? null,
+      phone: db?.phone ?? null,
+      emailVerified: db?.emailVerified ?? false,
+      createdAt: db?.createdAt?.toISOString() ?? null,
     };
   } catch {
     // DB/auth transport unavailable — treat as logged-out rather than 500 the

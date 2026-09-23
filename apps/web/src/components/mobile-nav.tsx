@@ -5,7 +5,7 @@ import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { ArrowRight, ChevronRight, LayoutDashboard, LogOut, Menu, ShieldCheck, Trophy, Wallet, X, HelpCircle } from 'lucide-react';
+import { ArrowRight, ChevronRight, LayoutDashboard, LogOut, Menu, ShieldCheck, Trophy, Wallet, X, HelpCircle, UserRound } from 'lucide-react';
 import { signOut } from '@/lib/auth-client';
 import { BrandMark } from './icons';
 import { cx } from './ui';
@@ -18,6 +18,7 @@ const ICONS: Record<string, typeof Trophy> = {
   '/dashboard': LayoutDashboard,
   '/connect': Wallet,
   '/admin': ShieldCheck,
+  '/profile': UserRound,
 };
 const HINTS: Record<string, string> = {
   '/leaders': 'Verified traders to mirror',
@@ -25,6 +26,7 @@ const HINTS: Record<string, string> = {
   '/connect': 'Exchange API keys',
   '/register': 'Two minutes to your first copy',
   '/admin': 'Users, leaders, engine',
+  '/profile': 'Photo, details, security',
 };
 
 const EASE = [0.22, 1, 0.36, 1] as const;
@@ -163,7 +165,7 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                   <nav className="mt-6 flex-1 overflow-y-auto px-3">
                     <div className="px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">Navigate</div>
                     <ul className="space-y-1">
-                      {[...links, ...(!user ? [{ href: '/connect', label: 'Become a leader' }] : [])].map((l, i) => {
+                      {[...links, ...(user ? [{ href: '/profile', label: 'Profile' }] : [{ href: '/connect', label: 'Become a leader' }])].map((l, i) => {
                         const Icon = l.label === 'Become a leader' ? Trophy : (ICONS[l.href] ?? ChevronRight);
                         const active = pathname === l.href || pathname.startsWith(l.href + '/');
                         return (

@@ -5,7 +5,7 @@ import { useState } from 'react';
 import { signOut } from '@/lib/auth-client';
 import { Button, LinkButton } from './ui';
 
-export function UserMenu({ user }: { user: { name: string; email: string } | null }) {
+export function UserMenu({ user }: { user: { name: string; email: string; image?: string | null } | null }) {
   const [open, setOpen] = useState(false);
   const [busy, setBusy] = useState(false);
 
@@ -39,10 +39,10 @@ export function UserMenu({ user }: { user: { name: string; email: string } | nul
     <div className="relative">
       <button
         onClick={() => setOpen((v) => !v)}
-        className="grid h-9 w-9 place-items-center rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold"
+        className="grid h-9 w-9 place-items-center overflow-hidden rounded-full border border-white/10 bg-white/[0.06] text-sm font-semibold"
         aria-label="Account menu"
       >
-        {initials}
+        {user.image ? <img src={user.image} alt="" className="h-full w-full object-cover" /> : initials}
       </button>
       {open && (
         <>
@@ -53,6 +53,9 @@ export function UserMenu({ user }: { user: { name: string; email: string } | nul
               <div className="truncate text-xs text-muted">{user.email}</div>
             </div>
             <div className="my-1 h-px bg-border" />
+            <Link href="/profile" className="block rounded-lg px-3 py-2 text-sm hover:bg-surface-2" onClick={() => setOpen(false)}>
+              Profile
+            </Link>
             <Link href="/dashboard" className="block rounded-lg px-3 py-2 text-sm hover:bg-surface-2" onClick={() => setOpen(false)}>
               Dashboard
             </Link>

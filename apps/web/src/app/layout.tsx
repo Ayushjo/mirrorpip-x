@@ -73,7 +73,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
               {user && <NotificationBell />}
               <MobileNav links={navLinks} user={user ? { name: user.name, email: user.email } : null} />
               <div className="hidden md:block">
-                <UserMenu user={user ? { name: user.name, email: user.email } : null} />
+                <UserMenu user={user ? { name: user.name, email: user.email, image: user.image } : null} />
               </div>
             </div>
           </div>

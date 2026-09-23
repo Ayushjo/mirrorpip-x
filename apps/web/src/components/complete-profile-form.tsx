@@ -134,7 +134,7 @@ export function CompleteProfileForm({
             <Select value={country} onChange={(e) => setCountry(e.target.value)} required autoComplete="country">
               <option value="">Select country…</option>
               {COUNTRIES.map((c) => (
-                <option key={c.code} value={c.code}>
+                <option key={c.code} value={c.code} suppressHydrationWarning>
                   {`${flag(c.code)}\u2003${c.name}`}
                 </option>
               ))}
