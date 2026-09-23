@@ -199,3 +199,7 @@ h4 {
 /* ── Tilt light spot ── */
 .tilt-spot { background: radial-gradient(360px circle at var(--lx, 50%) var(--ly, 50%), rgba(0, 176, 255, 0.12), transparent 60%); }
 .group:hover > .tilt-spot, .tilt-host:hover .tilt-spot { opacity: 1; }
+
+/* ── Hygiene ── */
+.cv-auto { content-visibility: auto; contain-intrinsic-size: auto 800px; }
+.faq summary::-webkit-details-marker { display: none; }

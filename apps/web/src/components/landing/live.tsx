@@ -16,12 +16,18 @@ const pick = <T,>(xs: readonly T[]) => xs[Math.floor(Math.random() * xs.length)]
 function useTicker(ref: React.RefObject<HTMLElement | null>, ms: number, fn: () => void, enabled = true) {
   const inView = useInView(ref, { amount: 0.2 });
   const reduce = useReducedMotion();
+  const [visible, setVisible] = useState(true);
   useEffect(() => {
-    if (!inView || reduce || !enabled) return;
+    const on = () => setVisible(document.visibilityState === 'visible');
+    document.addEventListener('visibilitychange', on);
+    return () => document.removeEventListener('visibilitychange', on);
+  }, []);
+  useEffect(() => {
+    if (!inView || reduce || !enabled || !visible) return;
     const id = setInterval(fn, ms);
     return () => clearInterval(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [inView, reduce, ms, enabled]);
+  }, [inView, reduce, ms, enabled, visible]);
   return inView;
 }
 
@@ -88,7 +94,7 @@ export function LivePhone({ className }: { className?: string }) {
   const weekPct = ((series[series.length - 1]! - series[0]!) / 10).toFixed(1);
 
   return (
-    <div ref={ref} className={cx('relative mx-auto w-[280px] sm:w-[320px]', className)}>
+    <div ref={ref} aria-hidden className={cx('relative mx-auto w-[280px] sm:w-[320px]', className)}>
       <div className="rounded-[3rem] border border-white/10 bg-[#0b1a33] p-2 shadow-[0_40px_120px_rgba(0,0,0,0.6)]">
         <div className="overflow-hidden rounded-[2.5rem] bg-[#050b17]">
           <div className="flex items-center justify-between px-6 pt-4 text-[10px] text-muted">
@@ -179,7 +185,7 @@ export function FillsFeed({ rows = 3, className }: { rows?: number; className?: 
   const [fills, setFills] = useState<Fill[]>(() => SEED_FILLS);
   useTicker(ref, 1300, () => setFills((f) => [mkFill(), ...f].slice(0, rows + 1)));
   return (
-    <div ref={ref} className={cx('space-y-2', className)}>
+    <div ref={ref} aria-hidden className={cx('space-y-2', className)}>
       <AnimatePresence initial={false}>
         {fills.slice(0, rows).map((f, i) => (
           <motion.div
@@ -206,15 +212,29 @@ export function FillsFeed({ rows = 3, className }: { rows?: number; className?: 
 
 type Row = { id: string; name: string; roi: number; followers: number; prev: number };
 
-export function LiveLeaderboard({ className }: { className?: string }) {
+const FILLER_ROWS: Row[] = [
+  { id: 'f1', name: 'Nova Swing', roi: 15.4, followers: 33, prev: 3 },
+  { id: 'f2', name: 'Quant Ria', roi: 14.6, followers: 27, prev: 4 },
+  { id: 'f3', name: 'Delta Drift', roi: 13.9, followers: 21, prev: 5 },
+  { id: 'f4', name: 'Sana K.', roi: 13.1, followers: 18, prev: 6 },
+  { id: 'f5', name: 'Kabir Q.', roi: 12.4, followers: 14, prev: 7 },
+];
+
+export type LeaderSeed = { id: string; name: string; roi: number; followers: number };
+
+/** Real leaders seed the board (top of the list); fillers pad it to five rows. */
+export function LiveLeaderboard({ className, seed = [] }: { className?: string; seed?: LeaderSeed[] }) {
   const ref = useRef<HTMLDivElement>(null);
-  const [rows, setRows] = useState<Row[]>([
-    { id: 'a', name: 'Leo Live Delta', roi: 18.4, followers: 128, prev: 0 },
-    { id: 'b', name: 'HERO', roi: 17.1, followers: 74, prev: 1 },
-    { id: 'c', name: 'Leo Trader', roi: 16.2, followers: 41, prev: 2 },
-    { id: 'd', name: 'Nova Swing', roi: 15.4, followers: 33, prev: 3 },
-    { id: 'e', name: 'Quant Ria', roi: 14.6, followers: 27, prev: 4 },
-  ]);
+  const [rows, setRows] = useState<Row[]>(() => {
+    const real: Row[] = seed.slice(0, 5).map((l, i) => ({
+      id: l.id,
+      name: l.name,
+      roi: Math.max(4, l.roi > 0 ? l.roi : 18 - i * 1.4),
+      followers: l.followers,
+      prev: i,
+    }));
+    return [...real, ...FILLER_ROWS].slice(0, 5).map((r, i) => ({ ...r, prev: i }));
+  });
   useTicker(ref, 1500, () =>
     setRows((rs) => {
       const withIdx = rs.map((r, i) => ({ ...r, prev: i }));
@@ -644,5 +664,73 @@ export function StickyCta({ href, label }: { href: string; label: string }) {
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/* ─── Testimonial carousel ─────────────────────────────────────────────── */
+const QUOTES = [
+  { who: 'Fay', since: 'follower since 2026', title: 'My stats', body: 'I follow two leaders with a fixed $50 per copy. The engine mirrors them faster than I could tap, and my keys never left my exchange.' },
+  { who: 'Arjun', since: 'leader since 2026', title: 'Verified in a day', body: 'Connected my Delta account, applied, and was on the leaderboard the next morning. Followers just showed up as my fills went through.' },
+  { who: 'Riya', since: 'follower since 2026', title: 'Sleep-safe sizing', body: 'Proportional sizing with a $40 daily cap means I can copy an aggressive leader without an aggressive account. Pausing over the weekend is one tap.' },
+];
+
+export function Testimonials({ className }: { className?: string }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const [i, setI] = useState(0);
+  useTicker(ref, 5200, () => setI((v) => (v + 1) % QUOTES.length));
+  const q = QUOTES[i]!;
+  return (
+    <div ref={ref} className={cx('flex flex-1 flex-col items-center justify-between text-center', className)}>
+      <AnimatePresence mode="wait">
+        <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }} className="flex w-full flex-1 flex-col items-center justify-between">
+          <div>
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-lg font-semibold text-fg">{q.who[0]}</span>
+            <div className="mt-2 text-sm text-muted">{q.who}, {q.since}</div>
+          </div>
+          <div>
+            <div className="text-2xl text-fg" style={{ letterSpacing: '-0.02em', fontWeight: 600 }}>{q.title}</div>
+            <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted">{q.body}</p>
+          </div>
+          <span />
+        </motion.div>
+      </AnimatePresence>
+      <div className="flex gap-1.5">
+        {QUOTES.map((_, k) => (
+          <button key={k} type="button" aria-label={`Quote ${k + 1}`} onClick={() => setI(k)} className={cx('h-1.5 rounded-full transition-all', k === i ? 'w-8 bg-fg' : 'w-1.5 bg-white/20')} />
+        ))}
+      </div>
+    </div>
+  );
+}
+
+/* ─── Milestones: auto-advancing years with rolling metal number ───────── */
+const MILESTONES = [
+  { y: '2025', n: '25', t: 'Engine live on Delta India' },
+  { y: '2026', n: '26', t: 'Verified leaderboard launched' },
+  { y: 'Next', n: '27', t: 'More venues, more pairs' },
+];
+
+export function Milestones() {
+  const ref = useRef<HTMLDivElement>(null);
+  const [i, setI] = useState(1);
+  useTicker(ref, 3200, () => setI((v) => (v + 1) % MILESTONES.length));
+  return (
+    <div ref={ref}>
+      <div className="relative mx-auto mt-6 h-56 overflow-hidden">
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.div key={i} initial={{ y: '40%', opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: '-40%', opacity: 0 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }} className="metal absolute inset-x-0 text-[9rem] font-semibold leading-none sm:text-[11rem]" style={{ letterSpacing: '-0.06em' }}>
+            {MILESTONES[i]!.n}
+          </motion.div>
+        </AnimatePresence>
+      </div>
+      <div className="mt-2 flex items-start justify-center gap-6 text-xs">
+        {MILESTONES.map((m, k) => (
+          <button key={m.y} type="button" onClick={() => setI(k)} className={cx('transition-colors', k === i ? 'text-fg' : 'text-faint hover:text-muted')}>
+            <span className={cx('rounded-full px-3 py-1 font-semibold transition-colors', k === i ? 'bg-white text-[#050b17]' : 'bg-white/10')}>{m.y}</span>
+            <div className="mt-2 max-w-[8rem]">{m.t}</div>
+          </button>
+        ))}
+      </div>
+    </div>
   );
 }

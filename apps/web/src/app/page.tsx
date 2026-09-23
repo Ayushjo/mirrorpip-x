@@ -1,12 +1,13 @@
 import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
+import { listLeaders } from '@/lib/services/copy';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2, Words, PointerLight, ScrollFade, CountIn } from '@/components/landing/motion';
 import { Tilt } from '@/components/landing/magnetic';
-import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta } from '@/components/landing/live';
+import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta, Testimonials, Milestones } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
-const CHIPS = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '🏅 Verified leaders', '⚡ <1s mirroring', '🇮🇳 Delta India'];
+const CHIPS_BASE = ['🔐 Trade-only keys', '🚫 No withdrawal access', '⏸️ Pause anytime', '⚡ <1s mirroring', '🇮🇳 Delta India'];
 
 const VENUES = [
   { name: 'Delta India', sub: 'Live · USDT & INR', live: true, mark: 'Δ', tone: 'from-brand to-accent' },
@@ -22,8 +23,13 @@ function Card({ children, className = '', hover = true }: { children: React.Reac
   return hover ? <Tilt className="tilt-host relative h-full [&>.ocard]:h-full">{inner}</Tilt> : inner;
 }
 /** Demo area inside a feature card: fills the remaining height and centers its content. */
-function Demo({ children, className = '' }: { children: React.ReactNode; className?: string }) {
-  return <div className={`relative mt-6 flex flex-1 items-center justify-center ${className}`}>{children}</div>;
+function Demo({ children, className = '', label }: { children: React.ReactNode; className?: string; label?: string }) {
+  return (
+    <div className={`relative mt-6 flex flex-1 items-center justify-center ${className}`}>
+      {label && <span className="sr-only">{label}</span>}
+      <div aria-hidden className="contents">{children}</div>
+    </div>
+  );
 }
 
 function CardTitle({ a, b, center = true }: { a: string; b?: string; center?: boolean }) {
@@ -36,8 +42,13 @@ function CardTitle({ a, b, center = true }: { a: string; b?: string; center?: bo
 }
 
 export default async function LandingPage() {
-  const user = await getSessionUser();
+  const [user, leaders] = await Promise.all([getSessionUser(), listLeaders().catch(() => [])]);
   const primaryHref = user ? '/leaders' : '/register';
+  const seed = [...leaders]
+    .sort((a, b) => b.stats.roiPct - a.stats.roiPct)
+    .map((l) => ({ id: l.id, name: l.displayName, roi: l.stats.roiPct, followers: l.stats.followerCount }));
+  const totalFollowers = leaders.reduce((n, l) => n + l.stats.followerCount, 0);
+  const CHIPS = [`🏅 ${leaders.length} verified leader${leaders.length === 1 ? '' : 's'}`, ...CHIPS_BASE, ...(totalFollowers > 0 ? [`👥 ${totalFollowers} copying live`] : [])];
 
   return (
     <div className="-mx-6 -mt-10 overflow-x-clip pb-4 sm:-mt-10">
@@ -83,7 +94,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 2. Spotlight number ─────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-20 text-center sm:pt-28">
+      <section className="cv-auto relative mx-auto max-w-6xl px-6 pt-20 text-center sm:pt-28">
         <div className="relative mx-auto flex h-[38vh] min-h-[240px] items-end justify-center sm:h-[48vh]">
           <Light className="!top-[70%]" color="rgba(0,176,255,1)" />
           <Rise>
@@ -106,7 +117,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 3. Platform + phone ─────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-28 text-center sm:pt-40">
+      <section className="cv-auto relative mx-auto max-w-6xl px-6 pt-28 text-center sm:pt-40">
         <Rise>
           <H2>A modern copy-trading platform</H2>
         </Rise>
@@ -145,7 +156,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 5. Bento ─────────────────────────────────────────────────── */}
-      <section id="how" className="mx-auto max-w-6xl px-6">
+      <section id="how" className="cv-auto mx-auto max-w-6xl px-6">
         <Rise>
           <H2>
             Copy with guardrails
@@ -167,7 +178,7 @@ export default async function LandingPage() {
               <div className="relative">
                 {/* eslint-disable-next-line @next/next/no-img-element */}
                 <img src="/media/leaderboard-hero.webp" alt="" className="absolute -right-24 -top-32 hidden h-[560px] w-[560px] object-cover opacity-70 [mask-image:radial-gradient(circle,#000_40%,transparent_72%)] sm:block" />
-                <LiveLeaderboard className="relative" />
+                <LiveLeaderboard className="relative" seed={seed} />
               </div>
             </Card>
           </Rise>
@@ -323,7 +334,7 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 10. Smooth experience ─────────────────────────────────────── */}
-      <section className="mx-auto max-w-6xl px-6 pt-32 sm:pt-44">
+      <section className="cv-auto mx-auto max-w-6xl px-6 pt-32 sm:pt-44">
         <Rise>
           <H2>Smooth copying experience</H2>
         </Rise>
@@ -396,38 +407,42 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-6xl px-6 pt-8 sm:pt-16">
         <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
           <Rise>
-            <Card hover={false} className="flex min-h-[460px] flex-col items-center justify-between p-10 text-center">
-              <div>
-                <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-lg font-semibold text-fg">F</span>
-                <div className="mt-2 text-sm text-muted">Fay, follower since 2026</div>
-              </div>
-              <div>
-                <div className="text-2xl text-fg" style={{ letterSpacing: '-0.02em', fontWeight: 600 }}>My stats</div>
-                <p className="mx-auto mt-3 max-w-sm text-sm leading-relaxed text-muted">
-                  I follow two leaders with a fixed $50 per copy. The engine mirrors them faster than I could tap, and my keys never left my exchange.
-                </p>
-              </div>
-              <div className="flex gap-1.5">{[0, 1, 2].map((i) => <span key={i} className={`h-1.5 rounded-full ${i === 0 ? 'w-8 bg-fg' : 'w-1.5 bg-white/20'}`} />)}</div>
+            <Card hover={false} className="min-h-[460px] p-10">
+              <Testimonials />
             </Card>
           </Rise>
           <Rise delay={0.08}>
             <Card hover={false} className="relative min-h-[460px] p-10 text-center">
               <div className="text-2xl text-fg" style={{ letterSpacing: '-0.02em', fontWeight: 600 }}>Milestones</div>
-              <div className="relative mx-auto mt-6 h-56">
-                <Light className="!top-[70%] opacity-80" />
-                <div className="metal text-[9rem] font-semibold leading-none sm:text-[11rem]" style={{ letterSpacing: '-0.06em' }}>26</div>
-              </div>
-              <div className="mt-2 flex items-start justify-center gap-6 text-xs">
-                {[['2025', 'Engine live on Delta'], ['2026', 'Verified leaderboard'], ['Next', 'More venues']].map(([y, t], i) => (
-                  <div key={y} className={i === 1 ? 'text-fg' : 'text-faint'}>
-                    <span className={`rounded-full px-3 py-1 font-semibold ${i === 1 ? 'bg-white text-[#050b17]' : 'bg-white/10'}`}>{y}</span>
-                    <div className="mt-2 max-w-[8rem]">{t}</div>
-                  </div>
-                ))}
-              </div>
+              <Light className="!top-[55%] opacity-70" />
+              <Milestones />
             </Card>
           </Rise>
         </div>
+      </section>
+
+      {/* ── 12b. FAQ ─────────────────────────────────────────────────── */}
+      <section className="mx-auto max-w-3xl px-6 pt-24 sm:pt-32">
+        <Rise>
+          <H2>Questions, answered</H2>
+        </Rise>
+        <Rise delay={0.08} className="mt-10 space-y-2">
+          {[
+            ['Do you ever hold my funds?', 'No. You connect a trade-only API key with withdrawals disabled. Orders are placed in your own exchange account and the money never moves to us.'],
+            ['What does it cost?', 'Nothing to follow. You pay your exchange\u2019s normal trading fees. Leaders are not charged to be listed.'],
+            ['Can I pause or stop a copy?', 'Any time, from the dashboard. Pause keeps your settings and skips new fills; Stop ends the copy. Open positions are never touched automatically.'],
+            ['How small can I start?', 'From $10 per copy. Choose fixed, proportional or multiplied sizing, and set a daily loss cap the engine enforces.'],
+            ['Which venues are supported?', 'Delta Exchange India today, in USDT and INR. More venues are on the way and will appear in Accounts when live.'],
+          ].map(([q, a]) => (
+            <details key={q} className="faq group rounded-2xl bg-[#0b1a33] px-5 sm:px-6">
+              <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[15px] font-medium text-fg sm:py-5">
+                {q}
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/[0.06] text-muted transition-transform group-open:rotate-45">+</span>
+              </summary>
+              <p className="pb-5 text-sm leading-relaxed text-muted">{a}</p>
+            </details>
+          ))}
+        </Rise>
       </section>
 
       <StickyCta href={primaryHref} label={user ? 'Browse leaders' : 'Start copying'} />
