@@ -201,7 +201,7 @@ function Podium({ top, sort, q, selected, toggle }: { top: LeaderCard[]; sort: S
   // Visual order 2 · 1 · 3 on desktop; natural order on mobile.
   const order = top.length === 3 ? [top[1]!, top[0]!, top[2]!] : top;
   return (
-    <div className="no-scrollbar -mx-6 flex snap-x gap-4 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:items-end sm:overflow-visible sm:px-0 sm:pb-0">
+    <div className="no-scrollbar -mx-6 flex snap-x scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-3 sm:items-end sm:overflow-visible sm:px-0 sm:pb-0">
       {order.map((l) => {
         const rank = top.indexOf(l) + 1;
         return (
