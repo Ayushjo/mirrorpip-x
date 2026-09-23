@@ -200,3 +200,20 @@ export async function deleteAccount(confirmEmail: string): Promise<Result> {
   void confirmEmail;
   return { ok: true };
 }
+
+export type ActivityRow = { id: string; kind: 'signin' | 'password' | 'profile' | 'key' | 'signout'; title: string; detail: string; at: string };
+export async function listActivity(): Promise<Result<ActivityRow[]>> {
+  // TODO(api): GET /api/account/activity (sessions + audit log, newest first, limit 5)
+  await new Promise((r) => setTimeout(r, 250));
+  const h = (n: number) => new Date(Date.now() - n * 3600e3).toISOString();
+  return {
+    ok: true,
+    data: [
+      { id: 'a1', kind: 'signin', title: 'Signed in', detail: 'Chrome · macOS · Raipur, IN', at: h(0.2) },
+      { id: 'a2', kind: 'profile', title: 'Profile updated', detail: 'Display name and bio', at: h(5) },
+      { id: 'a3', kind: 'key', title: 'Exchange key connected', detail: 'Delta India · ••••xk9G', at: h(30) },
+      { id: 'a4', kind: 'signin', title: 'Signed in', detail: 'Safari · iPhone · Raipur, IN', at: h(52) },
+      { id: 'a5', kind: 'password', title: 'Password changed', detail: 'From this device', at: h(200) },
+    ],
+  };
+}

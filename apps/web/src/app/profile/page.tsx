@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
-import { ShieldCheck } from 'lucide-react';
 import { prisma } from '@belivemeguys/db';
 import { getSessionUser, isAdmin } from '@/lib/session';
 import { listCredentials, listFollows } from '@/lib/services/copy';
@@ -8,6 +7,7 @@ import { PageHero } from '@/components/page-hero';
 import { Badge } from '@/components/ui';
 import { ProfileShell } from '@/components/profile/profile-shell';
 import { CopyEmail } from '@/components/profile/copy-email';
+import { HeroAvatar } from '@/components/profile/avatar-picker';
 
 export const dynamic = 'force-dynamic';
 
@@ -34,21 +34,7 @@ export default async function ProfilePage() {
         compact
         eyebrow="Your account"
         title={user.name}
-        above={
-          <span className="relative">
-            <span className="absolute inset-0 -m-3 rounded-full bg-brand/25 blur-2xl" />
-            <span className="relative grid h-24 w-24 place-items-center overflow-hidden rounded-full bg-gradient-to-br from-brand to-accent p-[3px] shadow-[0_16px_50px_rgba(0,176,255,0.35)]">
-              <span className="grid h-full w-full place-items-center overflow-hidden rounded-full bg-[#0b1a33] text-3xl font-bold text-fg">
-                {user.image ? <img src={user.image} alt="" className="h-full w-full object-cover" /> : user.name.slice(0, 1).toUpperCase()}
-              </span>
-            </span>
-            {user.emailVerified && (
-              <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-4 border-bg bg-up text-[#050b17]" title="Email verified">
-                <ShieldCheck className="h-3.5 w-3.5" />
-              </span>
-            )}
-          </span>
-        }
+        above={<HeroAvatar name={user.name} initial={user.image} verified={user.emailVerified} />}
         lede={
           <span className="block">
             <span className="flex flex-wrap items-center justify-center gap-2">
@@ -68,6 +54,7 @@ export default async function ProfilePage() {
 
       <Suspense>
         <ProfileShell
+          emailVerified={user.emailVerified}
           data={{
             name: user.name,
             email: user.email,
