@@ -135,7 +135,7 @@ function serializeCredential(
 export async function listLeaders() {
   return cached('bmg:leaderboard:v1', 15, async () => {
     const leaders = await prisma.leader.findMany({
-      where: { status: 'VERIFIED' },
+      where: { status: 'VERIFIED', listed: true },
       include: {
         stats: { where: { window: 'all' } },
         equityPoints: { orderBy: { ts: 'desc' }, take: 60 },

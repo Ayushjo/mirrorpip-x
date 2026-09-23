@@ -32,6 +32,8 @@ model User {
   city       String?
   postalCode String?
   phone      String?
+  // Public profile blurb, editable from /profile.
+  bio        String?
   // Declared intent at signup: "follower" | "leader".
   intendedRole String?
   referralCode String?
@@ -197,6 +199,8 @@ model Leader {
   bio         String?
   avatarUrl   String?
   status      LeaderStatus @default(PENDING)
+  // Whether the leader opts to appear on the public leaderboard (toggle in /profile).
+  listed      Boolean      @default(true)
 
   // Optional caps / economics.
   maxFollowers Int?

@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { Suspense } from 'react';
 import { ShieldCheck } from 'lucide-react';
+import { prisma } from '@belivemeguys/db';
 import { getSessionUser, isAdmin } from '@/lib/session';
 import { listCredentials, listFollows } from '@/lib/services/copy';
 import { PageHero } from '@/components/page-hero';
@@ -13,7 +14,15 @@ export const dynamic = 'force-dynamic';
 export default async function ProfilePage() {
   const user = await getSessionUser();
   if (!user) redirect('/login');
-  const [follows, creds, admin] = await Promise.all([listFollows(user.id), listCredentials(user.id), isAdmin(user)]);
+  const [follows, creds, admin, leader] = await Promise.all([
+    listFollows(user.id),
+    listCredentials(user.id),
+    isAdmin(user),
+    prisma.leader.findFirst({
+      where: { userId: user.id },
+      select: { id: true, displayName: true, bio: true, status: true, listed: true },
+    }),
+  ]);
   const active = follows.filter((f) => f.status === 'ACTIVE');
   const leadersFollowed = new Set(follows.map((f) => f.leader.id)).size;
   const leaderCred = creds.find((c) => c.isLeader);
@@ -63,12 +72,14 @@ export default async function ProfilePage() {
             name: user.name,
             email: user.email,
             image: user.image,
-            bio: '',
+            bio: user.bio ?? '',
             country: user.country ?? '',
             city: user.city ?? '',
             postalCode: user.postalCode ?? '',
             phone: user.phone ?? '',
-            leader: leaderCred ? { id: leaderCred.id, displayName: user.name, bio: '', status: leaderCred.leaderStatus ?? 'PENDING', listed: true } : null,
+            leader: leader
+              ? { id: leader.id, displayName: leader.displayName, bio: leader.bio ?? '', status: leader.status, listed: leader.listed }
+              : null,
           }}
         />
       </Suspense>

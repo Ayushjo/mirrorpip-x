@@ -15,6 +15,7 @@ export interface SessionUser {
   intendedRole: string | null;
   image: string | null;
   phone: string | null;
+  bio: string | null;
   emailVerified: boolean;
   createdAt: string | null;
 }
@@ -39,6 +40,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
         intendedRole: true,
         image: true,
         phone: true,
+        bio: true,
         emailVerified: true,
         createdAt: true,
       },
@@ -56,6 +58,7 @@ export async function getSessionUser(): Promise<SessionUser | null> {
       intendedRole: db?.intendedRole ?? null,
       image: db?.image ?? null,
       phone: db?.phone ?? null,
+      bio: db?.bio ?? null,
       emailVerified: db?.emailVerified ?? false,
       createdAt: db?.createdAt?.toISOString() ?? null,
     };

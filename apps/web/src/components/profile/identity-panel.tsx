@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { useMemo, useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Check } from 'lucide-react';
 import { toast } from 'sonner';
@@ -47,6 +48,7 @@ function Toggle({ on, onChange, label }: { on: boolean; onChange: (v: boolean) =
 }
 
 export function IdentityPanel({ data }: { data: IdentityData }) {
+  const router = useRouter();
   const initial = useMemo(() => ({
     name: data.name, bio: data.bio, country: data.country, city: data.city, postalCode: data.postalCode, phone: data.phone,
     leaderName: data.leader?.displayName ?? '', leaderBio: data.leader?.bio ?? '', listed: data.leader?.listed ?? true,
@@ -69,14 +71,14 @@ export function IdentityPanel({ data }: { data: IdentityData }) {
     setBusy(true);
     const r = await updateProfile({ name: f.name.trim(), bio: f.bio.trim(), country: f.country, city: f.city.trim(), postalCode: f.postalCode.trim(), phone: f.phone.trim(), leader: data.leader ? { displayName: f.leaderName.trim(), bio: f.leaderBio.trim(), listed: f.listed } : null });
     setBusy(false);
-    if (r.ok) { setSaved(f); toast.success('Profile saved'); } else toast.error(r.error);
+    if (r.ok) { setSaved(f); toast.success('Profile saved'); router.refresh(); } else toast.error(r.error);
   }
 
   return (
     <div className="space-y-5">
       <Section title="Public profile" sub="How you appear across BelieveMeGuys.">
         <div className="grid gap-8 sm:grid-cols-[auto_1fr] sm:items-start">
-          <AvatarPicker name={f.name || data.name} initial={data.image} onChange={setAvatar} />
+          <AvatarPicker name={f.name || data.name} initial={data.image} onChange={(u) => { setAvatar(u); router.refresh(); }} />
           <div className="space-y-4">
             <Field label="Display name">
               <Input value={f.name} onChange={(e) => set('name', e.target.value)} maxLength={40} aria-invalid={!!errors.name} />

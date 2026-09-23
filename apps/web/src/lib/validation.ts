@@ -85,3 +85,28 @@ export const consentSchema = z.object({
   phone: z.string().trim().max(30).optional(),
   intendedRole: z.enum(['follower', 'leader', 'both']).optional(),
 });
+
+// Editable profile fields from /profile. `country` allows '' (cleared select).
+export const profileSchema = z.object({
+  name: z.string().trim().min(2).max(40),
+  bio: z.string().trim().max(160).optional().default(''),
+  country: z.union([z.string().trim().length(2), z.literal('')]).optional().default(''),
+  city: z.string().trim().max(100).optional().default(''),
+  postalCode: z.string().trim().max(20).optional().default(''),
+  phone: z.string().trim().max(30).optional().default(''),
+  leader: z
+    .object({
+      displayName: z.string().trim().min(2).max(60),
+      bio: z.string().trim().max(160).optional().default(''),
+      listed: z.boolean(),
+    })
+    .nullish(),
+});
+
+// A cropped avatar as a small base64 data URL produced client-side.
+export const avatarSchema = z.object({
+  image: z
+    .string()
+    .regex(/^data:image\/(webp|png|jpeg);base64,/, 'Expected a base64 image data URL.')
+    .max(120_000, 'Image is too large.'),
+});
