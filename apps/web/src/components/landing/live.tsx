@@ -152,7 +152,7 @@ export function LivePhone({ className }: { className?: string }) {
                     <span className="text-muted">
                       Leader {f.qty} → You {(Number(f.qty) * 0.25).toFixed(2)}
                     </span>
-                    <span className="rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up">Filled</span>
+                    <motion.span initial={{ scale: 1 }} animate={{ scale: [1, 1.18, 1] }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up">Filled</motion.span>
                   </div>
                 </motion.div>
               ))}
@@ -194,7 +194,7 @@ export function FillsFeed({ rows = 3, className }: { rows?: number; className?: 
             <span className="text-fg">
               {f.sym} · <span className={f.side === 'Buy' ? 'text-up' : 'text-down'}>{f.side}</span> · {(f.ms / 1000).toFixed(1)}s
             </span>
-            <span className="rounded-full bg-up/15 px-2 py-0.5 text-xs font-semibold text-up">Filled</span>
+            <motion.span initial={{ scale: 1 }} animate={{ scale: i === 0 ? [1, 1.18, 1] : 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-full bg-up/15 px-2 py-0.5 text-xs font-semibold text-up">Filled</motion.span>
           </motion.div>
         ))}
       </AnimatePresence>

@@ -98,11 +98,17 @@ export function Bars({ className }: { className?: string }) {
 
 /** Section heading in the Olymptrade voice: big, tight, centered, with optional muted second line. */
 export function H2({ children, sub, className }: { children: ReactNode; sub?: ReactNode; className?: string }) {
+  // Plain-string headings get the word stagger; JSX headings render as-is.
+  const isText = typeof children === 'string';
   return (
     <div className={cx('text-center', className)}>
+      {isText ? (
+        <Words as="h2" text={children as string} stagger={0.025} className="mx-auto max-w-4xl text-[2rem] leading-[1.05] !font-semibold text-fg sm:text-[2.6rem] lg:text-[3.25rem]" />
+      ) : (
       <h2 className="mx-auto max-w-4xl text-[2rem] leading-[1.05] text-fg sm:text-[2.6rem] lg:text-[3.25rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>
         {children}
       </h2>
+      )}
       {sub && <p className="mx-auto mt-4 max-w-2xl text-[15px] text-muted sm:text-base">{sub}</p>}
     </div>
   );

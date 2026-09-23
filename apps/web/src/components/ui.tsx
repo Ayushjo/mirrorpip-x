@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
+import { Magnetic } from './landing/magnetic';
 import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
 
 // ─── UI kit — light premium fintech (Halo-style) ────────────────────────────
@@ -61,23 +62,26 @@ export function LinkButton({
   href,
   variant = 'primary',
   arrow = false,
+  magnetic = false,
   className,
   children,
 }: {
   href: string;
   variant?: ButtonVariant;
   arrow?: boolean;
+  magnetic?: boolean;
   className?: string;
   children: ReactNode;
 }) {
-  return (
+  const link = (
     <Link
       href={href}
       className={cx(
-        'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-colors duration-200',
+        'inline-flex items-center justify-center gap-2 rounded-full font-medium transition-[colors,box-shadow] duration-300',
         arrow ? 'py-2 pl-6 pr-2' : 'px-6 py-2.5',
         'text-sm',
         buttonStyles[variant],
+        magnetic && variant === 'primary' && 'hover:shadow-[0_10px_40px_rgba(0,176,255,0.6)]',
         className,
       )}
     >
@@ -85,6 +89,7 @@ export function LinkButton({
       {arrow && <ArrowCircle />}
     </Link>
   );
+  return magnetic ? <Magnetic>{link}</Magnetic> : link;
 }
 
 export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElement>) {

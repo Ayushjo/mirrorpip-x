@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { getSessionUser } from '@/lib/session';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2, Words, PointerLight, ScrollFade, CountIn } from '@/components/landing/motion';
+import { Tilt } from '@/components/landing/magnetic';
 import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
@@ -17,7 +18,8 @@ const VENUES = [
 ];
 
 function Card({ children, className = '', hover = true }: { children: React.ReactNode; className?: string; hover?: boolean }) {
-  return <div className={`ocard relative flex flex-col overflow-hidden ${hover ? 'ocard-hover' : ''} ${className}`}>{children}</div>;
+  const inner = <div className={`ocard relative flex flex-col overflow-hidden ${hover ? 'ocard-hover' : ''} ${className}`}>{children}</div>;
+  return hover ? <Tilt className="tilt-host relative h-full [&>.ocard]:h-full">{inner}</Tilt> : inner;
 }
 /** Demo area inside a feature card: fills the remaining height and centers its content. */
 function Demo({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -61,7 +63,7 @@ export default async function LandingPage() {
             delay={0.15}
           />
           <Rise delay={0.08} className="mt-7 flex flex-col items-center gap-4">
-            <LinkButton href={primaryHref} className="px-7 py-3 text-base">
+            <LinkButton href={primaryHref} magnetic className="px-7 py-3 text-base">
               {user ? 'Browse leaders' : 'Start copying for $0'}
             </LinkButton>
             <TextLink href="/leaders">See the leaderboard</TextLink>
@@ -156,7 +158,7 @@ export default async function LandingPage() {
               <div className="relative z-10 text-center sm:text-left">
                 <CardTitle a="Verified leaders" b="ranked by real fills" center={false} />
                 <div className="mt-6 flex flex-col items-center gap-3 sm:items-start">
-                  <LinkButton href="/leaders" className="px-6 py-2.5">
+                  <LinkButton href="/leaders" magnetic className="px-6 py-2.5">
                     Browse leaders
                   </LinkButton>
                   <TextLink href="/leaders">Learn more</TextLink>
