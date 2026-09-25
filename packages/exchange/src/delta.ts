@@ -27,6 +27,11 @@ const restUrl = (): string => process.env.DELTA_REST_URL ?? 'https://api.india.d
 const wsUrl = (): string => process.env.DELTA_WS_URL ?? 'wss://socket.india.delta.exchange';
 const USER_AGENT = 'belivemeguys/1.0';
 
+// WS keepalive. Delta closes idle private sockets (~every 10 min), so we keep
+// traffic flowing and detect a half-dead socket faster than waiting for TCP close.
+const WS_PING_MS = Number(process.env.DELTA_WS_PING_MS) || 25_000; // send an app-level ping this often
+const WS_IDLE_TIMEOUT_MS = Number(process.env.DELTA_WS_IDLE_MS) || 40_000; // no message for this long ⇒ dead, reconnect
+
 function nowSec(): string {
   return Math.floor(Date.now() / 1000).toString();
 }
@@ -355,13 +360,53 @@ export class DeltaIndiaExchange implements Exchange {
   ): Promise<FillStream> {
     const ws = new WebSocket(wsUrl(), { headers: { 'User-Agent': USER_AGENT } });
 
+    let pingTimer: ReturnType<typeof setInterval> | null = null;
+    let idleTimer: ReturnType<typeof setTimeout> | null = null;
+    let closed = false;
+    let notified = false;
+
+    const clearTimers = () => {
+      if (pingTimer) clearInterval(pingTimer);
+      if (idleTimer) clearTimeout(idleTimer);
+      pingTimer = null;
+      idleTimer = null;
+    };
+
+    // Report a transport failure at most once per stream — terminate() below can
+    // otherwise fire both this and the 'close' handler for the same drop.
+    const fail = (err: Error) => {
+      if (notified || closed) return;
+      notified = true;
+      clearTimers();
+      handlers.onError?.(err);
+    };
+
     const closeStream = () => {
+      closed = true;
+      clearTimers();
       try {
         ws.removeAllListeners();
         ws.close();
       } catch {
         /* noop */
       }
+    };
+
+    // Watchdog: if no message (fill, heartbeat, or pong) arrives within the idle
+    // window, the socket is likely half-dead — close it so the watcher reconnects
+    // instead of waiting for Delta's eventual TCP close.
+    const bumpIdle = () => {
+      if (closed) return;
+      if (idleTimer) clearTimeout(idleTimer);
+      idleTimer = setTimeout(() => {
+        if (closed || notified) return;
+        try {
+          ws.terminate();
+        } catch {
+          /* noop */
+        }
+        fail(new Error('Delta WS idle timeout'));
+      }, WS_IDLE_TIMEOUT_MS);
     };
 
     ws.on('open', () => {
@@ -373,11 +418,14 @@ export class DeltaIndiaExchange implements Exchange {
           payload: { 'api-key': creds.apiKey, signature, timestamp },
         }),
       );
+      bumpIdle();
       // NOTE: subscribe only AFTER the "Authenticated" success arrives (below),
       // otherwise the private subscription races auth and delivers nothing.
     });
 
     ws.on('message', (raw: WebSocket.RawData) => {
+      bumpIdle();
+
       let msg: Record<string, unknown>;
       try {
         msg = JSON.parse(raw.toString());
@@ -387,7 +435,8 @@ export class DeltaIndiaExchange implements Exchange {
 
       if (process.env.DELTA_DEBUG) console.error('[delta ws]', raw.toString().slice(0, 160));
 
-      // Once authenticated, subscribe to the *verbose* user_trades channel.
+      // Once authenticated, subscribe to the *verbose* user_trades channel and
+      // start keepalive so Delta doesn't idle-close the socket every ~10 min.
       // (The compact "v2/user_trades" channel uses single-letter keys.)
       if (msg.type === 'success' && msg.message === 'Authenticated') {
         ws.send(
@@ -396,8 +445,22 @@ export class DeltaIndiaExchange implements Exchange {
             payload: { channels: [{ name: 'user_trades', symbols: ['all'] }] },
           }),
         );
+        ws.send(JSON.stringify({ type: 'enable_heartbeat' }));
+        clearTimers();
+        bumpIdle();
+        pingTimer = setInterval(() => {
+          if (ws.readyState !== WebSocket.OPEN) return;
+          try {
+            ws.send(JSON.stringify({ type: 'ping' }));
+          } catch {
+            /* noop */
+          }
+        }, WS_PING_MS);
         return;
       }
+
+      // Keepalive traffic — bumpIdle already ran; nothing else to do.
+      if (msg.type === 'heartbeat' || msg.type === 'pong') return;
 
       // Verified fill shape (Delta testnet user_trades):
       // { type:"user_trades", action:"fill", symbol:"BTCUSD", side:"buy",
@@ -432,8 +495,8 @@ export class DeltaIndiaExchange implements Exchange {
         .catch((err) => handlers.onError?.(err as Error));
     });
 
-    ws.on('error', (err: Error) => handlers.onError?.(err));
-    ws.on('close', () => handlers.onError?.(new Error('Delta WS closed')));
+    ws.on('error', (err: Error) => fail(err));
+    ws.on('close', () => fail(new Error('Delta WS closed')));
 
     return { close: closeStream };
   }

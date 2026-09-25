@@ -12,7 +12,8 @@ interface Watcher {
 }
 
 const watchers = new Map<string, Watcher>();
-const BACKOFF_MS = 10_000;
+const BACKOFF_MS = 10_000; // after a hard failure (auth/startup)
+const RECONNECT_MS = 1_500; // after a transient transport drop — reconnect fast
 
 /**
  * Reconcile the set of live WebSocket watchers with the DB: one watcher per
@@ -65,12 +66,19 @@ async function startWatcher(leader: Leader): Promise<void> {
       onError: (err) => {
         log.warn('leader watcher error — will reconnect', { leaderId: leader.id, err: err.message });
         const w = watchers.get(leader.id);
-        if (w) {
-          w.stream?.close();
-          w.stream = null;
-          w.starting = false;
-          w.failUntil = Date.now() + BACKOFF_MS;
-        }
+        if (!w) return;
+        w.stream?.close();
+        w.stream = null;
+        w.starting = false;
+        // Short backoff, then reconnect directly rather than waiting for the next
+        // sync tick — so a dropped socket recovers in ~1.5s, not 10-15s. The
+        // failUntil window stops syncWatchers from double-starting in the meantime.
+        w.failUntil = Date.now() + RECONNECT_MS;
+        setTimeout(() => {
+          const cur = watchers.get(leader.id);
+          if (!cur || cur.stream || cur.starting) return; // stopped or already restarting
+          void startWatcher(leader);
+        }, RECONNECT_MS);
       },
     });
 
