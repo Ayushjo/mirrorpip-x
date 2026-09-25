@@ -388,6 +388,44 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
         )}
       </section>
 
+      {/* how-to video */}
+      <Card className="p-6">
+        <div className="flex items-center justify-between gap-3">
+          <div>
+            <div className="text-base font-semibold text-fg">How to create your key</div>
+            <p className="mt-1 text-sm text-muted">Make a trade-only Delta key and whitelist our IPs — about a minute.</p>
+          </div>
+          <span className="shrink-0 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-muted">Watch · 1 min</span>
+        </div>
+        <div className="mt-4 grid gap-4 lg:grid-cols-[1.5fr_1fr]">
+          <div className="overflow-hidden rounded-2xl border border-white/10 bg-[#050b17]">
+            {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
+            <video
+              className="aspect-video w-full"
+              controls
+              playsInline
+              preload="none"
+              poster="/media/connect-howto-poster.webp"
+            >
+              <source src="/media/connect-howto.mp4" type="video/mp4" />
+            </video>
+          </div>
+          <ol className="space-y-2.5 text-sm text-muted">
+            {[
+              'Open Delta Exchange India → Account → API Keys',
+              'Create a key — enable Read + Trading, keep Withdrawals OFF',
+              'Optional: whitelist the IPs shown below',
+              'Paste the key & secret into Connect',
+            ].map((s, i) => (
+              <li key={i} className="flex gap-2.5">
+                <span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-brand/15 text-[11px] font-bold text-brand">{i + 1}</span>
+                <span>{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </Card>
+
       {/* info row */}
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="p-6">
