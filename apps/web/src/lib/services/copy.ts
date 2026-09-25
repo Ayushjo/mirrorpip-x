@@ -44,6 +44,17 @@ export async function addCredential(userId: string, input: ConnectCredentialInpu
   }
   if (!verified.canTrade) throw new ApiError(400, 'This API key does not have trading permission. Enable read and trading access, with withdrawals disabled.');
 
+  // Account-level dedup: block the SAME underlying exchange account even when it's
+  // connected via a different API key (different fingerprint). accountRef comes
+  // from verify() and is best-effort — only enforce when the venue returned one.
+  if (verified.accountRef) {
+    const sameAccount = await prisma.exchangeCredential.findFirst({
+      where: { exchange: input.exchange, accountRef: verified.accountRef, status: { not: 'REVOKED' } },
+      select: { id: true },
+    });
+    if (sameAccount) throw new ApiError(409, 'This exchange account is already connected (via another API key).', 'DUPLICATE_EXCHANGE_ACCOUNT');
+  }
+
   let cred;
   try {
     cred = await prisma.exchangeCredential.create({
@@ -55,6 +66,7 @@ export async function addCredential(userId: string, input: ConnectCredentialInpu
         apiSecretEnc: encryptSecret(input.apiSecret),
         keyLast4: last4(input.apiKey),
         apiKeyFingerprint,
+        accountRef: verified.accountRef ?? null,
         baseCurrency: verified.baseCurrency,
         tradeCurrency: input.tradeCurrency,
         settings: input.settings,
@@ -135,7 +147,7 @@ function serializeCredential(
 export async function listLeaders() {
   return cached('bmg:leaderboard:v1', 15, async () => {
     const leaders = await prisma.leader.findMany({
-      where: { status: 'VERIFIED' },
+      where: { status: 'VERIFIED', listed: true },
       include: {
         stats: { where: { window: 'all' } },
         equityPoints: { orderBy: { ts: 'desc' }, take: 60 },

@@ -32,6 +32,8 @@ model User {
   city       String?
   postalCode String?
   phone      String?
+  // Public profile blurb, editable from /profile.
+  bio        String?
   // Declared intent at signup: "follower" | "leader".
   intendedRole String?
   referralCode String?
@@ -162,6 +164,9 @@ model ExchangeCredential {
   keyLast4 String
   // Stable keyed digest used only to prevent connecting one exchange account twice.
   apiKeyFingerprint String?
+  // Stable exchange account/profile id (from verify) — blocks connecting the SAME
+  // underlying account twice even via different API keys. Null when unavailable.
+  accountRef String?
 
   baseCurrency String           @default("USD")
   tradeCurrency String          @default("USDT")
@@ -179,6 +184,7 @@ model ExchangeCredential {
 
   @@index([userId])
   @@unique([exchange, apiKeyFingerprint])
+  @@unique([exchange, accountRef])
   @@map("exchange_credential")
 }
 
@@ -197,6 +203,8 @@ model Leader {
   bio         String?
   avatarUrl   String?
   status      LeaderStatus @default(PENDING)
+  // Whether the leader opts to appear on the public leaderboard (toggle in /profile).
+  listed      Boolean      @default(true)
 
   // Optional caps / economics.
   maxFollowers Int?

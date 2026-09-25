@@ -160,6 +160,8 @@ interface DeltaBalance {
   asset_symbol?: string;
   balance?: string;
   available_balance?: string;
+  // Stable numeric account id — same across every API key of this account.
+  user_id?: number | string;
 }
 
 interface DeltaPosition {
@@ -200,13 +202,18 @@ export class DeltaIndiaExchange implements Exchange {
     // treating balance figures as USD is accurate enough for proportional sizing.
     const equityUsd = balances.reduce((sum, b) => sum + num(b.balance), 0);
     const base = balances.find((b) => num(b.balance) > 0)?.asset_symbol ?? 'USDT';
-    return { equityUsd, baseCurrency: base };
+    // Delta stamps each wallet row with the account's stable numeric user_id.
+    // It's the same across every API key of the account, so we use it to block
+    // connecting one account twice via different keys. Best-effort (may be absent).
+    const uid = balances.map((b) => b.user_id).find((v) => v != null);
+    const accountRef = uid != null && String(uid).trim() !== '' ? String(uid) : undefined;
+    return { equityUsd, baseCurrency: base, accountRef };
   }
 
   async verify(creds: ApiCredentials): Promise<VerifyResult> {
     // Delta documents wallet and position APIs as requiring Trading permission.
-    // Calling both verifies the scope without creating, editing, or cancelling
-    // an order.
+    // Calling both verifies the scope without creating, editing, or cancelling an
+    // order. accountRef comes from the wallet response (no extra call).
     const [account] = await Promise.all([this.getAccount(creds), this.getPositions(creds)]);
     return { ok: true, canTrade: true, ...account };
   }
