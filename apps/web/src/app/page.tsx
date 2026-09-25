@@ -57,14 +57,17 @@ export default async function LandingPage() {
         <Bars className="opacity-90" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg to-transparent" />
         <div className="relative mx-auto flex min-h-[min(92svh,820px)] max-w-6xl flex-col items-center justify-end px-6 pb-8 text-center sm:pb-12">
-          {/* object */}
-          <ScrollFade className="relative mb-[-3rem] h-[34vh] w-full max-w-3xl sm:mb-[-6rem] sm:h-[56vh]">
+          {/* object — flex-centered (NOT absolute+translate): Safari drops the
+              individual `translate` centering on first paint when the element also
+              runs a `transform` animation (hero-float), flashing the image to the
+              top-right for ~1s before it repaints. Flex centering has no such conflict. */}
+          <ScrollFade className="relative mb-[-3rem] flex h-[34vh] w-full max-w-3xl items-center justify-center sm:mb-[-6rem] sm:h-[56vh]">
             <PointerLight className="!top-[62%]" />
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src="/media/halo-object.webp"
               alt=""
-              className="hero-float absolute left-1/2 top-1/2 h-[120%] w-auto max-w-none -translate-x-1/2 -translate-y-1/2 object-contain [mask-image:radial-gradient(ellipse_44%_46%_at_50%_50%,#000_50%,transparent_76%)]"
+              className="hero-float h-[120%] w-auto max-w-none object-contain [mask-image:radial-gradient(ellipse_44%_46%_at_50%_50%,#000_50%,transparent_76%)]"
             />
           </ScrollFade>
           <Words
