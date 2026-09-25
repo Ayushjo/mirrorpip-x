@@ -206,9 +206,31 @@ export class DeltaIndiaExchange implements Exchange {
   async verify(creds: ApiCredentials): Promise<VerifyResult> {
     // Delta documents wallet and position APIs as requiring Trading permission.
     // Calling both verifies the scope without creating, editing, or cancelling
-    // an order.
-    const [account] = await Promise.all([this.getAccount(creds), this.getPositions(creds)]);
-    return { ok: true, canTrade: true, ...account };
+    // an order. accountRef is best-effort — a failure here must NOT fail verify.
+    const [account, , accountRef] = await Promise.all([
+      this.getAccount(creds),
+      this.getPositions(creds),
+      this.getAccountRef(creds),
+    ]);
+    return { ok: true, canTrade: true, ...account, accountRef };
+  }
+
+  /**
+   * Stable Delta account/profile id, used only to block connecting the same
+   * account twice via different keys. Best-effort: any failure → undefined.
+   */
+  private async getAccountRef(creds: ApiCredentials): Promise<string | undefined> {
+    try {
+      const profile = await signedRequest<{ id?: number | string; user_id?: number | string; email?: string }>(
+        creds,
+        'GET',
+        '/v2/profile',
+      );
+      const ref = profile?.id ?? profile?.user_id ?? profile?.email;
+      return ref != null && String(ref).trim() !== '' ? String(ref) : undefined;
+    } catch {
+      return undefined;
+    }
   }
 
   async getInstrument(symbol: string): Promise<InstrumentInfo | null> {

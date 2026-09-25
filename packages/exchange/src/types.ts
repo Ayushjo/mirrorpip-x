@@ -21,6 +21,12 @@ export interface AccountInfo {
   nativeEquity?: number;
   nativeCurrency?: TradeCurrency | string;
   conversionRate?: number;
+  /**
+   * Stable per-exchange account/profile id. Used to detect the same underlying
+   * exchange account connected via different API keys. Best-effort — may be
+   * undefined if the venue doesn't expose it or the lookup failed.
+   */
+  accountRef?: string;
 }
 
 export interface VerifyResult extends AccountInfo {

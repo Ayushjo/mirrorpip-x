@@ -87,14 +87,26 @@ export async function fanoutLeaderFill(leader: Leader, fill: FillEvent): Promise
   }
   if (follows.length === 0) return;
 
-  // 3. Leader equity (for proportional sizing) — fetched once.
-  const exchange = getExchange(leader.exchange);
+  // 3. Leader equity (for proportional sizing). Prefer the equity the engine
+  //    already polls (~every 30s) — a fast local DB read — to avoid a cross-region
+  //    Delta round-trip on the hot path. Fall back to a live read only if there's
+  //    no recent point. A slightly stale leader equity is fine for the sizing ratio.
   let leaderEquityUsd = 0;
-  try {
-    const leaderCred = await prisma.exchangeCredential.findUnique({ where: { id: leader.credentialId } });
-    if (leaderCred) leaderEquityUsd = (await exchange.getAccount(toApiCreds(leaderCred))).equityUsd;
-  } catch (err) {
-    log.warn('could not read leader equity; proportional follows may skip', { err: String(err) });
+  const recentPoint = await prisma.leaderEquityPoint.findFirst({
+    where: { leaderId: leader.id, ts: { gte: new Date(Date.now() - 90_000) } },
+    orderBy: { ts: 'desc' },
+    select: { equityUsd: true },
+  });
+  if (recentPoint) {
+    leaderEquityUsd = Number(recentPoint.equityUsd);
+  } else {
+    try {
+      const exchange = getExchange(leader.exchange);
+      const leaderCred = await prisma.exchangeCredential.findUnique({ where: { id: leader.credentialId } });
+      if (leaderCred) leaderEquityUsd = (await exchange.getAccount(toApiCreds(leaderCred))).equityUsd;
+    } catch (err) {
+      log.warn('could not read leader equity; proportional follows may skip', { err: String(err) });
+    }
   }
 
   // 4. Fan out (isolated per follower).

@@ -164,6 +164,9 @@ model ExchangeCredential {
   keyLast4 String
   // Stable keyed digest used only to prevent connecting one exchange account twice.
   apiKeyFingerprint String?
+  // Stable exchange account/profile id (from verify) — blocks connecting the SAME
+  // underlying account twice even via different API keys. Null when unavailable.
+  accountRef String?
 
   baseCurrency String           @default("USD")
   tradeCurrency String          @default("USDT")
@@ -181,6 +184,7 @@ model ExchangeCredential {
 
   @@index([userId])
   @@unique([exchange, apiKeyFingerprint])
+  @@unique([exchange, accountRef])
   @@map("exchange_credential")
 }
 
