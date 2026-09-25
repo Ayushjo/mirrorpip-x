@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 import { AnimatePresence, motion } from 'framer-motion';
-import { Check, ChevronDown, ClipboardPaste, Copy, Loader2, Plus, ShieldCheck, TriangleAlert, Users } from 'lucide-react';
+import { Check, ChevronDown, ClipboardPaste, Copy, Loader2, Play, Plus, ShieldCheck, TriangleAlert, Users } from 'lucide-react';
 import { toast } from 'sonner';
 import { Button, Card, Field, Input, Select, cx, fmtUsd } from './ui';
 import { Sheet } from './sheet';
@@ -355,14 +355,49 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
         </div>
 
         {creds.length === 0 ? (
-          <div className="flex flex-col items-center py-10 text-center">
-            <div className="vcard relative grid h-48 w-80 max-w-full place-items-center overflow-hidden rounded-[1.75rem] border-dashed opacity-80 [transform:none!important]">
-              <div className="vcard-sheen pointer-events-none absolute inset-0" />
-              <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-accent text-2xl font-bold text-[#050b17]">Δ</span>
+          <div className="relative flex flex-col items-center overflow-hidden py-12 text-center sm:py-16">
+            <div aria-hidden className="pointer-events-none absolute left-1/2 top-[38%] h-64 w-[26rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[90px]" />
+
+            {/* wallet preview stack */}
+            <div className="relative h-56 w-[20rem] max-w-full">
+              <div aria-hidden className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-[62%] -translate-y-1/2 -rotate-[9deg] rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.02]" />
+              <div aria-hidden className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-[38%] -translate-y-1/2 rotate-[9deg] rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.02]" />
+              <div className="hero-float absolute left-1/2 top-1/2 flex h-48 w-72 -translate-x-1/2 -translate-y-1/2 flex-col justify-between overflow-hidden rounded-[1.5rem] p-4 text-left shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8)]" style={{ background: 'linear-gradient(160deg, #10254a 0%, #0a1a35 55%, #071228 100%)', border: '1px solid rgba(255,255,255,0.1)' }}>
+                <div className="vcard-sheen pointer-events-none absolute inset-0" />
+                <div className="relative flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand to-accent text-base font-bold text-[#050b17]">Δ</span>
+                    <div>
+                      <div className="text-sm font-semibold text-fg">Your first account</div>
+                      <div className="text-[11px] text-muted">Delta India · USDT</div>
+                    </div>
+                  </div>
+                  <span className="h-2 w-2 rounded-full bg-brand shadow-[0_0_10px_rgba(0,176,255,0.8)]" />
+                </div>
+                <div className="relative">
+                  <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-white/35">Equity</div>
+                  <div className="mt-0.5 text-2xl font-semibold tabular-nums text-white/30" style={{ letterSpacing: '-0.03em' }}>$ ——</div>
+                </div>
+                <div className="relative flex items-end justify-between">
+                  <span className="font-mono text-xs tracking-[0.2em] text-white/30">•••• ····</span>
+                  <span className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] font-medium text-muted">Trade-only</span>
+                </div>
+              </div>
             </div>
-            <div className="mt-6 text-lg font-semibold text-fg">Connect your first exchange</div>
-            <p className="mt-1 max-w-sm text-sm text-muted">Add a trade-only Delta India key to start copying leaders. It takes about two minutes.</p>
-            <Button type="button" arrow className="mt-5" onClick={() => setWizard({ open: true, prefill: null })}>Connect account</Button>
+
+            <div className="relative mt-7 text-lg font-semibold text-fg" style={{ letterSpacing: '-0.01em' }}>Connect your first exchange</div>
+            <p className="relative mt-1 max-w-sm text-sm text-muted">Add a trade-only Delta India key to start copying leaders. It takes about two minutes.</p>
+            <div className="relative mt-5 flex flex-col items-center gap-3 sm:flex-row">
+              <Button type="button" arrow onClick={() => setWizard({ open: true, prefill: null })}>Connect account</Button>
+              <button type="button" onClick={() => document.getElementById('howto-video')?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand">
+                <Play className="h-3.5 w-3.5" /> Watch how · 1 min
+              </button>
+            </div>
+            <div className="relative mt-6 flex flex-wrap justify-center gap-2">
+              {['🔐 Withdrawals impossible', '🛡️ AES-256 encrypted', '⏱️ ~2 minutes'].map((t) => (
+                <span key={t} className="rounded-full bg-white/[0.05] px-3 py-1.5 text-[12px] text-muted">{t}</span>
+              ))}
+            </div>
           </div>
         ) : (
           <div className="no-scrollbar -mx-6 flex snap-x scroll-px-6 gap-4 overflow-x-auto px-6 pb-2 sm:mx-0 sm:grid sm:grid-cols-2 sm:overflow-visible sm:px-0 lg:grid-cols-3">
@@ -390,7 +425,9 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
       </section>
 
       {/* how-to video */}
-      <HowToVideo compact={creds.length > 0} onConnect={() => setWizard({ open: true, prefill: null })} />
+      <div id="howto-video" className="scroll-mt-24">
+        <HowToVideo compact={creds.length > 0} onConnect={() => setWizard({ open: true, prefill: null })} />
+      </div>
 
       {/* info row */}
       <div className="grid gap-4 lg:grid-cols-2">
