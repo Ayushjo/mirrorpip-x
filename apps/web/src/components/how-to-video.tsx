@@ -62,10 +62,10 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
     );
 
   return (
-    <Card className="overflow-hidden p-0 max-sm:-mx-6 max-sm:rounded-none">
+    <Card className="overflow-hidden !p-0 max-sm:-mx-6 max-sm:rounded-none">
       <div className="grid lg:grid-cols-[1.5fr_1fr]">
         {/* media */}
-        <div className="relative p-4 sm:p-6 lg:pr-0">
+        <div className="relative min-w-0 p-4 sm:p-6 lg:pr-0">
           <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-3/5 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[80px]" />
           <div className="relative rounded-[1.25rem] bg-gradient-to-br from-brand/50 via-white/10 to-accent/30 p-[2px] sm:rounded-[1.75rem]">
             <div className="relative overflow-hidden rounded-[calc(1.25rem-2px)] bg-[#050b17] sm:rounded-[calc(1.75rem-2px)]">
@@ -130,7 +130,7 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
         </div>
 
         {/* chapters + CTA */}
-        <div className="flex flex-col p-5 sm:p-6">
+        <div className="flex min-w-0 flex-col p-5 sm:p-6">
           <div className="flex items-start justify-between gap-3">
             <div>
               <h2 className="text-base font-semibold text-fg" style={{ letterSpacing: '-0.01em' }}>How to create your key</h2>
