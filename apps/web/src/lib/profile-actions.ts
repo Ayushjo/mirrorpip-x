@@ -79,10 +79,25 @@ async function cropToDataUrl(blob: Blob, focal: Focal, size = 256): Promise<stri
     ctx.translate(-ox, -oy);
     ctx.drawImage(img, offX, offY, drawW, drawH);
     ctx.restore();
-    return canvas.toDataURL('image/webp', 0.85);
+    return encodeSmall(canvas);
   } finally {
     URL.revokeObjectURL(url);
   }
+}
+
+/**
+ * Encode the cropped canvas as a compact data URL that fits the server's size
+ * cap. Prefer WebP, but Safari/iOS silently return a (large) PNG when they can't
+ * encode WebP — so fall back to JPEG, stepping quality down until it fits.
+ */
+function encodeSmall(canvas: HTMLCanvasElement, maxChars = 110_000): string {
+  const webp = canvas.toDataURL('image/webp', 0.82);
+  if (webp.startsWith('data:image/webp') && webp.length <= maxChars) return webp;
+  for (const q of [0.85, 0.75, 0.65, 0.5, 0.4]) {
+    const jpeg = canvas.toDataURL('image/jpeg', q);
+    if (jpeg.length <= maxChars) return jpeg;
+  }
+  return canvas.toDataURL('image/jpeg', 0.35);
 }
 
 export async function uploadAvatar(blob: Blob, focal: Focal): Promise<Result<{ url: string }>> {

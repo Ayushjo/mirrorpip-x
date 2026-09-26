@@ -13,6 +13,7 @@
   "dependencies": {
     "@belivemeguys/db": "workspace:*",
     "@belivemeguys/exchange": "workspace:*",
+    "aws4fetch": "^1.0.20",
     "better-auth": "1.2.7",
     "dotenv": "^16.4.7",
     "framer-motion": "^13.4.0",
