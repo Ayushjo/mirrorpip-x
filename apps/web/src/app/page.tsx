@@ -4,6 +4,7 @@ import { listLeaders } from '@/lib/services/copy';
 import { LinkButton } from '@/components/ui';
 import { Rise, Light, TextLink, Bars, H2, Words, PointerLight, ScrollFade, CountIn } from '@/components/landing/motion';
 import { Tilt } from '@/components/landing/magnetic';
+import { DemoFilm } from '@/components/landing/demo-film';
 import { LivePhone, FillsFeed, LiveLeaderboard, LiveTradeChart, LoopCounter, SizingBars, HelpChat, PauseDemo, RiskDemo, FillsMarquee, StickyCta, Testimonials, Milestones, OrbitNotes } from '@/components/landing/live';
 import { ArrowRight, Plus } from 'lucide-react';
 
@@ -94,6 +95,18 @@ export default async function LandingPage() {
             </div>
           </Rise>
         </div>
+      </section>
+
+      {/* ── 1b. Product film ─────────────────────────────────────────── */}
+      <section className="relative mx-auto max-w-6xl px-6 pt-16 sm:pt-24">
+        <Rise>
+          <H2 sub="A verified leader trades. Your account copies it, sized your way.">
+            See it in action
+          </H2>
+        </Rise>
+        <Rise delay={0.1} className="mt-10 sm:mt-14">
+          <DemoFilm />
+        </Rise>
       </section>
 
       {/* ── 2. Spotlight number ─────────────────────────────────────── */}
