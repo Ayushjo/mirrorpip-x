@@ -31,11 +31,11 @@ export function LeaderOverview({ stats: s, equity, hasShape }: { stats: Stats; e
         {tiles.map((t, i) => (
           <Reveal key={t.label} delay={t.delay} className={cx(i === 0 && 'col-span-2 sm:col-span-1')}>
             <div className="card-surface card-surface-hover group h-full rounded-2xl p-4 sm:p-5">
-              <div className="mb-2 text-brand transition-transform duration-300 group-hover:scale-110">
+              <div className="mb-2 text-brand-fg transition-transform duration-300 group-hover:scale-110">
                 <t.I width={18} height={18} />
               </div>
               <div className="text-xs text-muted">{t.label}</div>
-              <div className={cx('mt-0.5 text-xl font-semibold tabular-nums sm:text-2xl', t.tone === 'up' && 'text-up', t.tone === 'down' && 'text-down')}>
+              <div className={cx('mt-0.5 text-xl font-semibold tabular-nums sm:text-2xl', t.tone === 'up' && 'text-up-fg', t.tone === 'down' && 'text-down-fg')}>
                 {t.value}
               </div>
             </div>
@@ -71,7 +71,7 @@ export function LeaderOverview({ stats: s, equity, hasShape }: { stats: Stats; e
             {s.tradeCount > 0 ? (
               <Ring pct={s.winRatePct} label="of closed trades" />
             ) : (
-              <div className="grid h-[108px] w-[108px] place-items-center rounded-full border-[9px] border-dashed border-white/10 text-xs text-muted">No trades yet</div>
+              <div className="grid h-[108px] w-[108px] place-items-center rounded-full border-[9px] border-dashed border-border text-xs text-muted">No trades yet</div>
             )}
             <div className="flex gap-6 text-sm">
               <div>

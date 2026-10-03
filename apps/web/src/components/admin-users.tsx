@@ -118,7 +118,7 @@ export function AdminUsers() {
                       {u.name} {u.role === 'admin' && <Badge tone="brand">admin</Badge>}
                     </div>
                     <div className="text-xs text-muted">
-                      {u.email} {!u.emailVerified && <span className="text-warn">(unverified)</span>}
+                      {u.email} {!u.emailVerified && <span className="text-warn-fg">(unverified)</span>}
                     </div>
                   </td>
                   <td className="px-4 py-3 text-xs text-muted">
@@ -144,7 +144,7 @@ export function AdminUsers() {
       )}
 
       {dossier && (
-        <div className="fixed inset-0 z-50 flex justify-end bg-black/60" onClick={() => setDossier(null)}>
+        <div className="fixed inset-0 z-50 flex justify-end bg-scrim/60" onClick={() => setDossier(null)}>
           <div className="h-full w-full max-w-md overflow-y-auto bg-surface p-6 shadow-2xl" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-start justify-between">
               <div>
@@ -195,7 +195,7 @@ export function AdminUsers() {
                 </Button>
               )}
             </div>
-            {stopMsg && <p className="mt-1.5 rounded-lg bg-up/15 px-3 py-1.5 text-xs text-up">{stopMsg}</p>}
+            {stopMsg && <p className="mt-1.5 rounded-lg bg-up/15 px-3 py-1.5 text-xs text-up-fg">{stopMsg}</p>}
             {dossier.follows.length === 0 ? (
               <p className="mt-1 text-xs text-muted">Not following anyone.</p>
             ) : (

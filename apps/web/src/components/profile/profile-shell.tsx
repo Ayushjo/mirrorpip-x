@@ -55,7 +55,7 @@ export function ProfileShell({ data, emailVerified = false }: { data: IdentityDa
     { k: 'verified', label: 'Verify your email', done: emailVerified, anchor: 'public' },
   ];
   const pct = Math.round((checks.filter((c) => c.done).length / checks.length) * 100);
-  const subs = [{ id: 'public', label: 'Public profile' }, { id: 'location', label: 'Location & contact' }, ...(data.leader ? [{ id: 'leader', label: 'Leader profile' }] : [])];
+  const subs = [{ id: 'public', label: 'Public profile' }, { id: 'location', label: 'Location & contact' }, { id: 'appearance', label: 'Appearance' }, ...(data.leader ? [{ id: 'leader', label: 'Leader profile' }] : [])];
   const spy = useSpy(subs.map((s) => s.id), tab === 'profile');
 
   const jump = (anchor: string) => {
@@ -79,10 +79,10 @@ export function ProfileShell({ data, emailVerified = false }: { data: IdentityDa
                   type="button"
                   onClick={() => setTab(id)}
                   aria-current={active ? 'page' : undefined}
-                  className={cx('relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-left transition-colors lg:w-full lg:px-4 lg:py-3', active ? 'bg-white/[0.06] text-fg' : 'text-muted hover:bg-white/[0.04] hover:text-fg', id === 'danger' && active && 'text-down')}
+                  className={cx('relative flex items-center gap-3 rounded-2xl px-3.5 py-2.5 text-left transition-colors lg:w-full lg:px-4 lg:py-3', active ? 'bg-tint/[0.06] text-fg' : 'text-muted hover:bg-tint/[0.04] hover:text-fg', id === 'danger' && active && 'text-down-fg')}
                 >
                   {active && <motion.span layoutId="profile-tab-bar" className={cx('absolute left-0 top-1/2 hidden h-6 w-1 -translate-y-1/2 rounded-r-full lg:block', id === 'danger' ? 'bg-down' : 'bg-brand')} />}
-                  <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-xl', active ? (id === 'danger' ? 'bg-down/15 text-down' : 'bg-brand text-[#050b17]') : 'bg-white/[0.05] text-brand', id === 'danger' && !active && 'text-down/70')}>
+                  <span className={cx('grid h-9 w-9 shrink-0 place-items-center rounded-xl', active ? (id === 'danger' ? 'bg-down/15 text-down-fg' : 'bg-brand text-on-brand') : 'bg-tint/[0.05] text-brand-fg', id === 'danger' && !active && 'text-down-fg/70')}>
                     <Icon className="h-4 w-4" />
                   </span>
                   <span className="min-w-0">
@@ -91,7 +91,7 @@ export function ProfileShell({ data, emailVerified = false }: { data: IdentityDa
                   </span>
                 </button>
                 {id === 'profile' && active && (
-                  <ul className="ml-[3.25rem] mt-1 hidden space-y-0.5 border-l border-white/10 lg:block">
+                  <ul className="ml-[3.25rem] mt-1 hidden space-y-0.5 border-l border-border lg:block">
                     {subs.map((s) => (
                       <li key={s.id}>
                         <button type="button" onClick={() => jump(s.id)} className={cx('-ml-px block border-l py-1 pl-3 text-xs transition-colors', spy === s.id ? 'border-brand text-fg' : 'border-transparent text-muted hover:text-fg')}>{s.label}</button>
@@ -109,7 +109,7 @@ export function ProfileShell({ data, emailVerified = false }: { data: IdentityDa
           <div className="card-surface hidden p-5 lg:block">
             <div className="flex items-center gap-3">
               <div className="relative grid h-12 w-12 shrink-0 place-items-center">
-                <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="rgba(255,255,255,0.08)" strokeWidth="3" /><motion.circle cx="18" cy="18" r="15" fill="none" stroke="#00b0ff" strokeWidth="3" strokeLinecap="round" initial={false} animate={{ strokeDasharray: `${(pct / 100) * 94.2} 94.2` }} transition={{ duration: 0.6 }} /></svg>
+                <svg viewBox="0 0 36 36" className="absolute inset-0 -rotate-90"><circle cx="18" cy="18" r="15" fill="none" stroke="var(--color-tint)" strokeOpacity="0.08" strokeWidth="3" /><motion.circle cx="18" cy="18" r="15" fill="none" stroke="var(--color-brand)" strokeWidth="3" strokeLinecap="round" initial={false} animate={{ strokeDasharray: `${(pct / 100) * 94.2} 94.2` }} transition={{ duration: 0.6 }} /></svg>
                 <span className="text-[11px] font-semibold tabular-nums text-fg">{pct}%</span>
               </div>
               <div>
@@ -120,8 +120,8 @@ export function ProfileShell({ data, emailVerified = false }: { data: IdentityDa
             <ul className="mt-4 space-y-1">
               {checks.map((c) => (
                 <li key={c.k}>
-                  <button type="button" disabled={c.done || c.k === 'verified'} onClick={() => jump(c.anchor)} className={cx('flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-xs transition-colors', c.done ? 'text-muted' : 'text-fg hover:bg-white/[0.04]')}>
-                    <span className={cx('grid h-4 w-4 shrink-0 place-items-center rounded-full border', c.done ? 'border-up bg-up text-[#050b17]' : 'border-white/20')}>{c.done && <Check className="h-2.5 w-2.5" strokeWidth={3} />}</span>
+                  <button type="button" disabled={c.done || c.k === 'verified'} onClick={() => jump(c.anchor)} className={cx('flex w-full items-center gap-2 rounded-xl px-2 py-1.5 text-left text-xs transition-colors', c.done ? 'text-muted' : 'text-fg hover:bg-tint/[0.04]')}>
+                    <span className={cx('grid h-4 w-4 shrink-0 place-items-center rounded-full border', c.done ? 'border-up bg-up text-on-brand' : 'border-border')}>{c.done && <Check className="h-2.5 w-2.5" strokeWidth={3} />}</span>
                     <span className={cx(c.done && 'line-through')}>{c.label}</span>
                   </button>
                 </li>

@@ -23,7 +23,7 @@ function radiusFor(count: number): number {
 
 /**
  * Admin user-location map. Plots real signup coordinates (geocoded from
- * city/postal at signup) as glowing points on a lavender equirectangular panel.
+ * city/postal at signup) as glowing points on a dark (night-island) equirectangular panel.
  * A world silhouette at /media/world-map.webp enhances it when present; without it
  * the graticule keeps the panel legible. Not a gimmick — every dot is real data.
  */
@@ -47,7 +47,7 @@ export function AdminUserMap({ points }: { points: GeoPoint[] }) {
 
       <div className="grid gap-0 lg:grid-cols-[1fr_260px]">
         {/* Map panel */}
-        <div className="relative m-6 overflow-hidden rounded-2xl border border-border-soft">
+        <div data-theme="dark" className="relative m-6 overflow-hidden rounded-2xl border border-border-soft">
           <div
             className="relative w-full"
             style={{

@@ -22,12 +22,12 @@ export function AdminTabs({ tab, onChange, pendingLeaders }: { tab: AdminTab; on
           onClick={() => onChange(t.id)}
           className={cx(
             'relative shrink-0 whitespace-nowrap rounded-full px-3.5 py-1.5 text-sm font-medium transition-colors sm:px-4',
-            tab === t.id ? 'bg-brand text-white' : 'text-muted hover:text-fg',
+            tab === t.id ? 'bg-brand text-on-brand' : 'text-muted hover:text-fg',
           )}
         >
           {t.label}
           {t.id === 'leaders' && pendingLeaders > 0 && (
-            <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-warn px-1 text-[10px] font-bold text-white">
+            <span className="absolute -right-1 -top-1 grid h-4 min-w-4 place-items-center rounded-full bg-warn px-1 text-[10px] font-bold text-on-brand">
               {pendingLeaders}
             </span>
           )}

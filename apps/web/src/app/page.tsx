@@ -19,8 +19,10 @@ const VENUES = [
   { name: 'CoinSwitch', sub: 'Coming soon', live: false, mark: 'C', tone: 'from-[#2b2b2b] to-[#3a3a3a]' },
 ];
 
-function Card({ children, className = '', hover = true }: { children: React.ReactNode; className?: string; hover?: boolean }) {
-  const inner = <div className={`ocard relative flex flex-col overflow-hidden ${hover ? 'ocard-hover' : ''} ${className}`}>{children}</div>;
+// `night`: keep this card dark in light mode — used for cards built around our
+// (dark-rendered) imagery.
+function Card({ children, className = '', hover = true, night = false }: { children: React.ReactNode; className?: string; hover?: boolean; night?: boolean }) {
+  const inner = <div data-theme={night ? 'dark' : undefined} className={`ocard relative flex flex-col overflow-hidden ${hover ? 'ocard-hover' : ''} ${className}`}>{children}</div>;
   return hover ? <Tilt className="tilt-host relative h-full [&>.ocard]:h-full">{inner}</Tilt> : inner;
 }
 /** Demo area inside a feature card: fills the remaining height and centers its content. */
@@ -54,7 +56,7 @@ export default async function LandingPage() {
   return (
     <div className="-mx-6 -mt-10 overflow-x-clip pb-4 sm:-mt-10">
       {/* ── 1. Hero ─────────────────────────────────────────────────── */}
-      <section className="relative min-h-[min(92svh,820px)] overflow-hidden">
+      <section data-theme="dark" className="isolate relative min-h-[min(92svh,820px)] overflow-hidden bg-bg light:mt-3 light:mx-3 light:overflow-hidden light:rounded-[2rem] sm:light:mx-5 sm:light:rounded-[3rem]">
         <Bars className="opacity-90" />
         <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-bg to-transparent" />
         <div className="relative mx-auto flex min-h-[min(92svh,820px)] max-w-6xl flex-col items-center justify-end px-6 pb-8 text-center sm:pb-12">
@@ -87,7 +89,7 @@ export default async function LandingPage() {
             <div className="-mx-6 overflow-hidden [mask-image:linear-gradient(to_right,transparent,#000_8%,#000_92%,transparent)] sm:mx-0 sm:[mask-image:none]">
               <div className="marquee-track gap-2 sm:!animate-none sm:!w-auto sm:flex-wrap sm:justify-center">
                 {[...CHIPS, ...CHIPS].map((c, i) => (
-                  <span key={i} className={`shrink-0 rounded-xl bg-white/[0.06] px-3.5 py-2 text-[13px] font-medium text-fg backdrop-blur ${i >= CHIPS.length ? 'sm:hidden' : ''}`}>
+                  <span key={i} className={`shrink-0 rounded-xl bg-tint/[0.06] px-3.5 py-2 text-[13px] font-medium text-fg backdrop-blur ${i >= CHIPS.length ? 'sm:hidden' : ''}`}>
                     {c}
                   </span>
                 ))}
@@ -118,7 +120,7 @@ export default async function LandingPage() {
               &lt;<CountIn to={1} from={9} duration={1.4} />s
             </div>
           </Rise>
-          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent" />
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-24 bg-gradient-to-t from-bg to-transparent light:hidden" />
         </div>
         <Rise className="mt-6">
           <H2 sub="Every order a leader fills is sized to your account and placed within a second, on rails you already use.">
@@ -141,8 +143,8 @@ export default async function LandingPage() {
           <Light className="!top-[55%] opacity-70" />
           <OrbitNotes />
           <LivePhone />
-          <div className="relative -mt-10 mx-auto flex w-fit max-w-[92vw] items-center gap-4 rounded-[1.75rem] bg-gradient-to-r from-brand to-accent p-3 pr-6 text-left text-[#050b17] shadow-[0_20px_60px_rgba(0,176,255,0.35)] sm:-mt-12">
-            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-[#050b17]/10 text-2xl">📈</div>
+          <div className="relative -mt-10 mx-auto flex w-fit max-w-[92vw] items-center gap-4 rounded-[1.75rem] bg-gradient-to-r from-brand to-accent p-3 pr-6 text-left text-on-brand shadow-[0_20px_60px_rgba(0,176,255,0.35)] sm:-mt-12">
+            <div className="grid h-16 w-16 shrink-0 place-items-center rounded-2xl bg-scrim/10 text-2xl">📈</div>
             <div>
               <div className="text-lg font-semibold leading-tight" style={{ letterSpacing: '-0.02em' }}>
                 Your leaders, your account
@@ -159,8 +161,8 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-5xl px-6 pb-16 pt-32 text-center sm:pb-20 sm:pt-44">
         <Rise>
           <p className="text-[2.6rem] leading-[1.02] text-fg sm:text-[4rem] lg:text-[5.25rem]" style={{ letterSpacing: '-0.04em', fontWeight: 600 }}>
-            Discover the perfect blend of <span className="text-brand">custody</span>, <span className="text-brand">speed</span> and{' '}
-            <span className="text-brand">control</span>
+            Discover the perfect blend of <span className="text-brand-fg">custody</span>, <span className="text-brand-fg">speed</span> and{' '}
+            <span className="text-brand-fg">control</span>
           </p>
         </Rise>
       </section>
@@ -182,7 +184,7 @@ export default async function LandingPage() {
         </Rise>
         <div className="mt-12 grid gap-4 sm:gap-5">
           <Rise>
-            <Card className="!grid min-h-[420px] items-center gap-8 p-8 sm:grid-cols-2 sm:p-14">
+            <Card night className="!grid min-h-[420px] items-center gap-8 p-8 sm:grid-cols-2 sm:p-14">
               <div className="relative z-10 text-center sm:text-left">
                 <CardTitle a="Verified leaders" b="ranked by real fills" center={false} />
                 <div className="mt-6 flex flex-col items-center gap-3 sm:items-start">
@@ -202,7 +204,7 @@ export default async function LandingPage() {
 
           <div className="grid gap-4 sm:grid-cols-2 sm:gap-5">
             <Rise>
-              <Card className="min-h-[420px] p-8 sm:p-10">
+              <Card night className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Trade-only keys" b="so funds never leave your account" />
                 <div className="mt-3 text-center"><TextLink href="/connect">Learn more</TextLink></div>
                 <Demo className="-mx-8 -mb-8 sm:-mx-10 sm:-mb-10">
@@ -229,7 +231,7 @@ export default async function LandingPage() {
               </Card>
             </Rise>
             <Rise delay={0.08}>
-              <Card className="min-h-[420px] p-8 sm:p-10">
+              <Card night className="min-h-[420px] p-8 sm:p-10">
                 <CardTitle a="Negative balance protection" b="so you only risk your copy amount" />
                 <Demo>
                   {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -250,7 +252,7 @@ export default async function LandingPage() {
               <h3 className="text-[1.75rem] leading-tight text-fg sm:text-[2.1rem]" style={{ letterSpacing: '-0.025em', fontWeight: 600 }}>
                 You choose
                 <br />
-                the <span className="text-brand">sizing and risk limits</span>
+                the <span className="text-brand-fg">sizing and risk limits</span>
                 <br />
                 of every copy
               </h3>
@@ -263,7 +265,8 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 7. Trust ─────────────────────────────────────────────────── */}
-      <section className="relative mx-auto max-w-6xl px-6 pt-32 text-center sm:pt-44">
+      <div data-theme="dark" className="isolate bg-bg light:mt-24 sm:light:mt-32 light:mx-3 light:overflow-hidden light:rounded-[2rem] sm:light:mx-5 sm:light:rounded-[3rem]">
+      <section className="relative mx-auto max-w-6xl px-6 pt-32 text-center sm:pt-44 light:pt-16 sm:light:pt-24">
         <Rise>
           <H2>
             Built on Delta Exchange India,
@@ -271,7 +274,7 @@ export default async function LandingPage() {
           </H2>
           <div className="mt-8 flex flex-wrap items-center justify-center gap-2">
             {['AES-256-GCM at rest', 'Withdrawal disabled', 'Admin kill-switch', 'Verified leaders only', 'Real-time engine'].map((b) => (
-              <span key={b} className="rounded-full border border-white/10 px-4 py-2 text-[13px] font-medium text-muted">{b}</span>
+              <span key={b} className="rounded-full border border-border px-4 py-2 text-[13px] font-medium text-muted">{b}</span>
             ))}
           </div>
           <div className="mt-6"><TextLink href="/privacy">Learn more</TextLink></div>
@@ -283,6 +286,7 @@ export default async function LandingPage() {
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-32 bg-gradient-to-t from-bg to-transparent" />
         </Rise>
       </section>
+      </div>
 
       {/* ── 8. On your way ────────────────────────────────────────────── */}
       <section className="mx-auto max-w-6xl px-6 pt-28 sm:pt-36">
@@ -300,7 +304,7 @@ export default async function LandingPage() {
             { a: 'Track everything', b: 'live, in one dashboard', img: '/media/dashboard-banner.webp', href: '/dashboard', cta: 'Open dashboard' },
           ].map((c, i) => (
             <Rise key={c.a} delay={(i % 2) * 0.08}>
-              <Card className="min-h-[440px] p-8 sm:p-10">
+              <Card night className="min-h-[440px] p-8 sm:p-10">
                 <CardTitle a={c.a} b={c.b} />
                 <div className="mt-3 text-center"><TextLink href={c.href}>{c.cta}</TextLink></div>
                 <Demo className="-mx-8 -mb-8 sm:-mx-10 sm:-mb-10">
@@ -317,7 +321,7 @@ export default async function LandingPage() {
       <section className="mx-auto max-w-6xl overflow-hidden px-6 pt-32 text-center sm:pt-44">
         <Rise>
           <H2>
-            <span className="text-brand">Works with</span>
+            <span className="text-brand-fg">Works with</span>
             <br /> the venues you already use
           </H2>
           <div className="mt-4"><TextLink href="/connect">Connect an account</TextLink></div>
@@ -327,20 +331,21 @@ export default async function LandingPage() {
             {VENUES.map((v, i) => (
               <div
                 key={v.name}
+                data-theme="dark"
                 className={`vcard relative h-64 w-48 shrink-0 overflow-hidden rounded-[1.5rem] sm:h-72 sm:w-[13.5rem] ${v.live ? '' : 'vcard-dim'}`}
                 style={{ zIndex: VENUES.length - i }}
               >
                 <div className="vcard-sheen pointer-events-none absolute inset-0" />
                 <div className="relative flex h-full flex-col justify-between p-5">
                   <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-white/40">{i < 3 ? (i === 0 ? 'Venue' : 'Currency') : 'Venue'}</span>
-                    <span className={`h-2 w-2 rounded-full ${v.live ? 'bg-up shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-white/20'}`} />
+                    <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-tint/40">{i < 3 ? (i === 0 ? 'Venue' : 'Currency') : 'Venue'}</span>
+                    <span className={`h-2 w-2 rounded-full ${v.live ? 'bg-up shadow-[0_0_10px_rgba(16,185,129,0.8)]' : 'bg-tint/20'}`} />
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-xl font-bold ${v.tone} ${v.live ? 'text-[#050b17]' : 'text-white/50'}`}>{v.mark}</span>
+                    <span className={`grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-xl font-bold ${v.tone} ${v.live ? 'text-on-brand' : 'text-tint/50'}`}>{v.mark}</span>
                     <div className="min-w-0">
                       <div className={`truncate text-[15px] font-semibold ${v.live ? 'text-fg' : 'text-muted'}`}>{v.name}</div>
-                      <div className={`text-[11px] ${v.live ? 'text-up' : 'text-faint'}`}>{v.sub}</div>
+                      <div className={`text-[11px] ${v.live ? 'text-up-fg' : 'text-faint'}`}>{v.sub}</div>
                     </div>
                   </div>
                 </div>
@@ -378,7 +383,7 @@ export default async function LandingPage() {
               <Demo className="flex-col gap-4">
                 <SizingBars />
                 <div className="flex items-center gap-4 text-[11px] text-muted">
-                  <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-white/15" /> Leader</span>
+                  <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-tint/15" /> Leader</span>
                   <span className="inline-flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-sm bg-brand" /> You · 0.25×</span>
                 </div>
               </Demo>
@@ -396,10 +401,10 @@ export default async function LandingPage() {
       </section>
 
       {/* ── 11. Community globe ───────────────────────────────────────── */}
-      <section className="relative mt-32 sm:mt-44">
+      <section data-theme="dark" className="isolate relative mt-32 bg-bg sm:mt-44 light:mx-3 light:overflow-hidden light:rounded-[2rem] sm:light:mx-5 sm:light:rounded-[3rem]">
         {/* eslint-disable-next-line @next/next/no-img-element */}
         <img src="/media/world-map.webp" alt="" className="pointer-events-none absolute inset-x-0 top-0 h-full w-full object-cover opacity-40 [mask-image:radial-gradient(ellipse_60%_70%_at_50%_50%,#000_30%,transparent_75%)]" />
-        <div className="relative mx-auto max-w-6xl px-6 py-32 text-center sm:py-44">
+        <div className="relative mx-auto max-w-6xl px-6 py-32 text-center sm:py-44 light:py-24 sm:light:py-32">
           <Rise>
             <H2>
               Traders copying
@@ -407,11 +412,11 @@ export default async function LandingPage() {
             </H2>
             <div className="mt-8 flex items-center justify-center">
               {['A', 'R', 'K', 'S', 'M', 'J'].map((l, i) => (
-                <span key={l} className="-ml-3 grid h-16 w-16 place-items-center rounded-full border-4 border-bg bg-gradient-to-br from-[#163a70] to-[#0a1e3a] text-lg font-semibold text-fg first:ml-0 sm:h-20 sm:w-20" style={{ zIndex: i }}>
+                <span key={l} className="-ml-3 grid h-16 w-16 place-items-center rounded-full border-4 border-bg bg-gradient-to-br from-surface-3 to-surface text-lg font-semibold text-fg first:ml-0 sm:h-20 sm:w-20" style={{ zIndex: i }}>
                   {l}
                 </span>
               ))}
-              <span className="-ml-3 grid h-16 w-16 place-items-center rounded-full border-4 border-bg bg-brand text-[#050b17] sm:h-20 sm:w-20" style={{ zIndex: 10 }}>
+              <span className="-ml-3 grid h-16 w-16 place-items-center rounded-full border-4 border-bg bg-brand text-on-brand sm:h-20 sm:w-20" style={{ zIndex: 10 }}>
                 <Plus className="h-8 w-8" strokeWidth={2.5} />
               </span>
             </div>
@@ -451,10 +456,10 @@ export default async function LandingPage() {
             ['How small can I start?', 'From $10 per copy. Choose fixed, proportional or multiplied sizing, and set a daily loss cap the engine enforces.'],
             ['Which venues are supported?', 'Delta Exchange India today, in USDT and INR. More venues are on the way and will appear in Accounts when live.'],
           ].map(([q, a]) => (
-            <details key={q} className="faq group rounded-2xl bg-[#0b1a33] px-5 sm:px-6">
+            <details key={q} className="faq group rounded-2xl bg-raised px-5 light:ring-1 light:ring-border sm:px-6">
               <summary className="flex cursor-pointer list-none items-center justify-between gap-4 py-4 text-[15px] font-medium text-fg sm:py-5">
                 {q}
-                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-white/[0.06] text-muted transition-transform group-open:rotate-45">+</span>
+                <span className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-tint/[0.06] text-muted transition-transform group-open:rotate-45">+</span>
               </summary>
               <p className="pb-5 text-sm leading-relaxed text-muted">{a}</p>
             </details>
@@ -471,7 +476,7 @@ export default async function LandingPage() {
             href={primaryHref}
             className="ocard-hover group flex min-h-[160px] items-center justify-center rounded-[2rem] bg-gradient-to-r from-[#0a4f8f] via-brand to-accent px-6 text-center sm:min-h-[200px] sm:rounded-[3rem]"
           >
-            <span className="text-[2rem] leading-none text-[#050b17] sm:text-[3rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>
+            <span className="text-[2rem] leading-none text-on-brand sm:text-[3rem]" style={{ letterSpacing: '-0.03em', fontWeight: 600 }}>
               Start copying confidently
             </span>
           </Link>

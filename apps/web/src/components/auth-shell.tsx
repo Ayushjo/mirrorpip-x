@@ -3,11 +3,11 @@ import Link from 'next/link';
 import { BrandMark } from './icons';
 import { AuthShowcase } from './landing/auth-showcase';
 
-// Full-bleed auth split (Neon-style): the coin hero fills one entire half of the
-// viewport edge-to-edge; the form sits on the other half. Fixed over everything
-// (incl. the nav) so it's a true full-screen experience. The hero image and its
-// caption are overridable so each auth page (login, register, verify) can set its
-// own art while sharing the layout.
+// Full-bleed auth split: the live-phone showcase fills one half of the viewport
+// (lg+), the form sits on the other. Fixed over everything (incl. the nav) so
+// it's a true full-screen experience. The showcase is a night island — it stays
+// dark in light mode; the form half follows the theme. Title/subtitle are
+// overridable per page (login, register, verify).
 export function AuthShell({
   children,
   title = (
@@ -27,6 +27,7 @@ export function AuthShell({
     <div className="fixed inset-0 z-50 grid grid-cols-1 bg-bg lg:grid-cols-2">
       {/* Showcase half — live phone + orbiting notes (lg+) */}
       <div
+        data-theme="dark"
         className="relative hidden overflow-hidden lg:block"
         style={{ background: 'radial-gradient(1000px 700px at 70% 20%, rgba(0,176,255,0.14), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #08203f 55%, #050b17 100%)' }}
       >
@@ -41,13 +42,13 @@ export function AuthShell({
         style={{
           paddingTop: 'max(1.5rem, env(safe-area-inset-top))',
           background:
-            'radial-gradient(520px 260px at 50% -10%, rgba(0,176,255,0.14), transparent 65%), #050b17',
+            'radial-gradient(520px 260px at 50% -10%, rgba(0,176,255,0.14), transparent 65%), var(--color-bg)',
         }}
       >
         <Link href="/" className="flex w-fit items-center gap-2 text-fg">
           <BrandMark className="h-7 w-7" />
           <span className="text-lg font-semibold tracking-tight">
-            BelieveMe<span className="text-brand">Guys</span>
+            BelieveMe<span className="text-brand-fg">Guys</span>
           </span>
         </Link>
         <div className="mx-auto my-auto w-full max-w-sm py-10">{children}</div>

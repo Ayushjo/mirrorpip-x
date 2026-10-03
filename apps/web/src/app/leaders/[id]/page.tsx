@@ -46,13 +46,13 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
         }
         above={
           <span className="relative">
-            <span className="absolute inset-0 -m-3 rounded-full bg-brand/25 blur-2xl" />
+            <span className="absolute inset-0 -m-3 rounded-full bg-brand/25 blur-2xl light:opacity-60" />
             <span className="relative grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-brand to-accent p-[3px] shadow-[0_16px_50px_rgba(0,176,255,0.35)]">
-              <span className="grid h-full w-full place-items-center rounded-full bg-[#0b1a33] text-3xl font-bold text-fg">
+              <span className="grid h-full w-full place-items-center rounded-full bg-raised text-3xl font-bold text-fg">
                 {leader.displayName.slice(0, 1).toUpperCase()}
               </span>
             </span>
-            <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-4 border-bg bg-up text-[#050b17]">
+            <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-4 border-bg bg-up text-on-brand">
               <ShieldIcon width={14} height={14} />
             </span>
           </span>
@@ -97,6 +97,7 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
       {/* ── Copy this leader ─────────────────────────────────────────── */}
       <Reveal>
         <div
+          data-theme="dark"
           className="relative overflow-hidden rounded-3xl border border-border"
           style={{
             background:
@@ -114,7 +115,7 @@ export default async function LeaderDetailPage({ params }: { params: Promise<{ i
               <ul className="mt-6 grid gap-4 sm:grid-cols-3">
                 {HOW.map(({ Icon, t, d }) => (
                   <li key={t} className="flex gap-3 sm:block">
-                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-2 text-brand sm:mb-3">
+                    <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-2 text-brand-fg sm:mb-3">
                       <Icon className="h-4 w-4" />
                     </span>
                     <div>

@@ -59,7 +59,8 @@ export function Light({ className, color = 'rgba(0,176,255,1)' }: { className?: 
         width: 'min(80vw, 900px)',
         height: 'min(60vh, 520px)',
         filter: 'blur(120px)',
-        background: `radial-gradient(50% 50%, ${color} 0%, rgba(96,165,255,0.85) 45%, rgba(0,176,255,0) 100%)`,
+        // --glow scales the colour stops: 1 in dark (identical render), softer in light.
+        background: `radial-gradient(50% 50%, color-mix(in srgb, ${color} calc(var(--glow) * 100%), transparent) 0%, color-mix(in srgb, rgba(96,165,255,0.85) calc(var(--glow) * 100%), transparent) 45%, rgba(0,176,255,0) 100%)`,
       }}
     />
   );
@@ -70,7 +71,7 @@ export function TextLink({ href, children, className }: { href: string; children
   return (
     <Link
       href={href}
-      className={cx('group inline-flex items-center gap-0.5 text-[15px] font-medium text-brand transition-colors hover:text-accent', className)}
+      className={cx('group inline-flex items-center gap-0.5 text-[15px] font-medium text-brand-fg transition-colors hover:text-accent-fg', className)}
     >
       {children}
       <span className="relative inline-flex h-4 w-4 items-center">
@@ -88,7 +89,7 @@ export function Bars({ className }: { className?: string }) {
       {bars.map((h, i) => (
         <div
           key={i}
-          className="w-[8%] rounded-t-[2.5rem] bg-[#0b1a33]"
+          className="w-[8%] rounded-t-[2.5rem] bg-raised"
           style={{ height: `${h * 100}%`, opacity: 0.55 + (i % 3) * 0.12 }}
         />
       ))}

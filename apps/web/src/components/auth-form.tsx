@@ -9,24 +9,11 @@ import { toast } from 'sonner';
 import { signIn, signUp } from '@/lib/auth-client';
 import { Button, Checkbox, Field, Input, cx } from './ui';
 import { Words } from './landing/motion';
+import { FieldError, passwordStrength } from './password-field';
 
 const EMAIL_KEY = 'bmg:lastEmail';
 const emailOk = (e: string) => /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(e.trim());
 
-function passwordStrength(pw: string) {
-  const rules = [
-    { ok: pw.length >= 8, label: '8+ characters' },
-    { ok: /[A-Z]/.test(pw) && /[a-z]/.test(pw), label: 'Upper & lower case' },
-    { ok: /[0-9]/.test(pw), label: 'A number' },
-  ];
-  let score = rules.filter((r) => r.ok).length;
-  if (pw.length >= 12) score++;
-  if (/[^A-Za-z0-9]/.test(pw)) score++;
-  const bucket = Math.min(4, score);
-  const labels = ['Weak', 'Weak', 'Fair', 'Strong', 'Very strong'];
-  const colors = ['#ef4444', '#ef4444', '#f59e0b', '#10b981', '#10b981'];
-  return { rules, score: bucket, label: labels[bucket]!, color: colors[bucket]!, valid: rules.every((r) => r.ok) };
-}
 
 function GoogleMark() {
   return (
@@ -36,27 +23,6 @@ function GoogleMark() {
   );
 }
 
-/** Inline field error with a small shake. */
-function FieldError({ msg }: { msg?: string | null }) {
-  const reduce = useReducedMotion();
-  return (
-    <AnimatePresence>
-      {msg && (
-        <motion.p
-          key={msg}
-          initial={{ opacity: 0, y: -4 }}
-          animate={{ opacity: 1, y: 0, x: reduce ? 0 : [0, -6, 6, -4, 4, 0] }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.4 }}
-          className="mt-1.5 text-xs text-down"
-          role="alert"
-        >
-          {msg}
-        </motion.p>
-      )}
-    </AnimatePresence>
-  );
-}
 
 export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
   const router = useRouter();
@@ -174,7 +140,7 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
             type="button"
             disabled={busy}
             onClick={signInWithGoogle}
-            className="mt-8 inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-white/10 bg-white px-6 py-2.5 text-sm font-semibold text-[#050b17] transition-colors hover:bg-[#f3f6ff] disabled:opacity-60"
+            className="mt-8 inline-flex w-full items-center justify-center gap-2.5 rounded-full border border-border bg-white px-6 py-2.5 text-sm font-semibold text-on-brand transition-colors hover:bg-[#f3f6ff] disabled:opacity-60"
           >
             <GoogleMark /> Continue with Google
           </button>
@@ -229,13 +195,13 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
                     className="pr-12"
                     aria-invalid={!!errors.password}
                   />
-                  <button type="button" onClick={() => setShowPassword((s) => !s)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-faint transition-colors hover:bg-white/[0.06] hover:text-fg">
+                  <button type="button" onClick={() => setShowPassword((s) => !s)} aria-label={showPassword ? 'Hide password' : 'Show password'} className="absolute right-2 top-1/2 grid h-8 w-8 -translate-y-1/2 place-items-center rounded-full text-faint transition-colors hover:bg-tint/[0.06] hover:text-fg">
                     {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                   </button>
                 </div>
                 <AnimatePresence>
                   {caps && (
-                    <motion.p key="caps" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-1.5 inline-flex items-center gap-1 text-xs text-warn">
+                    <motion.p key="caps" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="mt-1.5 inline-flex items-center gap-1 text-xs text-warn-fg">
                       <Lock className="h-3 w-3" /> Caps Lock is on
                     </motion.p>
                   )}
@@ -243,16 +209,16 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
                 <FieldError msg={errors.password} />
                 {isRegister && password.length > 0 && (
                   <div className="mt-3">
-                    <div className="h-1.5 overflow-hidden rounded-full bg-white/10">
-                      <motion.div className="h-full rounded-full" animate={{ width: `${(strength.score / 4) * 100}%`, backgroundColor: strength.color }} transition={{ type: 'spring', stiffness: 180, damping: 22 }} />
+                    <div className="h-1.5 overflow-hidden rounded-full bg-tint/10">
+                      <motion.div className="h-full rounded-full transition-colors duration-300" style={{ backgroundColor: strength.color }} animate={{ width: `${(strength.score / 4) * 100}%` }} transition={{ type: 'spring', stiffness: 180, damping: 22 }} />
                     </div>
                     <div className="mt-2 flex items-center justify-between text-xs">
-                      <span style={{ color: strength.color }}>{strength.label}</span>
+                      <span style={{ color: strength.textColor }}>{strength.label}</span>
                     </div>
                     <ul className="mt-2 grid grid-cols-3 gap-2 text-[11px]">
                       {strength.rules.map((r) => (
-                        <li key={r.label} className={cx('inline-flex items-center gap-1.5 transition-colors', r.ok ? 'text-up' : 'text-faint')}>
-                          <span className={cx('grid h-4 w-4 place-items-center rounded-full border transition-all', r.ok ? 'border-up bg-up text-[#050b17]' : 'border-white/15')}>
+                        <li key={r.label} className={cx('inline-flex items-center gap-1.5 transition-colors', r.ok ? 'text-up-fg' : 'text-faint')}>
+                          <span className={cx('grid h-4 w-4 place-items-center rounded-full border transition-all', r.ok ? 'border-up bg-up text-on-brand' : 'border-border')}>
                             {r.ok && <Check className="h-2.5 w-2.5" strokeWidth={3} />}
                           </span>
                           {r.label}
@@ -302,8 +268,8 @@ export function AuthForm({ mode }: { mode: 'login' | 'register' }) {
           { I: ShieldCheck, t: 'Encrypted keys' },
           { I: Undo2, t: 'Cancel anytime' },
         ].map(({ I, t }, i) => (
-          <motion.div key={t} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-2 rounded-xl bg-white/[0.04] px-2.5 py-2 text-[11px] text-muted">
-            <I className="h-3.5 w-3.5 shrink-0 text-brand" />
+          <motion.div key={t} initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.08, duration: 0.5, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-2 rounded-xl bg-tint/[0.04] px-2.5 py-2 text-[11px] text-muted">
+            <I className="h-3.5 w-3.5 shrink-0 text-brand-fg" />
             <span className="truncate">{t}</span>
           </motion.div>
         ))}

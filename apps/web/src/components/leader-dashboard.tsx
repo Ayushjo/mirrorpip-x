@@ -93,11 +93,11 @@ export function LeaderDashboard({ leaders }: { leaders: LeaderData[] }) {
               <div className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 {tiles.map((t) => (
                   <div key={t.label} className="rounded-xl border border-border-soft bg-bg/40 p-3.5">
-                    <div className="mb-1.5 text-brand">
+                    <div className="mb-1.5 text-brand-fg">
                       <t.icon width={16} height={16} />
                     </div>
                     <div className="text-[11px] text-muted">{t.label}</div>
-                    <div className={cx('mt-0.5 text-lg font-semibold tabular-nums', t.tone === 'up' && 'text-up', t.tone === 'down' && 'text-down')}>
+                    <div className={cx('mt-0.5 text-lg font-semibold tabular-nums', t.tone === 'up' && 'text-up-fg', t.tone === 'down' && 'text-down-fg')}>
                       {t.value}
                     </div>
                   </div>

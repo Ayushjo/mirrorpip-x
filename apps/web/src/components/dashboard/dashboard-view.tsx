@@ -144,23 +144,23 @@ export function DashboardView({
   return (
     <div className="space-y-6 sm:space-y-8">
       {/* ── Portfolio hero ── */}
-      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-6 pt-12 sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-10 sm:pb-8 sm:pt-10" style={{ background: 'radial-gradient(800px 320px at 20% -10%, rgba(0,176,255,0.16), transparent 60%), #0a1628' }}>
+      <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-6 pt-12 sm:mx-0 sm:mt-0 sm:rounded-3xl sm:px-10 sm:pb-8 sm:pt-10" style={{ background: 'radial-gradient(800px 320px at 20% -10%, rgba(0,176,255,0.16), transparent 60%), var(--color-hero)' }}>
         <div className="flex flex-col gap-6 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">{firstName ? `Welcome back, ${firstName}` : 'Your portfolio'}</div>
+            <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-fg">{firstName ? `Welcome back, ${firstName}` : 'Your portfolio'}</div>
             <div className="mt-3 text-xs text-muted">P&amp;L · {range === 'all' ? 'all time' : `last ${range}`} <span className="text-faint">(realized + open)</span></div>
-            <div className={cx('mt-1 text-[2.75rem] font-semibold leading-none tabular-nums sm:text-6xl', pnl > 0 ? 'text-up' : pnl < 0 ? 'text-down' : 'text-fg')} style={{ letterSpacing: '-0.04em' }}>
+            <div className={cx('mt-1 text-[2.75rem] font-semibold leading-none tabular-nums sm:text-6xl', pnl > 0 ? 'text-up-fg' : pnl < 0 ? 'text-down-fg' : 'text-fg')} style={{ letterSpacing: '-0.04em' }}>
               {`${pnl > 0 ? '+' : ''}${fmtUsd(pnl)}`}
             </div>
             <div className="mt-2 flex flex-wrap items-center gap-2 text-xs">
-              <span className={cx('rounded-full px-2 py-0.5 font-semibold tabular-nums', open >= 0 ? 'bg-up/15 text-up' : 'bg-down/15 text-down')}>{open >= 0 ? '+' : ''}{fmtUsd(open)} open</span>
+              <span className={cx('rounded-full px-2 py-0.5 font-semibold tabular-nums', open >= 0 ? 'bg-up/15 text-up-fg' : 'bg-down/15 text-down-fg')}>{open >= 0 ? '+' : ''}{fmtUsd(open)} open</span>
               <span className="text-muted">{fmtUsd(series.delta)} realized</span>
             </div>
           </div>
           <div className="flex items-center gap-3">
-            <div className="inline-flex rounded-full bg-white/[0.06] p-1">
+            <div className="inline-flex rounded-full bg-tint/[0.06] p-1">
               {RANGES.map((r) => (
-                <button key={r.id} type="button" onClick={() => setRange(r.id)} aria-pressed={range === r.id} className={cx('relative rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors', range === r.id ? 'text-[#050b17]' : 'text-muted hover:text-fg')}>
+                <button key={r.id} type="button" onClick={() => setRange(r.id)} aria-pressed={range === r.id} className={cx('relative rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors', range === r.id ? 'text-on-brand' : 'text-muted hover:text-fg')}>
                   {range === r.id && <motion.span layoutId="range-pill" className="absolute inset-0 rounded-full bg-gradient-to-r from-brand to-accent" transition={{ type: 'spring', stiffness: 400, damping: 32 }} />}
                   <span className="relative">{r.label}</span>
                 </button>
@@ -171,9 +171,9 @@ export function DashboardView({
         </div>
         <div className="-mx-6 mt-6 sm:-mx-10">
           {series.points.length >= 2 ? (
-            <DrawSparkline key={range} points={series.points.map((p) => p.value)} stroke={series.delta >= 0 ? '#00b0ff' : '#ef4444'} className="h-16 w-full" height={64} />
+            <DrawSparkline key={range} points={series.points.map((p) => p.value)} stroke={series.delta >= 0 ? 'var(--color-brand)' : 'var(--color-down)'} className="h-16 w-full" height={64} />
           ) : (
-            <div className="mx-6 h-16 rounded-2xl border border-dashed border-white/10 sm:mx-10" />
+            <div className="mx-6 h-16 rounded-2xl border border-dashed border-border sm:mx-10" />
           )}
         </div>
         <div className="mt-5 flex flex-wrap gap-2">
@@ -183,7 +183,7 @@ export function DashboardView({
             [`${fillRate}%`, 'fill rate'],
             [analytics.summary.closedCount > 0 ? `${Math.round(analytics.summary.winRate)}%` : '—', 'win rate'],
           ].map(([v, l]) => (
-            <span key={l} className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-3.5 py-2 text-[13px] text-muted">
+            <span key={l} className="inline-flex items-center gap-2 rounded-xl bg-tint/[0.06] px-3.5 py-2 text-[13px] text-muted">
               <span className="font-semibold tabular-nums text-fg">{v}</span> {l}
             </span>
           ))}
@@ -200,10 +200,10 @@ export function DashboardView({
         <Reveal delay={0.08}>
           <Card className="flex h-full flex-col items-center justify-center gap-4 p-6 text-center sm:p-8">
             <h2 className="text-lg font-semibold text-fg" style={{ letterSpacing: '-0.02em' }}>Win rate</h2>
-            {analytics.summary.closedCount > 0 ? <Ring pct={analytics.summary.winRate} label="of closed trades" /> : <div className="grid h-[108px] w-[108px] place-items-center rounded-full border-[9px] border-dashed border-white/10 text-xs text-muted">No trades yet</div>}
+            {analytics.summary.closedCount > 0 ? <Ring pct={analytics.summary.winRate} label="of closed trades" /> : <div className="grid h-[108px] w-[108px] place-items-center rounded-full border-[9px] border-dashed border-border text-xs text-muted">No trades yet</div>}
             <div className="flex gap-6 text-sm">
-              <div><div className="font-semibold tabular-nums text-up">{analytics.summary.wins}</div><div className="text-xs text-muted">wins</div></div>
-              <div><div className="font-semibold tabular-nums text-down">{Math.max(0, analytics.summary.closedCount - analytics.summary.wins)}</div><div className="text-xs text-muted">losses</div></div>
+              <div><div className="font-semibold tabular-nums text-up-fg">{analytics.summary.wins}</div><div className="text-xs text-muted">wins</div></div>
+              <div><div className="font-semibold tabular-nums text-down-fg">{Math.max(0, analytics.summary.closedCount - analytics.summary.wins)}</div><div className="text-xs text-muted">losses</div></div>
               <div><div className="font-semibold tabular-nums">{analytics.summary.closedCount}</div><div className="text-xs text-muted">closed</div></div>
             </div>
           </Card>
@@ -218,7 +218,7 @@ export function DashboardView({
           </Section>
         </Reveal>
         <Reveal delay={0.08}>
-          <Section title="Activity" sub={range === '24h' ? 'Today' : `Last ${range === 'all' ? '40' : range}`} aside={<a href="#trades" className="text-xs font-medium text-brand hover:text-accent">View all</a>} className="h-full">
+          <Section title="Activity" sub={range === '24h' ? 'Today' : `Last ${range === 'all' ? '40' : range}`} aside={<a href="#trades" className="text-xs font-medium text-brand-fg hover:text-accent-fg">View all</a>} className="h-full">
             <Feed items={recent.slice(0, 6)} />
           </Section>
         </Reveal>
@@ -258,12 +258,12 @@ function CopyCards({ rows, setStatus }: { rows: FollowRow[]; setStatus: (id: str
         {rows.map((r) => {
           const total = Math.abs(r.openPnl) + Math.abs(r.realizedPnl) || 1;
           return (
-            <motion.li key={r.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={cx('rounded-2xl bg-[#050b17] p-4 transition-opacity sm:p-5', r.status === 'STOPPED' && 'opacity-60')}>
+            <motion.li key={r.id} layout initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className={cx('rounded-2xl bg-well p-4 transition-opacity sm:p-5', r.status === 'STOPPED' && 'opacity-60')}>
               <div className="flex items-start justify-between gap-3">
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-sm font-bold text-[#050b17]">{r.leader.displayName[0]}</span>
+                  <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-sm font-bold text-on-brand">{r.leader.displayName[0]}</span>
                   <div className="min-w-0">
-                    <Link href={`/dashboard/${r.id}`} className="block truncate text-[15px] font-semibold text-fg hover:text-brand">{r.leader.displayName}</Link>
+                    <Link href={`/dashboard/${r.id}`} className="block truncate text-[15px] font-semibold text-fg hover:text-brand-fg">{r.leader.displayName}</Link>
                     <div className="truncate text-xs text-muted">{r.account.label} · {r.sizingMode.toLowerCase()} ×{r.sizingValue}</div>
                   </div>
                 </div>
@@ -274,23 +274,23 @@ function CopyCards({ rows, setStatus }: { rows: FollowRow[]; setStatus: (id: str
                 {[['Open P&L', r.openPnl], ['Realized', r.realizedPnl]].map(([k, v]) => (
                   <div key={k as string}>
                     <div className="text-xs text-muted">{k}</div>
-                    <div className={cx('mt-0.5 text-lg font-semibold tabular-nums', (v as number) >= 0 ? 'text-up' : 'text-down')}>{(v as number) > 0 ? '+' : ''}{fmtUsd(v as number)}</div>
+                    <div className={cx('mt-0.5 text-lg font-semibold tabular-nums', (v as number) >= 0 ? 'text-up-fg' : 'text-down-fg')}>{(v as number) > 0 ? '+' : ''}{fmtUsd(v as number)}</div>
                   </div>
                 ))}
               </div>
-              <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+              <div className="mt-3 flex h-1.5 overflow-hidden rounded-full bg-tint/[0.06]">
                 <motion.span className="h-full bg-brand" animate={{ width: `${(Math.abs(r.realizedPnl) / total) * 100}%` }} />
                 <motion.span className={cx('h-full', r.openPnl >= 0 ? 'bg-up' : 'bg-down')} animate={{ width: `${(Math.abs(r.openPnl) / total) * 100}%` }} />
               </div>
 
-              <div className="mt-4 inline-flex w-full rounded-full bg-white/[0.05] p-1 sm:w-auto">
+              <div className="mt-4 inline-flex w-full rounded-full bg-tint/[0.05] p-1 sm:w-auto">
                 {(['ACTIVE', 'PAUSED', 'STOPPED'] as const).map((s) => {
                   const on = r.status === s;
                   return (
-                    <button key={s} type="button" onClick={() => !on && setStatus(r.id, s)} aria-pressed={on} className={cx('relative flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-colors sm:flex-none', on ? (s === 'STOPPED' ? 'text-white' : 'text-[#050b17]') : 'text-muted hover:text-fg')}>
+                    <button key={s} type="button" onClick={() => !on && setStatus(r.id, s)} aria-pressed={on} className={cx('relative flex-1 rounded-full px-4 py-1.5 text-xs font-medium transition-colors sm:flex-none', on ? (s === 'STOPPED' ? 'text-white' : 'text-on-brand') : 'text-muted hover:text-fg')}>
                       {on && <motion.span layoutId={`seg-${r.id}`} className={cx('absolute inset-0 rounded-full', s === 'ACTIVE' ? 'bg-up' : s === 'PAUSED' ? 'bg-warn' : 'bg-down')} transition={{ type: 'spring', stiffness: 420, damping: 32 }} />}
                       <span className="relative inline-flex items-center gap-1.5">
-                        {s === 'ACTIVE' && on && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-[#050b17]" />}
+                        {s === 'ACTIVE' && on && <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-on-brand" />}
                         {s === 'ACTIVE' ? 'Active' : s === 'PAUSED' ? 'Paused' : 'Stopped'}
                       </span>
                     </button>
@@ -310,12 +310,12 @@ function Feed({ items }: { items: Analytics['recent'] }) {
   if (items.length === 0) return <EmptyBlock icon={<Inbox className="h-5 w-5" />} title="Quiet for now" body="Copied fills appear here as leaders trade." />;
   return (
     <ol className="relative space-y-4 pl-5">
-      <span className="absolute bottom-2 left-[5px] top-2 w-px bg-white/10" />
+      <span className="absolute bottom-2 left-[5px] top-2 w-px bg-tint/10" />
       {items.map((t, i) => (
         <motion.li key={t.id} initial={{ opacity: 0, x: 10 }} animate={{ opacity: 1, x: 0 }} transition={{ delay: i * 0.05 }} className="relative">
-          <span className={cx('absolute -left-5 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-[#0b1a33]', FAILED.has(t.status) ? 'bg-down' : t.status === 'FILLED' ? 'bg-up' : 'bg-warn')} />
+          <span className={cx('absolute -left-5 top-1.5 h-2.5 w-2.5 rounded-full ring-4 ring-raised', FAILED.has(t.status) ? 'bg-down' : t.status === 'FILLED' ? 'bg-up' : 'bg-warn')} />
           <div className="flex items-center justify-between gap-2 text-sm">
-            <span className="truncate font-medium text-fg">{t.symbol} · <span className={t.side === 'BUY' ? 'text-up' : 'text-down'}>{t.side === 'BUY' ? 'Buy' : 'Sell'}</span></span>
+            <span className="truncate font-medium text-fg">{t.symbol} · <span className={t.side === 'BUY' ? 'text-up-fg' : 'text-down-fg'}>{t.side === 'BUY' ? 'Buy' : 'Sell'}</span></span>
             <span className="shrink-0 text-[11px] text-faint" suppressHydrationWarning>{clock(t.at)}</span>
           </div>
           <div className="text-xs text-muted">{t.leader} · qty {fmtNum(t.qty)} · {t.status.toLowerCase()}</div>
@@ -333,14 +333,14 @@ function ByLeader({ data }: { data: Analytics['byLeader'] }) {
     <div className="space-y-4">
       {data.slice(0, 5).map((l) => (
         <div key={l.name} className="flex items-center gap-3">
-          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-white/[0.08] text-xs font-semibold">{l.name[0]}</span>
+          <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-tint/[0.08] text-xs font-semibold">{l.name[0]}</span>
           <div className="min-w-0 flex-1">
             <div className="flex items-center justify-between gap-2 text-sm"><span className="truncate font-medium">{l.name}</span><span className="shrink-0 text-xs tabular-nums text-muted">{l.copies} copies</span></div>
-            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-white/[0.06]">
+            <div className="mt-1.5 h-1.5 overflow-hidden rounded-full bg-tint/[0.06]">
               <motion.div className="h-full rounded-full bg-gradient-to-r from-brand to-accent" initial={{ width: 0 }} whileInView={{ width: `${(l.copies / max) * 100}%` }} viewport={{ once: true }} transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }} />
             </div>
           </div>
-          <span className={cx('shrink-0 text-sm font-semibold tabular-nums', l.realizedPnl >= 0 ? 'text-up' : 'text-down')}>{fmtUsd(l.realizedPnl)}</span>
+          <span className={cx('shrink-0 text-sm font-semibold tabular-nums', l.realizedPnl >= 0 ? 'text-up-fg' : 'text-down-fg')}>{fmtUsd(l.realizedPnl)}</span>
         </div>
       ))}
     </div>
@@ -362,14 +362,14 @@ function Trades({ rows }: { rows: Analytics['recent'] }) {
       aside={
         <div className="flex flex-wrap items-center justify-end gap-2">
           {leaders.length > 1 && (
-            <select value={leader} onChange={(e) => { setLeader(e.target.value); setShown(8); }} className="rounded-full border border-white/10 bg-[#050b17] px-3 py-1.5 text-xs text-fg outline-none">
+            <select value={leader} onChange={(e) => { setLeader(e.target.value); setShown(8); }} className="rounded-full border border-border bg-well px-3 py-1.5 text-xs text-fg outline-none">
               <option value="all">All leaders</option>
               {leaders.map((l) => <option key={l}>{l}</option>)}
             </select>
           )}
-          <div className="inline-flex rounded-full bg-white/[0.06] p-0.5 text-xs">
+          <div className="inline-flex rounded-full bg-tint/[0.06] p-0.5 text-xs">
             {(['all', 'filled', 'failed'] as const).map((s) => (
-              <button key={s} type="button" onClick={() => { setSt(s); setShown(8); }} className={cx('rounded-full px-3 py-1 font-medium capitalize transition-colors', st === s ? 'bg-[#0b1a33] text-fg shadow-sm' : 'text-muted hover:text-fg')}>{s}</button>
+              <button key={s} type="button" onClick={() => { setSt(s); setShown(8); }} className={cx('rounded-full px-3 py-1 font-medium capitalize transition-colors', st === s ? 'bg-raised text-fg shadow-sm' : 'text-muted hover:text-fg')}>{s}</button>
             ))}
           </div>
         </div>
@@ -379,10 +379,10 @@ function Trades({ rows }: { rows: Analytics['recent'] }) {
         <EmptyBlock icon={<Inbox className="h-5 w-5" />} title="No trades match" body="Try another range, status or leader." />
       ) : (
         <>
-          <ul className="-mx-2 divide-y divide-white/5 sm:hidden">
+          <ul className="-mx-2 divide-y divide-border sm:hidden">
             {visible.map((t) => (
               <li key={t.id} className="flex items-center gap-3 px-2 py-3">
-                <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[10px] font-bold', t.side === 'BUY' ? 'bg-up/15 text-up' : 'bg-down/15 text-down')}>{t.side === 'BUY' ? 'B' : 'S'}</span>
+                <span className={cx('grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[10px] font-bold', t.side === 'BUY' ? 'bg-up/15 text-up-fg' : 'bg-down/15 text-down-fg')}>{t.side === 'BUY' ? 'B' : 'S'}</span>
                 <div className="min-w-0 flex-1">
                   <div className="text-sm font-medium text-fg">{t.symbol}</div>
                   <div className="truncate text-[11px] text-muted" suppressHydrationWarning>{t.leader} · {when(t.at)}</div>
@@ -396,14 +396,14 @@ function Trades({ rows }: { rows: Analytics['recent'] }) {
           </ul>
           <table className="hidden w-full text-sm sm:table">
             <thead className="text-left text-xs text-muted">
-              <tr className="border-b border-white/5">
+              <tr className="border-b border-border">
                 <th className="pb-2 font-medium">Time</th><th className="pb-2 font-medium">Leader</th><th className="pb-2 font-medium">Symbol</th><th className="pb-2 font-medium">Side</th>
                 <th className="pb-2 text-right font-medium">Qty</th><th className="pb-2 text-right font-medium">Price</th><th className="pb-2 text-right font-medium">Status</th>
               </tr>
             </thead>
             <tbody>
               {visible.map((t) => (
-                <tr key={t.id} className="border-b border-white/5 transition-colors last:border-0 hover:bg-white/[0.03]">
+                <tr key={t.id} className="border-b border-border transition-colors last:border-0 hover:bg-tint/[0.03]">
                   <td className="whitespace-nowrap py-2.5 text-muted" suppressHydrationWarning>{when(t.at)}</td>
                   <td className="py-2.5">{t.leader}</td>
                   <td className="py-2.5 font-medium">{t.symbol}</td>
@@ -417,7 +417,7 @@ function Trades({ rows }: { rows: Analytics['recent'] }) {
           </table>
           {list.length > shown && (
             <div className="mt-4 flex justify-center">
-              <button type="button" onClick={() => setShown((n) => n + 8)} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-brand hover:bg-brand/10">
+              <button type="button" onClick={() => setShown((n) => n + 8)} className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-brand-fg hover:bg-brand/10">
                 Show {Math.min(8, list.length - shown)} more <ChevronDown className="h-3.5 w-3.5" />
               </button>
             </div>
@@ -437,8 +437,8 @@ export function FirstRun({ firstName, hasCredential }: { firstName?: string; has
   ];
   const next = steps.find((s) => !s.done)!;
   return (
-    <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-10 pt-14 sm:mx-0 sm:mt-0 sm:rounded-3xl sm:p-12" style={{ background: 'radial-gradient(800px 400px at 80% 0%, rgba(0,176,255,0.16), transparent 60%), #0a1628' }}>
-      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">{firstName ? `Welcome, ${firstName}` : 'Welcome'}</div>
+    <section className="relative -mx-6 -mt-10 overflow-hidden px-6 pb-10 pt-14 sm:mx-0 sm:mt-0 sm:rounded-3xl sm:p-12" style={{ background: 'radial-gradient(800px 400px at 80% 0%, rgba(0,176,255,0.16), transparent 60%), var(--color-hero)' }}>
+      <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-fg">{firstName ? `Welcome, ${firstName}` : 'Welcome'}</div>
       <h1 className="mt-3 max-w-xl text-[2.4rem] leading-[1.02] text-fg sm:text-5xl" style={{ letterSpacing: '-0.035em', fontWeight: 600 }}>Three steps to your first copy.</h1>
       <p className="mt-3 max-w-md text-[15px] text-muted">Your dashboard fills with live P&amp;L, fills and analytics as soon as you&rsquo;re copying.</p>
       <div className="mt-8 grid gap-3 sm:grid-cols-3">
@@ -447,12 +447,12 @@ export function FirstRun({ firstName, hasCredential }: { firstName?: string; has
           return (
             <Link key={s.n} href={s.href} className={cx('card-surface card-surface-hover group block p-5', isNext && 'ring-1 ring-brand/50')}>
               <div className="flex items-center justify-between">
-                <span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-bold', s.done ? 'bg-up text-[#050b17]' : isNext ? 'bg-brand text-[#050b17]' : 'bg-white/10 text-fg')}>{s.done ? '✓' : s.n}</span>
-                <ArrowRight className="h-4 w-4 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-brand" />
+                <span className={cx('grid h-8 w-8 place-items-center rounded-full text-xs font-bold', s.done ? 'bg-up text-on-brand' : isNext ? 'bg-brand text-on-brand' : 'bg-tint/10 text-fg')}>{s.done ? '✓' : s.n}</span>
+                <ArrowRight className="h-4 w-4 text-faint transition-transform group-hover:translate-x-0.5 group-hover:text-brand-fg" />
               </div>
               <div className={cx('mt-4 text-[15px] font-semibold', s.done ? 'text-muted line-through' : 'text-fg')}>{s.t}</div>
               <p className="mt-1 text-xs leading-relaxed text-muted">{s.d}</p>
-              {isNext && <div className="mt-4 text-xs font-semibold text-brand">{s.cta} →</div>}
+              {isNext && <div className="mt-4 text-xs font-semibold text-brand-fg">{s.cta} →</div>}
             </Link>
           );
         })}

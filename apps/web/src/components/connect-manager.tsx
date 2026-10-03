@@ -43,14 +43,15 @@ interface ExchangeOption {
   credentialInstructions: string;
 }
 
-const MARK: Record<string, { m: string; tone: string }> = {
-  DELTA_INDIA: { m: 'Δ', tone: 'from-brand to-accent' },
-  BINANCE: { m: '◈', tone: 'from-[#f0b90b] to-[#f8d12f]' },
-  BYBIT: { m: 'B', tone: 'from-[#f7a600] to-[#ffc107]' },
-  COINSWITCH: { m: 'C', tone: 'from-[#2b2b2b] to-[#3a3a3a]' },
-  SHARK: { m: 'S', tone: 'from-[#2b2b2b] to-[#3a3a3a]' },
+// `ink`: glyph colour that reads on the tile (dark ink on bright tiles, white on the graphite ones).
+const MARK: Record<string, { m: string; tone: string; ink: string }> = {
+  DELTA_INDIA: { m: 'Δ', tone: 'from-brand to-accent', ink: 'text-on-brand' },
+  BINANCE: { m: '◈', tone: 'from-[#f0b90b] to-[#f8d12f]', ink: 'text-on-brand' },
+  BYBIT: { m: 'B', tone: 'from-[#f7a600] to-[#ffc107]', ink: 'text-on-brand' },
+  COINSWITCH: { m: 'C', tone: 'from-[#2b2b2b] to-[#3a3a3a]', ink: 'text-white' },
+  SHARK: { m: 'S', tone: 'from-[#2b2b2b] to-[#3a3a3a]', ink: 'text-white' },
 };
-const markOf = (id: string) => MARK[id] ?? { m: id[0] ?? '?', tone: 'from-[#2b2b2b] to-[#3a3a3a]' };
+const markOf = (id: string) => MARK[id] ?? { m: id[0] ?? '?', tone: 'from-[#2b2b2b] to-[#3a3a3a]', ink: 'text-white' };
 
 async function copyText(text: string, msg = 'Copied') {
   try {
@@ -83,11 +84,11 @@ function WalletCard({ c, exchangeName, onRename, onApply, onRemove, onReconnect 
   const unhealthy = Boolean(c.lastError) || c.status !== 'ACTIVE';
   const mk = markOf(c.exchange);
   return (
-    <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} className="vcard vcard-flat relative flex h-60 w-[82vw] max-w-[22rem] shrink-0 snap-start flex-col justify-between overflow-visible rounded-[1.75rem] p-5 sm:w-auto sm:max-w-none">
+    <motion.div layout initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, scale: 0.96 }} data-theme="dark" className="vcard vcard-flat relative flex h-60 w-[82vw] max-w-[22rem] shrink-0 snap-start flex-col justify-between overflow-visible rounded-[1.75rem] p-5 sm:w-auto sm:max-w-none">
       <div className="vcard-sheen pointer-events-none absolute inset-0 rounded-[1.75rem]" />
       <div className="relative flex items-start justify-between gap-3">
         <div className="flex items-center gap-3">
-          <span className={cx('grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-lg font-bold text-[#050b17]', mk.tone)}>{mk.m}</span>
+          <span className={cx('grid h-11 w-11 place-items-center rounded-xl bg-gradient-to-br text-lg font-bold', mk.tone, mk.ink)}>{mk.m}</span>
           <div className="min-w-0">
             <div className="truncate text-[15px] font-semibold text-fg">{c.label}</div>
             <div className="text-xs text-muted">{exchangeName} · {c.tradeCurrency}</div>
@@ -104,24 +105,24 @@ function WalletCard({ c, exchangeName, onRename, onApply, onRemove, onReconnect 
       </div>
 
       <div className="relative">
-        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-white/40">Equity</div>
+        <div className="text-[10px] font-semibold uppercase tracking-[0.18em] text-tint/40">Equity</div>
         <div className="mt-1 text-3xl font-semibold tabular-nums text-fg" style={{ letterSpacing: '-0.03em' }}>{c.equityUsd != null ? fmtUsd(c.equityUsd) : '—'}</div>
       </div>
 
       <div className="relative flex items-end justify-between gap-2">
         <div>
-          <div className="font-mono text-sm tracking-[0.2em] text-white/60">•••• {c.keyLast4}</div>
-          <div className={cx('mt-1.5 inline-flex items-center gap-1.5 text-[11px]', unhealthy ? 'text-warn' : 'text-up')} suppressHydrationWarning>
+          <div className="font-mono text-sm tracking-[0.2em] text-tint/60">•••• {c.keyLast4}</div>
+          <div className={cx('mt-1.5 inline-flex items-center gap-1.5 text-[11px]', unhealthy ? 'text-warn-fg' : 'text-up-fg')} suppressHydrationWarning>
             <span className={cx('h-1.5 w-1.5 rounded-full', unhealthy ? 'bg-warn' : 'bg-up shadow-[0_0_8px_rgba(16,185,129,0.8)]')} />
             {unhealthy ? 'Reconnect required' : `Healthy${ago ? ` · checked ${ago}` : ''}`}
           </div>
         </div>
         {c.leaderStatus ? (
-          <span className={cx('rounded-full px-2 py-0.5 text-[10px] font-semibold', c.leaderStatus === 'VERIFIED' ? 'bg-brand/20 text-brand' : c.leaderStatus === 'PENDING' ? 'bg-warn/15 text-warn' : 'bg-white/10 text-muted')}>
+          <span className={cx('rounded-full px-2 py-0.5 text-[10px] font-semibold', c.leaderStatus === 'VERIFIED' ? 'bg-brand/20 text-brand-fg' : c.leaderStatus === 'PENDING' ? 'bg-warn/15 text-warn-fg' : 'bg-tint/10 text-muted')}>
             {c.leaderStatus === 'VERIFIED' ? 'Leader' : c.leaderStatus === 'PENDING' ? 'Leader · pending' : `Leader · ${c.leaderStatus.toLowerCase()}`}
           </span>
         ) : unhealthy ? (
-          <button type="button" onClick={onReconnect} className="rounded-full bg-warn/15 px-2.5 py-1 text-[11px] font-semibold text-warn hover:bg-warn/25">Reconnect</button>
+          <button type="button" onClick={onReconnect} className="rounded-full bg-warn/15 px-2.5 py-1 text-[11px] font-semibold text-warn-fg hover:bg-warn/25">Reconnect</button>
         ) : null}
       </div>
     </motion.div>
@@ -195,9 +196,9 @@ function ConnectWizard({ open, onClose, exchanges, prefill, onDone }: { open: bo
       <div className="mb-6 flex items-center gap-2">
         {STEPS.map((s, i) => (
           <div key={s} className="flex flex-1 items-center gap-2">
-            <span className={cx('grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors', i < step || state === 'done' ? 'bg-up text-[#050b17]' : i === step ? 'bg-brand text-[#050b17]' : 'bg-white/10 text-muted')}>{i < step || state === 'done' ? <Check className="h-3 w-3" strokeWidth={3} /> : i + 1}</span>
+            <span className={cx('grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors', i < step || state === 'done' ? 'bg-up text-on-brand' : i === step ? 'bg-brand text-on-brand' : 'bg-tint/10 text-muted')}>{i < step || state === 'done' ? <Check className="h-3 w-3" strokeWidth={3} /> : i + 1}</span>
             <span className={cx('hidden text-xs sm:inline', i === step ? 'text-fg' : 'text-muted')}>{s}</span>
-            {i < STEPS.length - 1 && <span className={cx('h-px flex-1', i < step ? 'bg-up/60' : 'bg-white/10')} />}
+            {i < STEPS.length - 1 && <span className={cx('h-px flex-1', i < step ? 'bg-up/60' : 'bg-tint/10')} />}
           </div>
         ))}
       </div>
@@ -210,13 +211,13 @@ function ConnectWizard({ open, onClose, exchanges, prefill, onDone }: { open: bo
               const disabled = e.availability !== 'ACTIVE';
               const mk = markOf(e.id);
               return (
-                <button key={e.id} type="button" disabled={disabled} onClick={() => { setExchangeId(e.id); setTradeCurrency(e.supportedCurrencies[0] ?? 'USDT'); }} className={cx('flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-colors', on ? 'border-brand/60 bg-brand/[0.08]' : 'border-white/10 bg-[#050b17] hover:border-white/20', disabled && 'cursor-not-allowed opacity-50')}>
-                  <span className={cx('grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br font-bold', mk.tone, disabled ? 'text-white/50' : 'text-[#050b17]')}>{mk.m}</span>
+                <button key={e.id} type="button" disabled={disabled} onClick={() => { setExchangeId(e.id); setTradeCurrency(e.supportedCurrencies[0] ?? 'USDT'); }} className={cx('flex w-full items-center gap-3 rounded-2xl border px-4 py-3 text-left transition-colors', on ? 'border-brand/60 bg-brand/[0.08]' : 'border-border bg-well hover:border-border', disabled && 'cursor-not-allowed opacity-50')}>
+                  <span className={cx('grid h-10 w-10 place-items-center rounded-xl bg-gradient-to-br font-bold', mk.tone, disabled ? 'text-white/50' : mk.ink)}>{mk.m}</span>
                   <div className="min-w-0 flex-1">
                     <div className="text-sm font-medium text-fg">{e.displayName}</div>
                     <div className="text-xs text-muted">{e.message ?? e.supportedCurrencies.join(' / ')}</div>
                   </div>
-                  <span className={cx('grid h-5 w-5 place-items-center rounded-full border', on ? 'border-brand bg-brand text-[#050b17]' : 'border-white/20')}>{on && <Check className="h-3 w-3" strokeWidth={3} />}</span>
+                  <span className={cx('grid h-5 w-5 place-items-center rounded-full border', on ? 'border-brand bg-brand text-on-brand' : 'border-border')}>{on && <Check className="h-3 w-3" strokeWidth={3} />}</span>
                 </button>
               );
             })}
@@ -226,7 +227,7 @@ function ConnectWizard({ open, onClose, exchanges, prefill, onDone }: { open: bo
 
         {step === 1 && (
           <motion.form key="s1" initial={{ opacity: 0, x: 20 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -20 }} onSubmit={(e) => { e.preventDefault(); if (keysOk) void verify(); }} className="space-y-4">
-            <div className="rounded-2xl bg-[#050b17]">
+            <div className="rounded-2xl bg-well">
               <button type="button" onClick={() => setHelp((v) => !v)} className="flex w-full items-center justify-between px-4 py-3 text-sm font-medium text-fg">
                 Where do I find my API key?
                 <ChevronDown className={cx('h-4 w-4 text-muted transition-transform', help && 'rotate-180')} />
@@ -235,7 +236,7 @@ function ConnectWizard({ open, onClose, exchanges, prefill, onDone }: { open: bo
                 {help && (
                   <motion.ol initial={{ height: 0, opacity: 0 }} animate={{ height: 'auto', opacity: 1 }} exit={{ height: 0, opacity: 0 }} className="space-y-2 overflow-hidden px-4 pb-4 text-xs text-muted">
                     {['Open Delta Exchange India → Account → API Keys.', 'Create a new key. Enable Read and Trading. Keep Withdrawals OFF.', `Optional: restrict by IP — add ${WHITELIST_IPS.join(', ')}.`, 'Copy the key and secret and paste them below.'].map((t, i) => (
-                      <li key={i} className="flex gap-2"><span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-white/10 text-[10px] font-semibold text-fg">{i + 1}</span>{t}</li>
+                      <li key={i} className="flex gap-2"><span className="grid h-5 w-5 shrink-0 place-items-center rounded-full bg-tint/10 text-[10px] font-semibold text-fg">{i + 1}</span>{t}</li>
                     ))}
                   </motion.ol>
                 )}
@@ -251,7 +252,7 @@ function ConnectWizard({ open, onClose, exchanges, prefill, onDone }: { open: bo
               <Field key={l} label={l}>
                 <div className="relative">
                   <Input type={secret ? 'password' : 'text'} value={v} onChange={(e) => { set(e.target.value); setErr(null); }} placeholder={`Paste your ${l.toLowerCase()}`} autoComplete="off" className="pr-24 font-mono" />
-                  <button type="button" onClick={() => paste(set)} className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-white/[0.06] px-2.5 py-1 text-[11px] font-medium text-muted hover:text-fg"><ClipboardPaste className="h-3 w-3" /> Paste</button>
+                  <button type="button" onClick={() => paste(set)} className="absolute right-2 top-1/2 inline-flex -translate-y-1/2 items-center gap-1 rounded-full bg-tint/[0.06] px-2.5 py-1 text-[11px] font-medium text-muted hover:text-fg"><ClipboardPaste className="h-3 w-3" /> Paste</button>
                 </div>
               </Field>
             ))}
@@ -268,11 +269,11 @@ function ConnectWizard({ open, onClose, exchanges, prefill, onDone }: { open: bo
           <motion.div key="s2" initial={{ opacity: 0, scale: 0.98 }} animate={{ opacity: 1, scale: 1 }} className="flex flex-col items-center py-8 text-center">
             <div className="relative grid h-20 w-20 place-items-center">
               {state === 'done' ? (
-                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 18 }} className="grid h-20 w-20 place-items-center rounded-full bg-up text-[#050b17]"><Check className="h-9 w-9" strokeWidth={3} /></motion.span>
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} transition={{ type: 'spring', stiffness: 400, damping: 18 }} className="grid h-20 w-20 place-items-center rounded-full bg-up text-on-brand"><Check className="h-9 w-9" strokeWidth={3} /></motion.span>
               ) : (
                 <>
                   <span className="pulse-ring absolute h-20 w-20 rounded-full border border-brand/40" />
-                  <span className="grid h-16 w-16 place-items-center rounded-full bg-brand/15 text-brand"><Loader2 className="h-7 w-7 animate-spin" /></span>
+                  <span className="grid h-16 w-16 place-items-center rounded-full bg-brand/15 text-brand-fg"><Loader2 className="h-7 w-7 animate-spin" /></span>
                 </>
               )}
             </div>
@@ -356,17 +357,17 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
 
         {creds.length === 0 ? (
           <div className="relative flex flex-col items-center overflow-hidden py-12 text-center sm:py-16">
-            <div aria-hidden className="pointer-events-none absolute left-1/2 top-[38%] h-64 w-[26rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[90px]" />
+            <div aria-hidden className="pointer-events-none absolute left-1/2 top-[38%] h-64 w-[26rem] max-w-full -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[90px] light:opacity-40" />
 
             {/* wallet preview stack */}
             <div className="relative h-56 w-[20rem] max-w-full">
-              <div aria-hidden className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-[62%] -translate-y-1/2 -rotate-[9deg] rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.02]" />
-              <div aria-hidden className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-[38%] -translate-y-1/2 rotate-[9deg] rounded-[1.5rem] border border-dashed border-white/10 bg-white/[0.02]" />
-              <div className="hero-float absolute left-1/2 top-1/2 flex h-48 w-72 -translate-x-1/2 -translate-y-1/2 flex-col justify-between overflow-hidden rounded-[1.5rem] p-4 text-left shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8)]" style={{ background: 'linear-gradient(160deg, #10254a 0%, #0a1a35 55%, #071228 100%)', border: '1px solid rgba(255,255,255,0.1)' }}>
+              <div aria-hidden className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-[62%] -translate-y-1/2 -rotate-[9deg] rounded-[1.5rem] border border-dashed border-border bg-tint/[0.02]" />
+              <div aria-hidden className="absolute left-1/2 top-1/2 h-44 w-64 -translate-x-[38%] -translate-y-1/2 rotate-[9deg] rounded-[1.5rem] border border-dashed border-border bg-tint/[0.02]" />
+              <div data-theme="dark" className="hero-float absolute left-1/2 top-1/2 flex h-48 w-72 -translate-x-1/2 -translate-y-1/2 flex-col justify-between overflow-hidden rounded-[1.5rem] p-4 text-left shadow-[0_30px_60px_-20px_rgba(0,0,0,0.8)] light:elev-float" style={{ background: 'linear-gradient(160deg, #10254a 0%, #0a1a35 55%, #071228 100%)', border: '1px solid rgba(255,255,255,0.1)' }}>
                 <div className="vcard-sheen pointer-events-none absolute inset-0" />
                 <div className="relative flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand to-accent text-base font-bold text-[#050b17]">Δ</span>
+                    <span className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-brand to-accent text-base font-bold text-on-brand">Δ</span>
                     <div>
                       <div className="text-sm font-semibold text-fg">Your first account</div>
                       <div className="text-[11px] text-muted">Delta India · USDT</div>
@@ -375,12 +376,12 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
                   <span className="h-2 w-2 rounded-full bg-brand shadow-[0_0_10px_rgba(0,176,255,0.8)]" />
                 </div>
                 <div className="relative">
-                  <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-white/35">Equity</div>
-                  <div className="mt-0.5 text-2xl font-semibold tabular-nums text-white/30" style={{ letterSpacing: '-0.03em' }}>$ ——</div>
+                  <div className="text-[9px] font-semibold uppercase tracking-[0.18em] text-tint/35">Equity</div>
+                  <div className="mt-0.5 text-2xl font-semibold tabular-nums text-tint/30" style={{ letterSpacing: '-0.03em' }}>$ ——</div>
                 </div>
                 <div className="relative flex items-end justify-between">
-                  <span className="font-mono text-xs tracking-[0.2em] text-white/30">•••• ····</span>
-                  <span className="rounded-full bg-white/[0.07] px-2 py-0.5 text-[10px] font-medium text-muted">Trade-only</span>
+                  <span className="font-mono text-xs tracking-[0.2em] text-tint/30">•••• ····</span>
+                  <span className="rounded-full bg-tint/[0.07] px-2 py-0.5 text-[10px] font-medium text-muted">Trade-only</span>
                 </div>
               </div>
             </div>
@@ -389,13 +390,13 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
             <p className="relative mt-1 max-w-sm text-sm text-muted">Add a trade-only Delta India key to start copying leaders. It takes about two minutes.</p>
             <div className="relative mt-5 flex flex-col items-center gap-3 sm:flex-row">
               <Button type="button" arrow onClick={() => setWizard({ open: true, prefill: null })}>Connect account</Button>
-              <button type="button" onClick={() => document.getElementById('howto-video')?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="inline-flex items-center gap-2 rounded-full border border-white/10 px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand">
+              <button type="button" onClick={() => document.getElementById('howto-video')?.scrollIntoView({ behavior: 'smooth', block: 'center' })} className="inline-flex items-center gap-2 rounded-full border border-border px-5 py-2.5 text-sm font-medium text-muted transition-colors hover:border-brand/40 hover:text-brand-fg">
                 <Play className="h-3.5 w-3.5" /> Watch how · 1 min
               </button>
             </div>
             <div className="relative mt-6 flex flex-wrap justify-center gap-2">
               {['🔐 Withdrawals impossible', '🛡️ AES-256 encrypted', '⏱️ ~2 minutes'].map((t) => (
-                <span key={t} className="rounded-full bg-white/[0.05] px-3 py-1.5 text-[12px] text-muted">{t}</span>
+                <span key={t} className="rounded-full bg-tint/[0.05] px-3 py-1.5 text-[12px] text-muted">{t}</span>
               ))}
             </div>
           </div>
@@ -414,9 +415,9 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
                 />
               ))}
             </AnimatePresence>
-            <button type="button" onClick={() => setWizard({ open: true, prefill: null })} className="group grid h-60 w-[60vw] max-w-[16rem] shrink-0 snap-start place-items-center rounded-[1.75rem] border border-dashed border-white/15 text-muted transition-colors hover:border-brand/50 hover:text-brand sm:w-auto sm:max-w-none">
+            <button type="button" onClick={() => setWizard({ open: true, prefill: null })} className="group grid h-60 w-[60vw] max-w-[16rem] shrink-0 snap-start place-items-center rounded-[1.75rem] border border-dashed border-border text-muted transition-colors hover:border-brand/50 hover:text-brand-fg sm:w-auto sm:max-w-none">
               <span className="flex flex-col items-center gap-2 text-sm font-medium">
-                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.05] transition-colors group-hover:bg-brand/15"><Plus className="h-5 w-5" /></span>
+                <span className="grid h-12 w-12 place-items-center rounded-2xl bg-tint/[0.05] transition-colors group-hover:bg-brand/15"><Plus className="h-5 w-5" /></span>
                 Add account
               </span>
             </button>
@@ -433,26 +434,26 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card className="p-6">
           <div className="flex items-start gap-3">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand"><Users className="h-4 w-4" /></span>
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-brand/15 text-brand-fg"><Users className="h-4 w-4" /></span>
             <div>
               <div className="text-base font-semibold text-fg">Become a leader</div>
               <p className="mt-1 text-sm text-muted">Apply from any connected account&rsquo;s menu. An admin verifies you before you appear on the leaderboard.</p>
-              <Link href="/leaders" className="mt-3 inline-block text-xs font-medium text-brand hover:text-accent">See the leaderboard →</Link>
+              <Link href="/leaders" className="mt-3 inline-block text-xs font-medium text-brand-fg hover:text-accent-fg">See the leaderboard →</Link>
             </div>
           </div>
         </Card>
         {WHITELIST_IPS.length > 0 && (
           <Card className="p-6">
             <div className="flex items-start gap-3">
-              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-white/[0.06] text-muted"><ShieldCheck className="h-4 w-4" /></span>
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-tint/[0.06] text-muted"><ShieldCheck className="h-4 w-4" /></span>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-2 text-base font-semibold text-fg">Restrict your key by IP <span className="rounded-full bg-white/[0.06] px-2 py-0.5 text-[10px] font-medium text-muted">Optional</span></div>
+                <div className="flex items-center gap-2 text-base font-semibold text-fg">Restrict your key by IP <span className="rounded-full bg-tint/[0.06] px-2 py-0.5 text-[10px] font-medium text-muted">Optional</span></div>
                 <p className="mt-1 text-sm text-muted">If you whitelist IPs on Delta, allow all of these.</p>
                 <div className="mt-3 flex flex-wrap gap-2">
                   {WHITELIST_IPS.map((ip) => (
-                    <button key={ip} type="button" onClick={() => copyText(ip, `Copied ${ip}`)} className="inline-flex items-center gap-1.5 rounded-full bg-[#050b17] px-3 py-1.5 font-mono text-xs text-fg hover:text-brand"><Copy className="h-3 w-3" />{ip}</button>
+                    <button key={ip} type="button" onClick={() => copyText(ip, `Copied ${ip}`)} className="inline-flex items-center gap-1.5 rounded-full bg-well px-3 py-1.5 font-mono text-xs text-fg hover:text-brand-fg"><Copy className="h-3 w-3" />{ip}</button>
                   ))}
-                  <button type="button" onClick={() => copyText(WHITELIST_IPS.join(', '), 'Copied all IPs')} className="rounded-full px-3 py-1.5 text-xs font-medium text-brand hover:bg-brand/10">Copy all</button>
+                  <button type="button" onClick={() => copyText(WHITELIST_IPS.join(', '), 'Copied all IPs')} className="rounded-full px-3 py-1.5 text-xs font-medium text-brand-fg hover:bg-brand/10">Copy all</button>
                 </div>
               </div>
             </div>
@@ -466,7 +467,7 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
         <form onSubmit={(e) => { e.preventDefault(); void doApply(); }} className="space-y-4">
           <Field label="Public leader name" hint="Shown on the leaderboard. 2–60 characters."><Input value={applyName} onChange={(e) => setApplyName(e.target.value)} maxLength={60} placeholder="e.g. Nova Swing" autoFocus /></Field>
           <ul className="space-y-1.5 text-xs text-muted">
-            {['Followers mirror your fills automatically.', 'You keep trading exactly as you do today.', 'An admin reviews your account before listing.'].map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 text-up" strokeWidth={3} />{t}</li>)}
+            {['Followers mirror your fills automatically.', 'You keep trading exactly as you do today.', 'An admin reviews your account before listing.'].map((t) => <li key={t} className="flex gap-2"><Check className="mt-0.5 h-3.5 w-3.5 text-up-fg" strokeWidth={3} />{t}</li>)}
           </ul>
           <Button type="submit" arrow className="w-full justify-center" disabled={busy || applyName.trim().length < 2}>{busy ? 'Submitting…' : 'Submit application'}</Button>
         </form>
@@ -481,7 +482,7 @@ export function ConnectManager({ initial, exchanges }: { initial: Credential[]; 
 
       <Sheet open={!!remove} onClose={() => setRemove(null)} title={`Remove ${remove?.label ?? 'account'}?`} sub="Its API key is wiped from our servers." tone="danger" width="max-w-md">
         <div className="space-y-4">
-          <div className="flex gap-2 rounded-2xl bg-warn/10 p-3 text-xs text-warn"><TriangleAlert className="h-4 w-4 shrink-0" />Copies using this account stop immediately. Open positions stay open on your exchange.{remove?.isLeader ? ' Your leader profile is removed.' : ''}</div>
+          <div className="flex gap-2 rounded-2xl bg-warn/10 p-3 text-xs text-warn-fg"><TriangleAlert className="h-4 w-4 shrink-0" />Copies using this account stop immediately. Open positions stay open on your exchange.{remove?.isLeader ? ' Your leader profile is removed.' : ''}</div>
           <Field label={`Type “${remove?.label ?? ''}” to confirm`}><Input value={typed} onChange={(e) => setTyped(e.target.value)} autoComplete="off" /></Field>
           <button type="button" disabled={busy || typed.trim() !== remove?.label} onClick={() => void doRemove()} className="w-full rounded-full bg-down py-3 text-sm font-semibold text-white transition-opacity disabled:opacity-30">{busy ? 'Removing…' : 'Remove account'}</button>
         </div>

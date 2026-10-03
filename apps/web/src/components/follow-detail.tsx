@@ -109,7 +109,7 @@ export function FollowDetail({ initial }: { initial: Detail }) {
                     <td className="py-2.5 text-right tabular-nums">{fmtNum(p.qty)}</td>
                     <td className="py-2.5 text-right tabular-nums">{fmtNum(p.avgEntry, 2)}</td>
                     <td className="py-2.5 text-right tabular-nums">{p.markPrice != null ? fmtNum(p.markPrice, 2) : '—'}</td>
-                    <td className={cx('py-2.5 text-right font-medium tabular-nums', p.unrealizedPnl >= 0 ? 'text-up' : 'text-down')}>
+                    <td className={cx('py-2.5 text-right font-medium tabular-nums', p.unrealizedPnl >= 0 ? 'text-up-fg' : 'text-down-fg')}>
                       {fmtUsd(p.unrealizedPnl)}
                     </td>
                   </tr>

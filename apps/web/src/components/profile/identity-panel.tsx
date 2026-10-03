@@ -6,12 +6,13 @@ import { useRouter } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowUpRight, Check } from 'lucide-react';
 import { toast } from 'sonner';
-import { Button, Field, Input, Select, cx } from '../ui';
+import { Button, Field, Input, Select, Textarea, cx } from '../ui';
 import { Section, Toggle } from '../section';
 import { COUNTRIES } from '@/lib/countries';
 import { updateProfile } from '@/lib/profile-actions';
 import { Avatar, useAvatar } from './avatar-picker';
 import { FieldError } from '../password-field';
+import { ThemeSegmented } from '../theme-toggle';
 
 export type IdentityData = {
   name: string;
@@ -32,7 +33,7 @@ function SavedTick({ show }: { show: boolean }) {
   return (
     <AnimatePresence>
       {show && (
-        <motion.span initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="absolute right-0 top-0 inline-flex items-center gap-1 text-[11px] font-medium text-up">
+        <motion.span initial={{ opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0 }} className="absolute right-0 top-0 inline-flex items-center gap-1 text-[11px] font-medium text-up-fg">
           <Check className="h-3 w-3" strokeWidth={3} /> Saved
         </motion.span>
       )}
@@ -108,10 +109,10 @@ export function IdentityPanel({ data, onSaved }: { data: IdentityData; onSaved?:
             </div>
             <div className="relative"><SavedTick show={ticks.has('bio')} />
             <Field label="Bio">
-              <textarea value={f.bio} onChange={(e) => set('bio', e.target.value)} rows={3} placeholder="A line about how you trade or what you copy." className="w-full resize-none rounded-2xl border border-transparent bg-[#050b17] px-4 py-3 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand/60 focus:shadow-[0_0_0_4px_rgba(0,176,255,0.14)]" />
+              <Textarea value={f.bio} onChange={(e) => set('bio', e.target.value)} rows={3} placeholder="A line about how you trade or what you copy." />
               <div className="mt-1.5 flex items-center justify-between text-[11px]">
                 <FieldError msg={errors.bio} />
-                <span className={cx('ml-auto tabular-nums', f.bio.length > BIO_MAX ? 'text-down' : 'text-faint')}>{f.bio.length}/{BIO_MAX}</span>
+                <span className={cx('ml-auto tabular-nums', f.bio.length > BIO_MAX ? 'text-down-fg' : 'text-faint')}>{f.bio.length}/{BIO_MAX}</span>
               </div>
             </Field>
             </div>
@@ -119,7 +120,7 @@ export function IdentityPanel({ data, onSaved }: { data: IdentityData; onSaved?:
         </div>
 
         {/* live preview */}
-        <div className="mt-6 rounded-2xl bg-[#050b17] p-4">
+        <div className="mt-6 rounded-2xl bg-well p-4">
           <div className="mb-3 text-[10px] font-semibold uppercase tracking-[0.18em] text-faint">Preview</div>
           <div className="flex items-center gap-3">
             <Avatar src={avatar} name={f.name || data.name} size={44} />
@@ -145,10 +146,14 @@ export function IdentityPanel({ data, onSaved }: { data: IdentityData; onSaved?:
         </div>
       </Section>
 
+      <Section id="appearance" title="Appearance" sub="Follows your device by default. Saved on this device only.">
+        <ThemeSegmented className="max-w-sm" />
+      </Section>
+
       {data.leader && (
         <Section id="leader" title="Leader profile" sub="What followers see on the leaderboard and your public page.">
           <div className="space-y-4">
-            <div className="flex items-center justify-between rounded-2xl bg-[#050b17] px-4 py-3">
+            <div className="flex items-center justify-between rounded-2xl bg-well px-4 py-3">
               <div>
                 <div className="text-sm font-medium text-fg">Show on leaderboard</div>
                 <div className="text-xs text-muted">{data.leader.status === 'VERIFIED' ? 'Verified · visible to everyone when on' : `Status: ${data.leader.status.toLowerCase()}`}</div>
@@ -160,9 +165,9 @@ export function IdentityPanel({ data, onSaved }: { data: IdentityData; onSaved?:
               <FieldError msg={errors.leaderName} />
             </Field>
             <Field label="Leader bio">
-              <textarea value={f.leaderBio} onChange={(e) => set('leaderBio', e.target.value)} rows={3} placeholder="Your strategy in a sentence or two." className="w-full resize-none rounded-2xl border border-transparent bg-[#050b17] px-4 py-3 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand/60 focus:shadow-[0_0_0_4px_rgba(0,176,255,0.14)]" />
+              <Textarea value={f.leaderBio} onChange={(e) => set('leaderBio', e.target.value)} rows={3} placeholder="Your strategy in a sentence or two." />
             </Field>
-            <Link href={`/leaders/${data.leader.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-brand hover:text-accent">View public page <ArrowUpRight className="h-4 w-4" /></Link>
+            <Link href={`/leaders/${data.leader.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-brand-fg hover:text-accent-fg">View public page <ArrowUpRight className="h-4 w-4" /></Link>
           </div>
         </Section>
       )}
@@ -171,7 +176,7 @@ export function IdentityPanel({ data, onSaved }: { data: IdentityData; onSaved?:
       <AnimatePresence>
         {dirty && (
           <motion.div key="save" initial={{ y: 60, opacity: 0 }} animate={{ y: 0, opacity: 1 }} exit={{ y: 60, opacity: 0 }} transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }} className="fixed inset-x-0 bottom-5 z-40 flex justify-center px-4" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
-            <div className="flex w-full max-w-md items-center gap-3 rounded-full border border-white/10 bg-[#0b1a33]/95 py-2 pl-5 pr-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] backdrop-blur">
+            <div className="flex w-full max-w-md items-center gap-3 rounded-full border border-border bg-raised/95 py-2 pl-5 pr-2 shadow-[0_20px_60px_rgba(0,0,0,0.6)] light:elev-float backdrop-blur">
               <span className="flex-1 text-xs text-muted"><span className="mr-2 inline-block h-1.5 w-1.5 rounded-full bg-warn" />Unsaved changes</span>
               <button type="button" onClick={() => setF(saved)} className="text-xs text-faint hover:text-fg">Discard</button>
               <Button type="button" onClick={save} disabled={busy || !valid} className="px-4 py-2 text-xs">

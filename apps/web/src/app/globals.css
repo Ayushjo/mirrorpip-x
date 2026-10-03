@@ -4,15 +4,23 @@
    Poppins is the brand face (Brand Guidelines v1.0), loaded via Google Fonts
    <link> in app/layout.tsx. */
 
-/* ─── Design tokens — light premium fintech (Halo-style) ─────────────────────
-   #F5F5F5 ground, white cards, black ink, a dark #2B2644 accent card.
-   Heaviest weight anywhere is 600. */
+/* ─── Themes ──────────────────────────────────────────────────────────────────
+   `data-theme` on <html> (set by next-themes before paint) picks the palette.
+   The @theme values are the DARK brand palette (Brand Guidelines v1.0) and the
+   defaults. `[data-theme='light']` re-points every token at the light palette.
+
+   Night islands: any element with data-theme="dark" re-declares the dark
+   palette for its subtree, so imagery panels (all our images are dark renders)
+   stay dark inside a light page. Tokens must therefore be re-declared on the
+   element itself — inherited var() values are already resolved. */
+@custom-variant light (&:where(html[data-theme=light], html[data-theme=light] *));
+
 @theme {
-  /* BelieveMeGuys Brand Guidelines v1.0 — dark navy/blue */
   --color-bg: #050b17; /* Primary Dark — main background */
   --color-surface: #0a1e3a; /* Secondary Dark — cards, sections */
   --color-surface-2: #102d5b; /* Surface — panels, hover/active */
-  --color-ink: #102d5b; /* elevated dark card */
+  --color-surface-3: #163a70; /* stronger hover on surface-2 */
+  --color-ink: #102d5b; /* dark accent chip (dark in both themes) */
   --color-border: #172c4d; /* low-contrast hairline */
   --color-border-soft: #112240;
 
@@ -20,16 +28,141 @@
   --color-muted: #94a3b8; /* Text Secondary */
   --color-faint: #64748b;
 
-  --color-brand: #00b0ff; /* Primary Blue — CTAs, active states */
+  --color-brand: #00b0ff; /* Primary Blue — fills, glows, rings */
   --color-brand-strong: #33c0ff;
   --color-brand-soft: #0a1e3a;
-  --color-accent: #60a5ff; /* Accent Blue — highlights, links */
+  --color-accent: #60a5ff; /* Accent Blue — gradient partner */
+  --color-brand-fg: #00b0ff; /* brand as TEXT (deeper in light for contrast) */
+  --color-accent-fg: #60a5ff;
 
-  --color-up: #10b981; /* Success */
+  --color-up: #10b981; /* Success — fills, tints, chart lines */
   --color-down: #ef4444; /* Error */
   --color-warn: #f59e0b; /* Warning */
+  --color-up-fg: #10b981; /* status as TEXT */
+  --color-down-fg: #ef4444;
+  --color-warn-fg: #f59e0b;
+
+  --color-raised: #0b1a33; /* cards, popovers, menus, sheets */
+  --color-well: #050b17; /* sunken insets: inputs, rows inside cards */
+  --color-tint: #ffffff; /* overlay ink: hover washes, hairlines, tracks */
+  --color-scrim: #050b17; /* backdrops behind sheets/drawers */
+  --color-on-brand: #050b17; /* text on brand/up fills — dark in both themes */
+  --color-hero: #0a1628; /* feature hero panels */
 
   --font-sans: 'Poppins', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
+}
+
+/* Non-color theme values (not Tailwind tokens). */
+:root,
+[data-theme='dark'] {
+  --elev-card: 0 0 #0000;
+  --elev-float: 0 30px 80px rgb(0 0 0 / 0.6);
+  --elev-pop: 0 18px 44px rgb(0 0 0 / 0.5);
+  --card-ring: transparent;
+  --raised-hover: #0d1f3d;
+  --skel-a: #0a1e3a;
+  --skel-b: #12294f;
+  --scroll-thumb: #1b3a63;
+  --metal: linear-gradient(180deg, #ffffff 0%, #c9d6ea 40%, #7f93b5 70%, #dbe6f7 100%);
+  --glow: 1;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+[data-theme='light'] {
+  --color-bg: #f5f8fd;
+  --color-surface: #ffffff;
+  --color-surface-2: #eaf1fb;
+  --color-surface-3: #dde8f6;
+  --color-ink: #0a1e3a;
+  --color-border: #dbe4f0;
+  --color-border-soft: #e7edf6;
+  --color-fg: #0a1e3a;
+  --color-muted: #4f5f78;
+  --color-faint: #64748b;
+  --color-brand: #0096e6;
+  --color-brand-strong: #00a3f5;
+  --color-brand-soft: #e6f4fd;
+  --color-accent: #60a5ff;
+  --color-brand-fg: #0077c2;
+  --color-accent-fg: #2f6fd6;
+  --color-up: #0e9f6e;
+  --color-down: #ef4444;
+  --color-warn: #d97706;
+  --color-up-fg: #047857;
+  --color-down-fg: #dc2626;
+  --color-warn-fg: #b45309;
+  --color-raised: #ffffff;
+  --color-well: #eef3fa;
+  --color-tint: #0a1e3a;
+  --color-scrim: #0a1e3a;
+  --color-on-brand: #050b17;
+  --color-hero: #eaf3fe;
+
+  --elev-card: 0 1px 2px rgb(10 30 58 / 0.05), 0 10px 30px -12px rgb(10 30 58 / 0.14);
+  --elev-float: 0 24px 60px -16px rgb(10 30 58 / 0.22);
+  --elev-pop: 0 12px 32px -10px rgb(10 30 58 / 0.18);
+  --card-ring: rgb(10 30 58 / 0.08);
+  --raised-hover: #f8fbff;
+  --skel-a: #e6edf7;
+  --skel-b: #f3f7fc;
+  --scroll-thumb: #c5d3e6;
+  --metal: linear-gradient(180deg, #0a1e3a 0%, #3b5b8c 45%, #0a1e3a 75%, #5b7bab 100%);
+  --glow: 0.35;
+  --select-chevron: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2364748b' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+}
+
+/* Night island / explicit dark scope — re-declare the dark palette. */
+[data-theme='dark'] {
+  --color-bg: #050b17;
+  --color-surface: #0a1e3a;
+  --color-surface-2: #102d5b;
+  --color-surface-3: #163a70;
+  --color-ink: #102d5b;
+  --color-border: #172c4d;
+  --color-border-soft: #112240;
+  --color-fg: #f1f5ff;
+  --color-muted: #94a3b8;
+  --color-faint: #64748b;
+  --color-brand: #00b0ff;
+  --color-brand-strong: #33c0ff;
+  --color-brand-soft: #0a1e3a;
+  --color-accent: #60a5ff;
+  --color-brand-fg: #00b0ff;
+  --color-accent-fg: #60a5ff;
+  --color-up: #10b981;
+  --color-down: #ef4444;
+  --color-warn: #f59e0b;
+  --color-up-fg: #10b981;
+  --color-down-fg: #ef4444;
+  --color-warn-fg: #f59e0b;
+  --color-raised: #0b1a33;
+  --color-well: #050b17;
+  --color-tint: #ffffff;
+  --color-scrim: #050b17;
+  --color-on-brand: #050b17;
+  --color-hero: #0a1628;
+}
+
+/* Re-resolve text colour + native control scheme at every theme boundary. */
+[data-theme] {
+  color: var(--color-fg);
+}
+[data-theme='light'] {
+  color-scheme: light;
+}
+[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/* Elevation utilities (themeable — Tailwind's shadow-* inlines its values). */
+@utility elev-card {
+  box-shadow: var(--elev-card);
+}
+@utility elev-float {
+  box-shadow: var(--elev-float);
+}
+@utility elev-pop {
+  box-shadow: var(--elev-pop);
 }
 
 *,
@@ -38,8 +171,12 @@ body {
   font-family: var(--font-sans);
 }
 
-* {
-  border-color: var(--color-border);
+/* In the base layer so border-color utilities (border-brand/40,
+   border-transparent, …) can win — unlayered, this used to override them all. */
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
 }
 
 html {
@@ -63,13 +200,13 @@ h4 {
   line-height: 1.05;
 }
 
-/* Dark scrollbar */
+/* Scrollbar */
 ::-webkit-scrollbar {
   width: 10px;
   height: 10px;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1b3a63;
+  background: var(--scroll-thumb);
   border-radius: 999px;
 }
 ::-webkit-scrollbar-track {
@@ -117,32 +254,51 @@ h4 {
   display: none;
 }
 
-/* ── Premium card surface ─────────────────────────────────────────────────
-   One treatment for every card: a faint top-light gradient over Secondary
-   Dark, a 1px inner highlight, and a soft drop shadow so cards sit *on* the
-   page instead of being outlined boxes. */
-.card-surface {
-  background: #0b1a33;
-  border: 0;
-  border-radius: 1.75rem;
-  box-shadow: none;
+/* ── Card surface ─────────────────────────────────────────────────────────
+   One treatment for every card: a raised surface (navy in dark; white with a
+   hairline ring + soft navy shadow in light). In the components layer so
+   per-card utilities (borders, radius) can still override it. */
+@layer components {
+  .card-surface {
+    background: var(--color-raised);
+    border-radius: 1.75rem;
+    box-shadow: inset 0 0 0 1px var(--card-ring), var(--elev-card);
+  }
+  @media (min-width: 640px) {
+    .card-surface {
+      border-radius: 2.25rem;
+    }
+  }
+  .card-surface-hover {
+    transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
+  }
+  .card-surface-hover:hover {
+    transform: translateY(-4px);
+    background: var(--raised-hover);
+  }
+  /* Olymp card: no border, big radius */
+  .ocard {
+    background: var(--color-raised);
+    border-radius: 2rem;
+    box-shadow: inset 0 0 0 1px var(--card-ring), var(--elev-card);
+  }
+  @media (min-width: 640px) {
+    .ocard {
+      border-radius: 3rem;
+    }
+  }
+  .skeleton {
+    border-radius: 0.75rem;
+    background: linear-gradient(90deg, var(--skel-a) 25%, var(--skel-b) 50%, var(--skel-a) 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.6s ease-in-out infinite;
+  }
 }
-@media (min-width: 640px) { .card-surface { border-radius: 2.25rem; } }
-.card-surface-hover {
-  transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1), background-color 0.3s;
-}
-.card-surface-hover:hover { transform: translateY(-4px); background: #0d1f3d; }
 
 /* ── Skeleton shimmer ── */
 @keyframes shimmer {
   from { background-position: 200% 0; }
   to { background-position: -200% 0; }
-}
-.skeleton {
-  border-radius: 0.75rem;
-  background: linear-gradient(90deg, #0a1e3a 25%, #12294f 50%, #0a1e3a 75%);
-  background-size: 200% 100%;
-  animation: shimmer 1.6s ease-in-out infinite;
 }
 @keyframes pulse-ring {
   0% { transform: scale(0.9); opacity: 0.6; }
@@ -161,13 +317,10 @@ h4 {
 .light-breathe { animation: light-breathe 10s cubic-bezier(0.25, 0.46, 0.45, 0.94) 0.25s infinite alternate both; }
 @keyframes chevron-pulse { 0%, 100% { opacity: 0.35; transform: translateX(0); } 50% { opacity: 1; transform: translateX(2px); } }
 .chevron-pulse { animation: chevron-pulse 1.2s ease-in-out infinite; }
-/* Olymp card: no border, big radius, near-ground tint */
-.ocard { background: #0b1a33; border-radius: 2rem; }
-@media (min-width: 640px) { .ocard { border-radius: 3rem; } }
 .ocard-hover { transition: transform 0.5s cubic-bezier(0.16, 1, 0.3, 1); }
 .ocard-hover:hover { transform: translateY(-4px); }
-/* metallic number */
-.metal { background: linear-gradient(180deg, #ffffff 0%, #c9d6ea 40%, #7f93b5 70%, #dbe6f7 100%); -webkit-background-clip: text; background-clip: text; color: transparent; }
+/* metallic number — silver on dark, navy steel on light */
+.metal { background: var(--metal); -webkit-background-clip: text; background-clip: text; color: transparent; }
 /* Venue cards: dark "payment card" with sheen; fanned in 3D from sm up */
 .vcard {
   background: linear-gradient(160deg, #10254a 0%, #0a1a35 55%, #071228 100%);
@@ -181,6 +334,8 @@ h4 {
     linear-gradient(115deg, transparent 40%, rgba(255, 255, 255, 0.05) 50%, transparent 60%);
 }
 .vcard-dim { filter: saturate(0.4); opacity: 0.75; }
+/* on a light page a translucent dark card reads as grey slab — keep it solid, just desaturated */
+html[data-theme='light'] .vcard-dim { opacity: 1; filter: saturate(0.25) brightness(0.92); }
 @media (min-width: 640px) {
   .vcard { transform: perspective(1200px) rotateY(34deg); }
   .vcard:hover { transform: perspective(1200px) rotateY(0deg) translateY(-14px) scale(1.08); box-shadow: inset 0 1px 0 rgba(255,255,255,0.12), 0 50px 90px -30px rgba(0,176,255,0.5), 0 0 0 1px rgba(0,176,255,0.35); z-index: 50 !important; }

@@ -6,7 +6,7 @@ export default function PrivacyPage() {
   return (
     <div className="mx-auto w-full max-w-3xl py-4">
       <div className="text-center">
-        <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">Legal</div>
+        <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-fg">Legal</div>
         <h1 className="text-[2.6rem] leading-[1.02] text-fg sm:text-[3.25rem]" style={{ letterSpacing: '-0.035em', fontWeight: 600 }}>
           Privacy Policy
         </h1>

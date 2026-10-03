@@ -23,7 +23,7 @@ export default async function CompleteProfilePage() {
         <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-brand to-accent shadow-[0_10px_30px_rgba(0,176,255,0.35)]">
           <span className="text-2xl">🌍</span>
         </div>
-        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand">One last step</div>
+        <div className="text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-fg">One last step</div>
         <h1 className="mt-2 text-3xl text-fg sm:text-4xl" style={{ letterSpacing: '-0.03em' }}>
           Tell us where you&rsquo;re based
         </h1>

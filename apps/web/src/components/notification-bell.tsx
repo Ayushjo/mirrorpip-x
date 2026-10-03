@@ -69,7 +69,7 @@ export function NotificationBell() {
         type="button"
         onClick={toggle}
         aria-label="Notifications"
-        className="relative grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-fg transition-colors hover:bg-white/10 md:h-9 md:w-9"
+        className="relative grid h-10 w-10 place-items-center rounded-full border border-border bg-tint/[0.04] text-fg transition-colors hover:bg-tint/10 md:h-9 md:w-9"
       >
         <Bell className="h-[18px] w-[18px] md:h-4 md:w-4" />
         {unread > 0 && (
@@ -82,7 +82,7 @@ export function NotificationBell() {
         createPortal(
         <div
           ref={panelRef}
-          className="fixed right-3 top-[4.25rem] z-[70] w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[1.75rem] border border-white/10 bg-[#0b1a33] shadow-[0_30px_80px_rgba(0,0,0,0.6)] sm:right-6"
+          className="fixed right-3 top-[4.25rem] z-[70] w-[min(22rem,calc(100vw-1.5rem))] overflow-hidden rounded-[1.75rem] border border-border bg-raised shadow-[0_30px_80px_rgba(0,0,0,0.6)] light:elev-float sm:right-6"
         >
           <div className="border-b border-border-soft px-4 py-3 text-sm font-semibold">Notifications</div>
           <div className="max-h-96 overflow-y-auto">

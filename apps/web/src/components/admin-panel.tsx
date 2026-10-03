@@ -70,7 +70,7 @@ export function AdminPanel({ initialLeaders, initialKill }: { initialLeaders: Ad
             When engaged, the engine halts all new copy orders immediately across every follower.
           </p>
           {confirmKill && (
-            <p className="mt-2 text-sm text-down">
+            <p className="mt-2 text-sm text-down-fg">
               {kill
                 ? 'Resume copying for everyone?'
                 : 'This will stop every new copy order until you turn it off. Continue?'}

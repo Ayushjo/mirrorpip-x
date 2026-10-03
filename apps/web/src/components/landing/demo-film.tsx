@@ -73,8 +73,8 @@ export function DemoFilm({ className }: { className?: string }) {
 
   return (
     <div className={cx('relative mx-auto w-full max-w-5xl', className)}>
-      <div aria-hidden className="pointer-events-none absolute -inset-6 -z-10 rounded-[3rem] bg-brand/15 blur-[70px] sm:-inset-10" />
-      <div className="relative rounded-[1.25rem] bg-gradient-to-br from-brand/50 via-white/10 to-accent/30 p-[2px] shadow-[0_40px_120px_rgba(0,0,0,0.6)] sm:rounded-[2rem]">
+      <div aria-hidden className="pointer-events-none absolute -inset-6 -z-10 rounded-[3rem] bg-brand/15 blur-[70px] light:opacity-40 sm:-inset-10" />
+      <div data-theme="dark" className="relative rounded-[1.25rem] bg-gradient-to-br from-brand/50 via-tint/10 to-accent/30 p-[2px] shadow-[0_40px_120px_rgba(0,0,0,0.6)] light:elev-float sm:rounded-[2rem]">
         <div className="group relative overflow-hidden rounded-[calc(1.25rem-2px)] bg-bg sm:rounded-[calc(2rem-2px)]">
           <video
             ref={ref}
@@ -103,7 +103,7 @@ export function DemoFilm({ className }: { className?: string }) {
               playing ? 'pointer-events-none opacity-0' : 'bg-bg/30 opacity-100',
             )}
           >
-            <span className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-[#050b17] shadow-[0_12px_40px_rgba(0,176,255,0.5)] transition-transform hover:scale-110 sm:h-20 sm:w-20">
+            <span className="grid h-14 w-14 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-on-brand shadow-[0_12px_40px_rgba(0,176,255,0.5)] transition-transform hover:scale-110 sm:h-20 sm:w-20">
               <Play className="ml-1 h-5 w-5 fill-current sm:h-7 sm:w-7" />
             </span>
           </button>
@@ -114,7 +114,7 @@ export function DemoFilm({ className }: { className?: string }) {
               type="button"
               onClick={toggle}
               aria-label={playing ? 'Pause video' : 'Play video'}
-              className="grid h-8 w-8 place-items-center rounded-full bg-[#050b17]/70 text-fg backdrop-blur transition-colors hover:bg-[#050b17]/90 sm:h-10 sm:w-10"
+              className="grid h-8 w-8 place-items-center rounded-full bg-scrim/70 text-fg backdrop-blur transition-colors hover:bg-scrim/90 sm:h-10 sm:w-10"
             >
               {playing ? <Pause className="h-3.5 w-3.5 fill-current sm:h-4 sm:w-4" /> : <Play className="ml-0.5 h-3.5 w-3.5 fill-current sm:h-4 sm:w-4" />}
             </button>
@@ -123,14 +123,14 @@ export function DemoFilm({ className }: { className?: string }) {
               onClick={toggleSound}
               aria-label={muted ? 'Turn sound on' : 'Mute'}
               aria-pressed={!muted}
-              className="inline-flex h-8 w-8 items-center justify-center gap-2 rounded-full bg-[#050b17]/70 text-sm font-semibold text-fg backdrop-blur transition-colors hover:bg-[#050b17]/90 sm:h-10 sm:w-auto sm:px-4"
+              className="inline-flex h-8 w-8 items-center justify-center gap-2 rounded-full bg-scrim/70 text-sm font-semibold text-fg backdrop-blur transition-colors hover:bg-scrim/90 sm:h-10 sm:w-auto sm:px-4"
             >
-              {muted ? <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Volume2 className="h-3.5 w-3.5 text-brand sm:h-4 sm:w-4" />}
+              {muted ? <VolumeX className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> : <Volume2 className="h-3.5 w-3.5 text-brand-fg sm:h-4 sm:w-4" />}
               <span className="hidden sm:inline">{muted ? 'Sound on' : 'Sound off'}</span>
             </button>
           </div>
 
-          <div aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-white/10">
+          <div aria-hidden className="absolute inset-x-0 bottom-0 h-[3px] bg-tint/10">
             <div className="h-full bg-gradient-to-r from-brand to-accent" style={{ width: `${progress * 100}%` }} />
           </div>
         </div>

@@ -22,7 +22,7 @@ export function Section({ id, title, sub, aside, children, className }: { id?: s
 
 export function Toggle({ on, onChange, label, disabled }: { on: boolean; onChange: (v: boolean) => void; label: string; disabled?: boolean }) {
   return (
-    <button type="button" role="switch" aria-checked={on} aria-label={label} disabled={disabled} onClick={() => onChange(!on)} className={cx('relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50', on ? 'bg-up' : 'bg-white/15')}>
+    <button type="button" role="switch" aria-checked={on} aria-label={label} disabled={disabled} onClick={() => onChange(!on)} className={cx('relative h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-50', on ? 'bg-up' : 'bg-tint/15')}>
       <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 32 }} className={cx('absolute top-1 h-5 w-5 rounded-full bg-white shadow', on ? 'left-6' : 'left-1')} />
     </button>
   );
@@ -32,19 +32,19 @@ export function Toggle({ on, onChange, label, disabled }: { on: boolean; onChang
 export function Menu({ items, label = 'More' }: { items: { label: string; onClick?: () => void; href?: string; danger?: boolean }[]; label?: string }) {
   return (
     <details className="group relative">
-      <summary aria-label={label} className="grid h-9 w-9 cursor-pointer list-none place-items-center rounded-full text-muted transition-colors hover:bg-white/[0.06] hover:text-fg [&::-webkit-details-marker]:hidden">
+      <summary aria-label={label} className="grid h-9 w-9 cursor-pointer list-none place-items-center rounded-full text-muted transition-colors hover:bg-tint/[0.06] hover:text-fg [&::-webkit-details-marker]:hidden">
         <span className="text-lg leading-none">⋯</span>
       </summary>
-      <div className="absolute right-0 z-30 mt-1 w-48 rounded-2xl border border-white/10 bg-[#0b1a33] p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.6)]">
+      <div className="absolute right-0 z-30 mt-1 w-48 rounded-2xl border border-border bg-raised p-1.5 shadow-[0_20px_50px_rgba(0,0,0,0.6)] light:elev-float">
         {items.map((it) =>
           it.href ? (
-            <a key={it.label} href={it.href} className={cx('block rounded-xl px-3 py-2 text-sm hover:bg-white/[0.06]', it.danger ? 'text-down' : 'text-fg')}>{it.label}</a>
+            <a key={it.label} href={it.href} className={cx('block rounded-xl px-3 py-2 text-sm hover:bg-tint/[0.06]', it.danger ? 'text-down-fg' : 'text-fg')}>{it.label}</a>
           ) : (
             <button
               key={it.label}
               type="button"
               onClick={(e) => { (e.currentTarget.closest('details') as HTMLDetailsElement | null)?.removeAttribute('open'); it.onClick?.(); }}
-              className={cx('block w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-white/[0.06]', it.danger ? 'text-down' : 'text-fg')}
+              className={cx('block w-full rounded-xl px-3 py-2 text-left text-sm hover:bg-tint/[0.06]', it.danger ? 'text-down-fg' : 'text-fg')}
             >
               {it.label}
             </button>

@@ -9,6 +9,7 @@ import { ArrowRight, ChevronRight, LayoutDashboard, LogOut, Menu, ShieldCheck, T
 import { signOut } from '@/lib/auth-client';
 import { BrandMark } from './icons';
 import { cx } from './ui';
+import { ThemeSegmented } from './theme-toggle';
 
 type NavLink = { href: string; label: string };
 type User = { name: string; email: string } | null;
@@ -64,7 +65,7 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
     <div className="md:hidden">
       <button
         type="button"
-        className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-fg transition-colors active:bg-white/10"
+        className="grid h-10 w-10 place-items-center rounded-full border border-border bg-tint/[0.04] text-fg transition-colors active:bg-tint/10"
         aria-label="Open menu"
         aria-expanded={open}
         onClick={() => setOpen(true)}
@@ -81,7 +82,7 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
               <>
                 <motion.div
                   key="scrim"
-                  className="fixed inset-0 z-[60] bg-[#050b17]/70 backdrop-blur-sm"
+                  className="fixed inset-0 z-[60] bg-scrim/70 backdrop-blur-sm"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -93,12 +94,12 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                   role="dialog"
                   aria-modal="true"
                   aria-label="Menu"
-                  className="fixed inset-y-0 right-0 z-[70] flex w-[86%] max-w-sm flex-col overflow-hidden border-l border-white/10 shadow-[0_30px_80px_rgba(0,0,0,0.7)]"
+                  className="fixed inset-y-0 right-0 z-[70] flex w-[86%] max-w-sm flex-col overflow-hidden border-l border-border shadow-[0_30px_80px_rgba(0,0,0,0.7)] light:elev-float"
                   style={{
                     paddingTop: 'env(safe-area-inset-top, 0px)',
                     paddingBottom: 'env(safe-area-inset-bottom, 0px)',
                     background:
-                      'radial-gradient(520px 260px at 100% 0%, rgba(0,176,255,0.18), transparent 60%), linear-gradient(180deg, #0a1e3a 0%, #050b17 70%)',
+                      'radial-gradient(520px 260px at 100% 0%, rgba(0,176,255,0.18), transparent 60%), linear-gradient(180deg, var(--color-surface) 0%, var(--color-bg) 70%)',
                   }}
                   initial={{ x: '100%' }}
                   animate={{ x: 0 }}
@@ -110,12 +111,12 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                     <Link href="/" className="flex items-center gap-2" onClick={() => setOpen(false)}>
                       <BrandMark className="h-7 w-7" />
                       <span className="text-base font-semibold tracking-tight text-fg">
-                        BelieveMe<span className="text-brand">Guys</span>
+                        BelieveMe<span className="text-brand-fg">Guys</span>
                       </span>
                     </Link>
                     <button
                       type="button"
-                      className="grid h-10 w-10 place-items-center rounded-full border border-white/10 bg-white/[0.04] text-fg active:bg-white/10"
+                      className="grid h-10 w-10 place-items-center rounded-full border border-border bg-tint/[0.04] text-fg active:bg-tint/10"
                       aria-label="Close menu"
                       onClick={() => setOpen(false)}
                     >
@@ -131,14 +132,14 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                       transition={{ delay: 0.08, duration: 0.4, ease: EASE }}
                       className="card-surface mx-5 mt-6 flex items-center gap-3 rounded-2xl p-3.5"
                     >
-                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-base font-bold text-[#050b17]">
+                      <div className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-base font-bold text-on-brand">
                         {user.name.slice(0, 1).toUpperCase()}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="truncate text-sm font-semibold text-fg">{user.name}</div>
                         <div className="truncate text-xs text-muted">{user.email}</div>
                       </div>
-                      <span className="inline-flex items-center gap-1 rounded-full bg-up/15 px-2 py-0.5 text-[10px] font-semibold text-up">
+                      <span className="inline-flex items-center gap-1 rounded-full bg-up/15 px-2 py-0.5 text-[10px] font-semibold text-up-fg">
                         <span className="h-1.5 w-1.5 rounded-full bg-up" /> Live
                       </span>
                     </motion.div>
@@ -151,7 +152,7 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                       transition={{ delay: 0.08, duration: 0.4, ease: EASE }}
                       className="card-surface mx-5 mt-6 rounded-2xl p-4"
                     >
-                      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand">Trade smarter together</div>
+                      <div className="text-[10px] font-semibold uppercase tracking-[0.2em] text-brand-fg">Trade smarter together</div>
                       <div className="mt-1.5 text-base font-semibold leading-tight text-fg" style={{ letterSpacing: '-0.02em' }}>
                         Your capital, on autopilot.
                       </div>
@@ -180,14 +181,14 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                               onClick={() => setOpen(false)}
                               className={cx(
                                 'group relative flex items-center gap-3.5 rounded-2xl px-3 py-3 transition-colors',
-                                active ? 'bg-white/[0.06] text-fg' : 'text-fg/85 active:bg-white/[0.05]',
+                                active ? 'bg-tint/[0.06] text-fg' : 'text-fg/85 active:bg-tint/[0.05]',
                               )}
                             >
                               {active && <span className="absolute left-0 top-1/2 h-6 w-1 -translate-y-1/2 rounded-r-full bg-brand" />}
                               <span
                                 className={cx(
                                   'grid h-10 w-10 shrink-0 place-items-center rounded-xl',
-                                  active ? 'bg-brand text-[#050b17] shadow-[0_6px_18px_rgba(0,176,255,0.35)]' : 'bg-white/[0.05] text-brand',
+                                  active ? 'bg-brand text-on-brand shadow-[0_6px_18px_rgba(0,176,255,0.35)]' : 'bg-tint/[0.05] text-brand-fg',
                                 )}
                               >
                                 <Icon className="h-[18px] w-[18px]" strokeWidth={2} />
@@ -208,8 +209,8 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                     <div className="mt-6 px-3 pb-2 text-[10px] font-semibold uppercase tracking-[0.2em] text-faint">More</div>
                     <ul className="space-y-1 text-sm">
                       <li>
-                        <Link href="/#how-it-works" onClick={() => setOpen(false)} className="flex items-center gap-3.5 rounded-2xl px-3 py-2.5 text-fg/80 active:bg-white/[0.05]">
-                          <span className="grid h-8 w-8 place-items-center rounded-lg bg-white/[0.05] text-muted">
+                        <Link href="/#how-it-works" onClick={() => setOpen(false)} className="flex items-center gap-3.5 rounded-2xl px-3 py-2.5 text-fg/80 active:bg-tint/[0.05]">
+                          <span className="grid h-8 w-8 place-items-center rounded-lg bg-tint/[0.05] text-muted">
                             <HelpCircle className="h-4 w-4" />
                           </span>
                           How it works
@@ -227,14 +228,18 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.22, duration: 0.4, ease: EASE }}
-                    className="border-t border-white/10 px-5 py-4"
+                    className="border-t border-border px-5 py-4"
                   >
+                    <div className="mb-3">
+                      <div className="mb-1.5 text-[11px] font-semibold uppercase tracking-[0.14em] text-faint">Appearance</div>
+                      <ThemeSegmented />
+                    </div>
                     {user ? (
                       <button
                         type="button"
                         onClick={handleSignOut}
                         disabled={busy}
-                        className="flex w-full items-center justify-center gap-2 rounded-full border border-white/10 bg-white/[0.04] py-3 text-sm font-medium text-fg/85 transition-colors active:bg-white/10 disabled:opacity-60"
+                        className="flex w-full items-center justify-center gap-2 rounded-full border border-border bg-tint/[0.04] py-3 text-sm font-medium text-fg/85 transition-colors active:bg-tint/10 disabled:opacity-60"
                       >
                         <LogOut className="h-4 w-4" />
                         {busy ? 'Signing out…' : 'Sign out'}
@@ -244,17 +249,17 @@ export function MobileNav({ links, user = null }: { links: NavLink[]; user?: Use
                         <Link
                           href="/register"
                           onClick={() => setOpen(false)}
-                          className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-accent py-2.5 pl-5 pr-2 text-sm font-semibold text-[#050b17] shadow-[0_6px_22px_rgba(0,176,255,0.35)]"
+                          className="inline-flex items-center justify-center gap-2 rounded-full bg-gradient-to-r from-brand to-accent py-2.5 pl-5 pr-2 text-sm font-semibold text-on-brand shadow-[0_6px_22px_rgba(0,176,255,0.35)]"
                         >
                           Get started
-                          <span className="grid h-7 w-7 place-items-center rounded-full bg-[#050b17]">
+                          <span className="grid h-7 w-7 place-items-center rounded-full bg-on-brand">
                             <ArrowRight className="h-4 w-4 text-white" />
                           </span>
                         </Link>
                         <Link
                           href="/login"
                           onClick={() => setOpen(false)}
-                          className="grid place-items-center rounded-full border border-white/10 py-2.5 text-sm font-medium text-fg/85 active:bg-white/5"
+                          className="grid place-items-center rounded-full border border-border py-2.5 text-sm font-medium text-fg/85 active:bg-tint/5"
                         >
                           Sign in
                         </Link>

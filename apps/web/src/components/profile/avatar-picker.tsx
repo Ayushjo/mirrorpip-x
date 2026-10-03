@@ -23,7 +23,7 @@ const announce = (url: string | null) => window.dispatchEvent(new CustomEvent(AV
 
 export function Avatar({ src, name, size = 96, className }: { src?: string | null; name: string; size?: number; className?: string }) {
   return (
-    <span className={cx('relative inline-grid place-items-center overflow-hidden rounded-full bg-gradient-to-br from-[#1a4586] to-[#0a1e3a] font-semibold text-fg ring-1 ring-white/10', className)} style={{ width: size, height: size, fontSize: size * 0.38 }}>
+    <span className={cx('relative inline-grid place-items-center overflow-hidden rounded-full bg-gradient-to-br from-surface-3 to-surface font-semibold text-fg ring-1 ring-tint/10', className)} style={{ width: size, height: size, fontSize: size * 0.38 }}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       {src ? <img src={src} alt="" className="h-full w-full object-cover" /> : name.slice(0, 1).toUpperCase()}
     </span>
@@ -38,20 +38,20 @@ export function HeroAvatar({ name, initial, verified }: { name: string; initial:
     <>
       <span className="flex flex-col items-center gap-3">
       <button type="button" onClick={() => setOpen(true)} aria-label="Change profile photo" className="group relative rounded-full focus:outline-none focus-visible:ring-2 focus-visible:ring-brand">
-        <span className="absolute inset-0 -m-3 rounded-full bg-brand/25 blur-2xl" />
+        <span className="absolute inset-0 -m-3 rounded-full bg-brand/25 blur-2xl light:opacity-60" />
         <span className="relative grid h-24 w-24 place-items-center rounded-full bg-gradient-to-br from-brand to-accent p-[3px] shadow-[0_16px_50px_rgba(0,176,255,0.35)]">
           <Avatar src={url} name={name} size={90} className="ring-0" />
-          <span className="absolute inset-[3px] grid place-items-center rounded-full bg-[#050b17]/60 text-white opacity-0 backdrop-blur-[1px] transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
+          <span className="absolute inset-[3px] grid place-items-center rounded-full bg-scrim/60 text-white opacity-0 backdrop-blur-[1px] transition-opacity group-hover:opacity-100 group-focus-visible:opacity-100">
             <Camera className="h-6 w-6" />
           </span>
         </span>
         {verified && (
-          <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-4 border-bg bg-up text-[#050b17]" title="Email verified">
+          <span className="absolute -bottom-1 -right-1 grid h-8 w-8 place-items-center rounded-full border-4 border-bg bg-up text-on-brand" title="Email verified">
             <svg viewBox="0 0 24 24" className="h-3.5 w-3.5" fill="none" stroke="currentColor" strokeWidth="3"><path d="M5 13l4 4L19 7" /></svg>
           </span>
         )}
       </button>
-      <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center gap-1 text-[11px] font-medium text-brand hover:text-accent"><Camera className="h-3 w-3" /> {url ? 'Change photo' : 'Add a photo'}</button>
+      <button type="button" onClick={() => setOpen(true)} className="inline-flex items-center gap-1 text-[11px] font-medium text-brand-fg hover:text-accent-fg"><Camera className="h-3 w-3" /> {url ? 'Change photo' : 'Add a photo'}</button>
       </span>
       <AvatarSheet open={open} onClose={() => setOpen(false)} name={name} hasPhoto={!!url} />
     </>
@@ -111,10 +111,10 @@ export function AvatarSheet({ open, onClose, name, hasPhoto }: { open: boolean; 
             <img src={src} alt="" draggable={false} className="h-full w-full select-none object-cover" style={{ objectPosition: `${focal.x}% ${focal.y}%`, transform: `scale(${focal.zoom})`, transformOrigin: `${focal.x}% ${focal.y}%` }} />
           </div>
         ) : (
-          <label onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); }} className="grid h-56 w-full cursor-pointer place-items-center rounded-3xl border border-dashed border-white/15 bg-[#050b17] text-center transition-colors hover:border-brand/50">
+          <label onDragOver={(e) => e.preventDefault()} onDrop={(e) => { e.preventDefault(); pick(e.dataTransfer.files[0]); }} className="grid h-56 w-full cursor-pointer place-items-center rounded-3xl border border-dashed border-border bg-well text-center transition-colors hover:border-brand/50">
             <input type="file" accept="image/*" className="sr-only" onChange={(e) => pick(e.target.files?.[0])} />
             <div>
-              <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.05] text-brand"><Upload className="h-5 w-5" /></span>
+              <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-tint/[0.05] text-brand-fg"><Upload className="h-5 w-5" /></span>
               <div className="mt-3 text-sm font-medium text-fg">Drop an image or click to choose</div>
               <div className="mt-1 text-xs text-muted">PNG or JPG · square works best</div>
             </div>
@@ -122,7 +122,7 @@ export function AvatarSheet({ open, onClose, name, hasPhoto }: { open: boolean; 
         )}
         {src && (
           <div className="w-full max-w-xs">
-            <input type="range" min={1} max={2.5} step={0.01} value={focal.zoom} onChange={(e) => setFocal((f) => ({ ...f, zoom: Number(e.target.value) }))} aria-label="Zoom" className="w-full accent-[#00b0ff]" />
+            <input type="range" min={1} max={2.5} step={0.01} value={focal.zoom} onChange={(e) => setFocal((f) => ({ ...f, zoom: Number(e.target.value) }))} aria-label="Zoom" className="w-full accent-brand" />
             <div className="mt-2 flex items-center justify-between text-xs text-muted">
               <button type="button" onClick={() => setFocal({ x: 50, y: 50, zoom: 1 })} className="hover:text-fg">Reset</button>
               <button type="button" onClick={() => { setFile(null); setSrc(null); }} className="hover:text-fg">Choose another</button>

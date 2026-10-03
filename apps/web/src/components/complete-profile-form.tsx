@@ -126,7 +126,7 @@ export function CompleteProfileForm({
     <form onSubmit={submit} className="space-y-6">
       <section className="card-surface rounded-3xl p-5 sm:p-6">
         <div className="mb-4 flex items-center gap-2.5">
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-[#050b17]">1</span>
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-on-brand">1</span>
           <h2 className="text-sm font-semibold text-fg">Where you&rsquo;re based</h2>
         </div>
         <div className="space-y-4">
@@ -163,7 +163,7 @@ export function CompleteProfileForm({
 
       <section className="card-surface rounded-3xl p-5 sm:p-6">
         <div className="mb-4 flex items-center gap-2.5">
-          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-[#050b17]">2</span>
+          <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-on-brand">2</span>
           <h2 className="text-sm font-semibold text-fg">How you&rsquo;ll use BelieveMeGuys</h2>
         </div>
         <div className="grid grid-cols-3 gap-2 sm:gap-3">
@@ -177,10 +177,10 @@ export function CompleteProfileForm({
                 aria-pressed={active}
                 className={cx(
                   'flex flex-col items-start gap-2 rounded-2xl border p-3 text-left transition-all sm:p-4',
-                  active ? 'border-brand/50 bg-brand/[0.08] shadow-[0_0_0_1px_rgba(0,176,255,0.2)]' : 'border-border bg-surface/60 hover:border-white/15',
+                  active ? 'border-brand/50 bg-brand/[0.08] shadow-[0_0_0_1px_rgba(0,176,255,0.2)]' : 'border-border bg-surface/60 hover:border-border',
                 )}
               >
-                <span className={cx('grid h-8 w-8 place-items-center rounded-lg', active ? 'bg-brand text-[#050b17]' : 'bg-white/[0.05] text-brand')}>
+                <span className={cx('grid h-8 w-8 place-items-center rounded-lg', active ? 'bg-brand text-on-brand' : 'bg-tint/[0.05] text-brand-fg')}>
                   <Icon className="h-4 w-4" />
                 </span>
                 <span className="text-[13px] font-medium leading-tight text-fg">{label}</span>
@@ -194,7 +194,7 @@ export function CompleteProfileForm({
       {needsConsent && (
         <section className="card-surface rounded-3xl p-5 sm:p-6">
           <div className="mb-4 flex items-center gap-2.5">
-            <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-[#050b17]">3</span>
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-brand text-xs font-bold text-on-brand">3</span>
             <h2 className="text-sm font-semibold text-fg">Terms and risk</h2>
           </div>
           <div className="space-y-2">

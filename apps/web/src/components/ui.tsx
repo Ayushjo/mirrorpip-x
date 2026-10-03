@@ -1,9 +1,9 @@
 import Link from 'next/link';
 import { ArrowRight, Check } from 'lucide-react';
 import { Magnetic } from './landing/magnetic';
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes } from 'react';
+import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode, SelectHTMLAttributes, TextareaHTMLAttributes } from 'react';
 
-// ─── UI kit — light premium fintech (Halo-style) ────────────────────────────
+// ─── UI kit — themed via tokens in globals.css (dark brand + light mode) ─────
 
 export function cx(...parts: Array<string | false | null | undefined>): string {
   return parts.filter(Boolean).join(' ');
@@ -17,10 +17,10 @@ type ButtonVariant = 'primary' | 'ghost' | 'danger' | 'subtle';
 
 const buttonStyles: Record<ButtonVariant, string> = {
   primary:
-    'bg-gradient-to-r from-brand to-accent text-[#050b17] font-semibold shadow-[0_4px_20px_rgba(0,176,255,0.35)] hover:shadow-[0_6px_28px_rgba(0,176,255,0.5)]',
-  ghost: 'border border-brand/40 bg-transparent text-brand hover:bg-brand/10',
+    'bg-gradient-to-r from-brand to-accent text-on-brand font-semibold shadow-[0_4px_20px_rgba(0,176,255,0.35)] hover:shadow-[0_6px_28px_rgba(0,176,255,0.5)]',
+  ghost: 'border border-brand/40 bg-transparent text-brand-fg hover:bg-brand/10',
   danger: 'bg-(--color-down) text-white hover:opacity-90',
-  subtle: 'bg-surface-2 text-fg hover:bg-[#163a70]',
+  subtle: 'bg-surface-2 text-fg hover:bg-surface-3',
 };
 
 // The signature CTA: blue gradient pill with a trailing arrow-circle. The circle
@@ -28,7 +28,7 @@ const buttonStyles: Record<ButtonVariant, string> = {
 // (primary) and on dark backgrounds (ghost) — a subtle ring keeps it visible.
 function ArrowCircle() {
   return (
-    <span className="grid h-7 w-7 place-items-center rounded-full bg-[#050b17] ring-1 ring-white/15">
+    <span className="grid h-7 w-7 place-items-center rounded-full bg-on-brand ring-1 ring-white/15">
       <ArrowRight className="h-4 w-4 text-white" strokeWidth={2.25} />
     </span>
   );
@@ -96,7 +96,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cx(
-        'w-full rounded-2xl border border-transparent bg-[#050b17] px-4 py-3 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand/60 focus:shadow-[0_0_0_4px_rgba(0,176,255,0.14)]',
+        'w-full rounded-2xl border border-border bg-well px-4 py-3 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand/60 focus:shadow-[0_0_0_4px_rgba(0,176,255,0.14)]',
         className,
       )}
       {...props}
@@ -110,12 +110,12 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
       className={cx(
         // appearance-none + a custom chevron so the control matches the rounded
         // inputs instead of showing the platform's native (double-arrow) select UI.
-        'w-full appearance-none rounded-2xl border border-transparent bg-[#050b17] bg-no-repeat px-4 py-3 pr-10 text-sm text-fg outline-none transition focus:border-brand/60',
+        'w-full appearance-none rounded-2xl border border-border bg-well bg-no-repeat px-4 py-3 pr-10 text-sm text-fg outline-none transition focus:border-brand/60',
         className,
       )}
       style={{
-        backgroundImage:
-          "url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2394a3b8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E\")",
+        // per-theme chevron (a data-URI can't read CSS colour variables)
+        backgroundImage: 'var(--select-chevron)',
         backgroundPosition: 'right 0.75rem center',
         backgroundSize: '16px',
       }}
@@ -123,6 +123,18 @@ export function Select({ className, children, ...props }: SelectHTMLAttributes<H
     >
       {children}
     </select>
+  );
+}
+
+export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTextAreaElement>) {
+  return (
+    <textarea
+      className={cx(
+        'w-full resize-none rounded-2xl border border-border bg-well px-4 py-3 text-sm text-fg placeholder:text-faint outline-none transition focus:border-brand/60 focus:shadow-[0_0_0_4px_rgba(0,176,255,0.14)]',
+        className,
+      )}
+      {...props}
+    />
   );
 }
 
@@ -143,10 +155,10 @@ export function Field({ label, hint, children }: { label: string; hint?: string;
 type Tone = 'neutral' | 'brand' | 'up' | 'down' | 'warn';
 const badgeTone: Record<Tone, string> = {
   neutral: 'bg-surface-2 text-muted',
-  brand: 'bg-brand/15 text-accent',
-  up: 'bg-up/15 text-up',
-  down: 'bg-down/15 text-down',
-  warn: 'bg-warn/15 text-warn',
+  brand: 'bg-brand/15 text-accent-fg',
+  up: 'bg-up/15 text-up-fg',
+  down: 'bg-down/15 text-down-fg',
+  warn: 'bg-warn/15 text-warn-fg',
 };
 
 export function Badge({ tone = 'neutral', children }: { tone?: Tone; children: ReactNode }) {
@@ -164,8 +176,8 @@ export function Stat({ label, value, tone }: { label: string; value: ReactNode; 
       <div
         className={cx(
           'mt-0.5 text-lg font-medium tabular-nums',
-          tone === 'up' && 'text-up',
-          tone === 'down' && 'text-down',
+          tone === 'up' && 'text-up-fg',
+          tone === 'down' && 'text-down-fg',
         )}
       >
         {value}
@@ -180,7 +192,7 @@ export function EmptyState({ title, body, action, className }: { title: string; 
       className={cx('card-surface relative flex flex-col items-center gap-4 overflow-hidden px-6 py-16 text-center', className)}
       style={{
         background:
-          'radial-gradient(600px 260px at 50% -10%, rgba(0,176,255,0.12), transparent 60%), linear-gradient(160deg, #0a1e3a 0%, #050b17 60%, #0a1e3a 100%)',
+          'radial-gradient(600px 260px at 50% -10%, rgba(0,176,255,0.12), transparent 60%), linear-gradient(160deg, var(--color-surface) 0%, var(--color-bg) 60%, var(--color-surface) 100%)',
       }}
     >
       <div
@@ -246,14 +258,14 @@ export function Checkbox({
       }}
       className={cx(
         'group flex cursor-pointer select-none items-start gap-3 rounded-xl border px-3.5 py-3 text-left text-xs leading-relaxed transition-colors focus:outline-none focus-visible:ring-2 focus-visible:ring-brand/50',
-        checked ? 'border-brand/40 bg-brand/[0.07] text-fg' : 'border-border bg-surface/60 text-muted hover:border-white/15',
+        checked ? 'border-brand/40 bg-brand/[0.07] text-fg' : 'border-border bg-surface/60 text-muted hover:border-border',
         className,
       )}
     >
       <span
         className={cx(
           'mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-md border transition-all duration-200',
-          checked ? 'border-brand bg-brand text-[#050b17] shadow-[0_2px_10px_rgba(0,176,255,0.45)]' : 'border-white/20 bg-transparent',
+          checked ? 'border-brand bg-brand text-on-brand shadow-[0_2px_10px_rgba(0,176,255,0.45)]' : 'border-border bg-transparent',
         )}
       >
         <Check className={cx('h-3.5 w-3.5 transition-transform', checked ? 'scale-100' : 'scale-0')} strokeWidth={3} />
@@ -278,8 +290,8 @@ export function EmptyBlock({
   className?: string;
 }) {
   return (
-    <div className={cx('flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-white/10 px-6 py-10 text-center', className)}>
-      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-white/[0.05] text-brand">{icon}</span>
+    <div className={cx('flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border px-6 py-10 text-center', className)}>
+      <span className="grid h-12 w-12 place-items-center rounded-2xl bg-tint/[0.05] text-brand-fg">{icon}</span>
       <div className="text-sm font-semibold text-fg">{title}</div>
       {body && <p className="max-w-xs text-xs leading-relaxed text-muted">{body}</p>}
       {action && <div className="mt-1">{action}</div>}

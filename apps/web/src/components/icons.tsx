@@ -36,8 +36,8 @@ export function LogoIcon(props: SVGProps<SVGSVGElement>) {
   );
 }
 
-// Brand mark image — the glowing shield render (transparent PNG). Sits on the
-// light theme next to the "BelieveMeGuys" wordmark. Pass sizing via className.
+// Brand mark image — the glowing shield render (transparent PNG); reads on both
+// themes next to the "BelieveMeGuys" wordmark. Pass sizing via className.
 export function BrandMark({ className }: { className?: string }) {
   return (
     // eslint-disable-next-line @next/next/no-img-element

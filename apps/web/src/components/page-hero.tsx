@@ -50,7 +50,7 @@ export function PageHero({
         )}
         {above && <div className="mb-5 flex justify-center">{above}</div>}
         {eyebrow && (
-          <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand sm:text-xs">{eyebrow}</div>
+          <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.2em] text-brand-fg sm:text-xs">{eyebrow}</div>
         )}
         <h1
           className={cx('mx-auto text-fg', compact ? 'text-[2.2rem] sm:text-[2.75rem]' : 'text-[2.6rem] sm:text-[3.25rem] lg:text-[3.75rem]')}
@@ -63,7 +63,7 @@ export function PageHero({
         {stats && stats.length > 0 && (
           <div className="mt-8 flex flex-wrap justify-center gap-2">
             {stats.map(({ v, l }) => (
-              <span key={l} className="inline-flex items-center gap-2 rounded-xl bg-white/[0.06] px-3.5 py-2 text-[13px] text-muted backdrop-blur">
+              <span key={l} className="inline-flex items-center gap-2 rounded-xl bg-tint/[0.06] px-3.5 py-2 text-[13px] text-muted backdrop-blur">
                 <span className="font-semibold text-fg">{v}</span> {l}
               </span>
             ))}

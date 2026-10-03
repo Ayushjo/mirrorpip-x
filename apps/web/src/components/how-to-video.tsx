@@ -49,7 +49,7 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
     return (
       <Card className="p-4 sm:p-5">
         <button type="button" onClick={() => setOpen(true)} className="flex w-full items-center gap-4 text-left">
-          <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-[#050b17] shadow-[0_6px_20px_rgba(0,176,255,0.35)]">
+          <span className="relative grid h-11 w-11 shrink-0 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-on-brand shadow-[0_6px_20px_rgba(0,176,255,0.35)]">
             <Play className="ml-0.5 h-4 w-4 fill-current" />
           </span>
           <span className="min-w-0 flex-1">
@@ -66,9 +66,9 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
       <div className="grid lg:grid-cols-[1.5fr_1fr]">
         {/* media */}
         <div className="relative min-w-0 p-4 sm:p-6 lg:pr-0">
-          <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-3/5 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[80px]" />
-          <div className="relative rounded-[1.25rem] bg-gradient-to-br from-brand/50 via-white/10 to-accent/30 p-[2px] sm:rounded-[1.75rem]">
-            <div className="relative overflow-hidden rounded-[calc(1.25rem-2px)] bg-[#050b17] sm:rounded-[calc(1.75rem-2px)]">
+          <div aria-hidden className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-3/5 w-3/4 -translate-x-1/2 -translate-y-1/2 rounded-full bg-brand/20 blur-[80px] light:opacity-40" />
+          <div data-theme="dark" className="relative rounded-[1.25rem] bg-gradient-to-br from-brand/50 via-tint/10 to-accent/30 p-[2px] sm:rounded-[1.75rem]">
+            <div className="relative overflow-hidden rounded-[calc(1.25rem-2px)] bg-well sm:rounded-[calc(1.75rem-2px)]">
               {/* eslint-disable-next-line jsx-a11y/media-has-caption */}
               <video
                 ref={ref}
@@ -99,14 +99,14 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
                   >
                     <span className="relative grid place-items-center">
                       {!reduce && <span className="pulse-ring absolute h-16 w-16 rounded-full border border-brand/50" />}
-                      <span className="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-[#050b17] shadow-[0_12px_40px_rgba(0,176,255,0.5)] transition-transform group-hover:scale-110">
+                      <span className="grid h-16 w-16 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-on-brand shadow-[0_12px_40px_rgba(0,176,255,0.5)] transition-transform group-hover:scale-110">
                         <Play className="ml-1 h-6 w-6 fill-current" />
                       </span>
                     </span>
-                    <span className="absolute bottom-3 right-3 rounded-full bg-[#050b17]/80 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-fg backdrop-blur">{fmt(duration)}</span>
+                    <span className="absolute bottom-3 right-3 rounded-full bg-scrim/80 px-2.5 py-1 text-[11px] font-semibold tabular-nums text-fg backdrop-blur">{fmt(duration)}</span>
                     <span className="absolute bottom-3 left-3 text-left">
                       <span className="block text-sm font-semibold text-fg">How to create your key</span>
-                      <span className="block text-[11px] text-white/70">Delta India · trade-only · withdrawals off</span>
+                      <span className="block text-[11px] text-tint/70">Delta India · trade-only · withdrawals off</span>
                     </span>
                   </motion.button>
                 )}
@@ -120,7 +120,7 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
               const p = Math.max(0, Math.min(1, (time - c.at) / (end - c.at)));
               return (
                 <button key={c.at} type="button" aria-label={`Chapter ${i + 1}: ${c.t}`} onClick={() => seek(c.at)} className="group h-3 flex-1">
-                  <span className="block h-1 overflow-hidden rounded-full bg-white/10 transition-colors group-hover:bg-white/20">
+                  <span className="block h-1 overflow-hidden rounded-full bg-tint/10 transition-colors group-hover:bg-tint/20">
                     <span className="block h-full rounded-full bg-gradient-to-r from-brand to-accent" style={{ width: `${p * 100}%` }} />
                   </span>
                 </button>
@@ -137,7 +137,7 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
               <p className="mt-1 text-sm text-muted">Follow along — click a step to jump there.</p>
             </div>
             {compact && (
-              <button type="button" onClick={() => setOpen(false)} aria-label="Collapse" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:bg-white/[0.06] hover:text-fg">
+              <button type="button" onClick={() => setOpen(false)} aria-label="Collapse" className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-muted hover:bg-tint/[0.06] hover:text-fg">
                 <ChevronDown className="h-4 w-4 rotate-180" />
               </button>
             )}
@@ -147,12 +147,12 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
               const on = started && active === i;
               return (
                 <li key={c.at}>
-                  <button type="button" onClick={() => seek(c.at)} className={cx('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors', on ? 'bg-brand/[0.08]' : 'hover:bg-white/[0.04]')}>
-                    <span className={cx('grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors', on ? 'bg-brand text-[#050b17]' : 'bg-white/[0.06] text-muted')}>
+                  <button type="button" onClick={() => seek(c.at)} className={cx('flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left transition-colors', on ? 'bg-brand/[0.08]' : 'hover:bg-tint/[0.04]')}>
+                    <span className={cx('grid h-6 w-6 shrink-0 place-items-center rounded-full text-[11px] font-bold transition-colors', on ? 'bg-brand text-on-brand' : 'bg-tint/[0.06] text-muted')}>
                       {on ? <Play className="ml-px h-3 w-3 fill-current" /> : i + 1}
                     </span>
                     <span className="min-w-0 flex-1">
-                      <span className={cx('block text-sm font-medium leading-tight', on ? 'text-brand' : 'text-fg')}>{c.t}</span>
+                      <span className={cx('block text-sm font-medium leading-tight', on ? 'text-brand-fg' : 'text-fg')}>{c.t}</span>
                       <span className="block truncate text-xs text-muted">{c.d}</span>
                     </span>
                     <span className="shrink-0 text-[11px] tabular-nums text-faint">{fmt(c.at)}</span>
@@ -161,7 +161,7 @@ export function HowToVideo({ compact, onConnect }: { compact: boolean; onConnect
               );
             })}
           </ol>
-          <div className="mt-4 border-t border-white/5 pt-4">
+          <div className="mt-4 border-t border-border pt-4">
             <Button type="button" arrow onClick={onConnect} className="w-full justify-center max-sm:py-2.5">Got my key — connect it</Button>
           </div>
         </div>

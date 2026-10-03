@@ -16,18 +16,18 @@ export function DangerPanel({ email }: { email: string }) {
       <Card className="p-6 sm:p-8">
         <h2 className="text-lg font-semibold text-fg" style={{ letterSpacing: '-0.02em' }}>Your data</h2>
         <p className="mt-1 text-sm text-muted">Get a copy of your account, copies and order history as JSON.</p>
-        <button type="button" disabled={exporting} onClick={async () => { setExporting(true); const r = await requestDataExport(); setExporting(false); if (r.ok) toast.success('We’ll email you a download link shortly.'); }} className="mt-5 inline-flex items-center gap-2 rounded-full border border-white/10 px-4 py-2 text-sm font-medium text-fg hover:border-brand/40 hover:text-brand disabled:opacity-60">
+        <button type="button" disabled={exporting} onClick={async () => { setExporting(true); const r = await requestDataExport(); setExporting(false); if (r.ok) toast.success('We’ll email you a download link shortly.'); }} className="mt-5 inline-flex items-center gap-2 rounded-full border border-border px-4 py-2 text-sm font-medium text-fg hover:border-brand/40 hover:text-brand-fg disabled:opacity-60">
           <Download className="h-4 w-4" /> {exporting ? 'Preparing…' : 'Export my data'}
         </button>
       </Card>
 
       <Card className="border !border-down/30 p-6 sm:p-8">
         <div className="flex items-start gap-4">
-          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-down/15 text-down"><Trash2 className="h-4 w-4" /></span>
+          <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-down/15 text-down-fg"><Trash2 className="h-4 w-4" /></span>
           <div className="min-w-0 flex-1">
             <h2 className="text-lg font-semibold text-fg" style={{ letterSpacing: '-0.02em' }}>Delete account</h2>
             <p className="mt-1 text-sm text-muted">Stops every copy, removes your exchange keys, and erases your profile. This cannot be undone.</p>
-            <button type="button" onClick={() => setOpen(true)} className="mt-5 rounded-full bg-down/15 px-4 py-2 text-sm font-semibold text-down hover:bg-down/25">Delete my account…</button>
+            <button type="button" onClick={() => setOpen(true)} className="mt-5 rounded-full bg-down/15 px-4 py-2 text-sm font-semibold text-down-fg hover:bg-down/25">Delete my account…</button>
           </div>
         </div>
       </Card>
@@ -86,7 +86,7 @@ function DeleteBody({ email, onClose }: { email: string; onClose: () => void }) 
           onPointerUp={stop}
           onPointerLeave={stop}
           onPointerCancel={stop}
-          className={cx('relative mt-4 w-full select-none overflow-hidden rounded-full py-3 text-sm font-semibold transition-colors', armed ? 'bg-down/20 text-down' : 'bg-white/[0.05] text-faint')}
+          className={cx('relative mt-4 w-full select-none overflow-hidden rounded-full py-3 text-sm font-semibold transition-colors', armed ? 'bg-down/20 text-down-fg' : 'bg-tint/[0.05] text-faint')}
         >
           <motion.span className="absolute inset-y-0 left-0 bg-down" animate={{ width: `${hold * 100}%` }} transition={{ duration: 0 }} />
           <span className={cx('relative', hold > 0.5 && 'text-white')}>{busy ? 'Deleting…' : hold > 0 ? 'Keep holding…' : 'Hold to delete'}</span>

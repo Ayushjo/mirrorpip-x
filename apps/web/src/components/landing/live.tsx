@@ -94,23 +94,23 @@ export function LivePhone({ className }: { className?: string }) {
   const weekPct = ((series[series.length - 1]! - series[0]!) / 10).toFixed(1);
 
   return (
-    <div ref={ref} aria-hidden className={cx('relative mx-auto w-[280px] sm:w-[320px]', className)}>
-      <div className="rounded-[3rem] border border-white/10 bg-[#0b1a33] p-2 shadow-[0_40px_120px_rgba(0,0,0,0.6)]">
-        <div className="overflow-hidden rounded-[2.5rem] bg-[#050b17]">
+    <div ref={ref} aria-hidden data-theme="dark" className={cx('relative mx-auto w-[280px] sm:w-[320px]', className)}>
+      <div className="rounded-[3rem] border border-border bg-raised p-2 shadow-[0_40px_120px_rgba(0,0,0,0.6)] light:elev-float">
+        <div className="overflow-hidden rounded-[2.5rem] bg-well">
           <div className="flex items-center justify-between px-6 pt-4 text-[10px] text-muted">
             <span>9:41</span>
-            <span className="h-1.5 w-16 rounded-full bg-white/10" />
+            <span className="h-1.5 w-16 rounded-full bg-tint/10" />
             <span>●●●</span>
           </div>
           <div className="mt-3 flex items-center justify-between px-5">
             <div className="flex items-center gap-2">
-              <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-xs font-bold text-[#050b17]">L</span>
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-xs font-bold text-on-brand">L</span>
               <div>
                 <div className="text-[12px] font-semibold text-fg">Leo Live Delta</div>
                 <div className="text-[10px] text-muted">#1 · Delta India</div>
               </div>
             </div>
-            <span className="inline-flex items-center gap-1 rounded-full bg-up/15 px-2 py-0.5 text-[10px] font-semibold text-up">
+            <span className="inline-flex items-center gap-1 rounded-full bg-up/15 px-2 py-0.5 text-[10px] font-semibold text-up-fg">
               <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-up" /> Copying
             </span>
           </div>
@@ -120,7 +120,7 @@ export function LivePhone({ className }: { className?: string }) {
               ${Math.floor(equity).toLocaleString('en-US')}
               <span className="text-muted">.{String(Math.round((equity % 1) * 100)).padStart(2, '0')}</span>
             </div>
-            <div className={cx('mt-1 text-[11px] font-medium', up ? 'text-up' : 'text-down')}>
+            <div className={cx('mt-1 text-[11px] font-medium', up ? 'text-up-fg' : 'text-down-fg')}>
               {up ? '+' : ''}
               {weekPct}% this week
             </div>
@@ -128,14 +128,14 @@ export function LivePhone({ className }: { className?: string }) {
           <svg viewBox={`0 0 ${w} ${h}`} className="mt-2 h-28 w-full" fill="none">
             <defs>
               <linearGradient id="lp-g" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stopColor={up ? '#00b0ff' : '#ef4444'} stopOpacity="0.35" />
-                <stop offset="100%" stopColor={up ? '#00b0ff' : '#ef4444'} stopOpacity="0" />
+                <stop offset="0%" stopColor={up ? 'var(--color-brand)' : 'var(--color-down)'} stopOpacity="0.35" />
+                <stop offset="100%" stopColor={up ? 'var(--color-brand)' : 'var(--color-down)'} stopOpacity="0" />
               </linearGradient>
             </defs>
             <motion.path d={`${d} L ${w} ${h} L 0 ${h} Z`} fill="url(#lp-g)" animate={{ d: `${d} L ${w} ${h} L 0 ${h} Z` }} transition={{ duration: 0.8, ease: 'easeOut' }} />
-            <motion.path d={d} stroke={up ? '#00b0ff' : '#ef4444'} strokeWidth="2" strokeLinecap="round" animate={{ d }} transition={{ duration: 0.8, ease: 'easeOut' }} />
-            <motion.circle r="3.5" fill={up ? '#00b0ff' : '#ef4444'} animate={{ cx: last.x, cy: last.y }} transition={{ duration: 0.8, ease: 'easeOut' }} />
-            <motion.circle r="8" fill={up ? '#00b0ff' : '#ef4444'} opacity="0.25" animate={{ cx: last.x, cy: last.y, r: [6, 12, 6], opacity: [0.3, 0, 0.3] }} transition={{ cx: { duration: 0.8 }, cy: { duration: 0.8 }, r: { duration: 1.6, repeat: Infinity }, opacity: { duration: 1.6, repeat: Infinity } }} />
+            <motion.path d={d} stroke={up ? 'var(--color-brand)' : 'var(--color-down)'} strokeWidth="2" strokeLinecap="round" animate={{ d }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+            <motion.circle r="3.5" fill={up ? 'var(--color-brand)' : 'var(--color-down)'} animate={{ cx: last.x, cy: last.y }} transition={{ duration: 0.8, ease: 'easeOut' }} />
+            <motion.circle r="8" fill={up ? 'var(--color-brand)' : 'var(--color-down)'} opacity="0.25" animate={{ cx: last.x, cy: last.y, r: [6, 12, 6], opacity: [0.3, 0, 0.3] }} transition={{ cx: { duration: 0.8 }, cy: { duration: 0.8 }, r: { duration: 1.6, repeat: Infinity }, opacity: { duration: 1.6, repeat: Infinity } }} />
           </svg>
           <div className="mx-4 mb-4 h-[76px] overflow-hidden">
             <AnimatePresence initial={false}>
@@ -146,11 +146,11 @@ export function LivePhone({ className }: { className?: string }) {
                   animate={{ y: 0, opacity: 1, scale: 1 }}
                   exit={{ y: -24, opacity: 0, scale: 0.98 }}
                   transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-                  className="rounded-2xl bg-[#0b1a33] p-3"
+                  className="rounded-2xl bg-raised p-3"
                 >
                   <div className="flex items-center justify-between text-[11px]">
                     <span className="font-semibold text-fg">
-                      {f.sym} · <span className={f.side === 'Buy' ? 'text-up' : 'text-down'}>{f.side}</span>
+                      {f.sym} · <span className={f.side === 'Buy' ? 'text-up-fg' : 'text-down-fg'}>{f.side}</span>
                     </span>
                     <span className="text-muted">{(f.ms / 1000).toFixed(1)}s ago</span>
                   </div>
@@ -158,16 +158,16 @@ export function LivePhone({ className }: { className?: string }) {
                     <span className="text-muted">
                       Leader {f.qty} → You {(Number(f.qty) * 0.25).toFixed(2)}
                     </span>
-                    <motion.span initial={{ scale: 1 }} animate={{ scale: [1, 1.18, 1] }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up">Filled</motion.span>
+                    <motion.span initial={{ scale: 1 }} animate={{ scale: [1, 1.18, 1] }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up-fg">Filled</motion.span>
                   </div>
                 </motion.div>
               ))}
             </AnimatePresence>
           </div>
-          <div className="flex items-center justify-around border-t border-white/5 px-4 py-3 text-[9px] text-muted">
+          <div className="flex items-center justify-around border-t border-border px-4 py-3 text-[9px] text-muted">
             {['Copies', 'Leaders', 'Accounts', 'Alerts'].map((t, i) => (
-              <span key={t} className={cx('flex flex-col items-center gap-1', i === 0 && 'text-brand')}>
-                <span className={cx('h-4 w-4 rounded-md', i === 0 ? 'bg-brand' : 'bg-white/10')} />
+              <span key={t} className={cx('flex flex-col items-center gap-1', i === 0 && 'text-brand-fg')}>
+                <span className={cx('h-4 w-4 rounded-md', i === 0 ? 'bg-brand' : 'bg-tint/10')} />
                 {t}
               </span>
             ))}
@@ -195,12 +195,12 @@ export function FillsFeed({ rows = 3, className }: { rows?: number; className?: 
             animate={{ y: 0, opacity: 1 - i * 0.28, scale: 1 }}
             exit={{ opacity: 0, y: 12 }}
             transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }}
-            className="flex items-center justify-between rounded-2xl bg-[#050b17] px-4 py-3 text-sm"
+            className="flex items-center justify-between rounded-2xl bg-well px-4 py-3 text-sm"
           >
             <span className="text-fg">
-              {f.sym} · <span className={f.side === 'Buy' ? 'text-up' : 'text-down'}>{f.side}</span> · {(f.ms / 1000).toFixed(1)}s
+              {f.sym} · <span className={f.side === 'Buy' ? 'text-up-fg' : 'text-down-fg'}>{f.side}</span> · {(f.ms / 1000).toFixed(1)}s
             </span>
-            <motion.span initial={{ scale: 1 }} animate={{ scale: i === 0 ? [1, 1.18, 1] : 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-full bg-up/15 px-2 py-0.5 text-xs font-semibold text-up">Filled</motion.span>
+            <motion.span initial={{ scale: 1 }} animate={{ scale: i === 0 ? [1, 1.18, 1] : 1 }} transition={{ duration: 0.5, delay: 0.2 }} className="rounded-full bg-up/15 px-2 py-0.5 text-xs font-semibold text-up-fg">Filled</motion.span>
           </motion.div>
         ))}
       </AnimatePresence>
@@ -266,7 +266,7 @@ export function LiveLeaderboard({ className, seed = [] }: { className?: string; 
               layout
               className={cx(
                 'grid h-8 w-8 place-items-center rounded-full text-xs font-bold',
-                i === 0 ? 'bg-gradient-to-br from-brand to-accent text-[#050b17] shadow-[0_6px_16px_rgba(0,176,255,0.4)]' : 'bg-white/10 text-fg',
+                i === 0 ? 'bg-gradient-to-br from-brand to-accent text-on-brand shadow-[0_6px_16px_rgba(0,176,255,0.4)]' : 'bg-tint/10 text-fg',
               )}
             >
               {i + 1}
@@ -279,7 +279,7 @@ export function LiveLeaderboard({ className, seed = [] }: { className?: string; 
                   initial={{ opacity: 0, y: delta > 0 ? 6 : -6 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0 }}
-                  className={cx('text-[11px] font-semibold', delta > 0 ? 'text-up' : 'text-down')}
+                  className={cx('text-[11px] font-semibold', delta > 0 ? 'text-up-fg' : 'text-down-fg')}
                 >
                   {delta > 0 ? '▲' : '▼'} {Math.abs(delta)}
                 </motion.span>
@@ -295,7 +295,7 @@ export function LiveLeaderboard({ className, seed = [] }: { className?: string; 
               </AnimatePresence>{' '}
               followers
             </span>
-            <span className="w-14 text-right font-semibold tabular-nums text-up">+{r.roi.toFixed(1)}%</span>
+            <span className="w-14 text-right font-semibold tabular-nums text-up-fg">+{r.roi.toFixed(1)}%</span>
           </div>
         </motion.div>
         );
@@ -338,15 +338,15 @@ export function LiveTradeChart({ className }: { className?: string }) {
   return (
     <div ref={ref} className={cx('relative h-72', className)}>
       <svg viewBox={`0 0 ${W} ${H}`} className="absolute inset-0 h-full w-full overflow-visible" fill="none">
-        <line x1={last.x} y1="0" x2={last.x} y2={H} stroke="rgba(255,255,255,0.15)" strokeDasharray="4 6" />
-        <motion.line x1="0" x2={W} stroke="rgba(255,255,255,0.2)" animate={{ y1: last.y, y2: last.y }} transition={{ duration: 0.35 }} />
-        <motion.path d={d} stroke="#00b0ff" strokeWidth="2.5" strokeLinecap="round" animate={{ d }} transition={{ duration: 0.35, ease: 'easeOut' }} />
-        <motion.circle r="4.5" fill="#fff" animate={{ cx: last.x, cy: last.y }} transition={{ duration: 0.35 }} />
+        <line x1={last.x} y1="0" x2={last.x} y2={H} stroke="var(--color-tint)" strokeOpacity={0.15} strokeDasharray="4 6" />
+        <motion.line x1="0" x2={W} stroke="var(--color-tint)" strokeOpacity={0.2} animate={{ y1: last.y, y2: last.y }} transition={{ duration: 0.35 }} />
+        <motion.path d={d} stroke="var(--color-brand)" strokeWidth="2.5" strokeLinecap="round" animate={{ d }} transition={{ duration: 0.35, ease: 'easeOut' }} />
+        <motion.circle r="4.5" fill="var(--color-fg)" animate={{ cx: last.x, cy: last.y }} transition={{ duration: 0.35 }} />
         <AnimatePresence>
           {marker && (
             <motion.g key={marker.id} initial={{ opacity: 0, scale: 0.6 }} animate={{ opacity: 1, scale: 1 }} exit={{ opacity: 0, y: -20 }} transition={{ duration: 0.4 }} style={{ transformOrigin: `${marker.x}px ${marker.y}px` }}>
-              <circle cx={marker.x} cy={marker.y} r="10" fill={marker.up ? '#10b981' : '#ef4444'} opacity="0.25" />
-              <circle cx={marker.x} cy={marker.y} r="5" fill={marker.up ? '#10b981' : '#ef4444'} />
+              <circle cx={marker.x} cy={marker.y} r="10" fill={marker.up ? 'var(--color-up)' : 'var(--color-down)'} opacity="0.25" />
+              <circle cx={marker.x} cy={marker.y} r="5" fill={marker.up ? 'var(--color-up)' : 'var(--color-down)'} />
             </motion.g>
           )}
         </AnimatePresence>
@@ -358,16 +358,16 @@ export function LiveTradeChart({ className }: { className?: string }) {
           animate={{ y: 0, opacity: 1 }}
           exit={{ y: -10, opacity: 0 }}
           className={cx(
-            'absolute left-[38%] top-[4%] flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-[#050b17]',
+            'absolute left-[38%] top-[4%] flex items-center gap-2 rounded-full px-3 py-1.5 text-sm font-semibold text-on-brand',
             marker && !marker.up ? 'bg-down shadow-[0_10px_30px_rgba(239,68,68,0.4)]' : 'bg-up shadow-[0_10px_30px_rgba(16,185,129,0.4)]',
           )}
         >
           $10.00
-          <span className="grid h-6 w-6 place-items-center rounded-full bg-[#050b17] text-white">{marker && !marker.up ? '↘' : '↗'}</span>
+          <span className="grid h-6 w-6 place-items-center rounded-full bg-on-brand text-white">{marker && !marker.up ? '↘' : '↗'}</span>
         </motion.div>
       </AnimatePresence>
       <motion.div
-        className="absolute right-0 rounded-full bg-white px-3 py-1 text-xs font-semibold tabular-nums text-[#050b17]"
+        className="absolute right-0 rounded-full bg-white px-3 py-1 text-xs font-semibold tabular-nums text-on-brand light:bg-fg light:text-bg"
         animate={{ top: `${(last.y / H) * 100}%`, y: '-50%' }}
         transition={{ duration: 0.35 }}
       >
@@ -375,13 +375,13 @@ export function LiveTradeChart({ className }: { className?: string }) {
       </motion.div>
       <div className="absolute bottom-0 left-[12%] flex gap-2">
         {[['Amount', '$10'], ['Multiplier', '1x']].map(([k, v]) => (
-          <div key={k} className="rounded-2xl bg-[#050b17] px-5 py-3 text-center">
+          <div key={k} className="rounded-2xl bg-well px-5 py-3 text-center">
             <div className="text-[11px] text-muted">{k}</div>
             <div className="text-base font-semibold text-fg">{v}</div>
           </div>
         ))}
       </div>
-      <div className={cx('absolute left-0 top-0 text-xs font-medium', up ? 'text-up' : 'text-down')}>{up ? '▲ Up' : '▼ Down'}</div>
+      <div className={cx('absolute left-0 top-0 text-xs font-medium', up ? 'text-up-fg' : 'text-down-fg')}>{up ? '▲ Up' : '▼ Down'}</div>
     </div>
   );
 }
@@ -438,11 +438,11 @@ export function SizingBars({ className }: { className?: string }) {
       {pairs.map(({ id, v }) => (
         <motion.div key={id} layout initial={{ opacity: 0, x: 24 }} animate={{ opacity: 1, x: 0 }} className="flex flex-col items-center gap-2">
           <div className="flex items-end gap-1">
-            <motion.div className="w-7 rounded-t-xl bg-white/15 sm:w-9" animate={{ height: v * 110 }} transition={{ type: 'spring', stiffness: 220, damping: 22 }} />
+            <motion.div className="w-7 rounded-t-xl bg-tint/15 sm:w-9" animate={{ height: v * 110 }} transition={{ type: 'spring', stiffness: 220, damping: 22 }} />
             <motion.div className="w-7 rounded-t-xl bg-gradient-to-t from-brand/40 to-brand sm:w-9" animate={{ height: v * 110 * 0.25 }} transition={{ type: 'spring', stiffness: 220, damping: 22, delay: 0.15 }} />
           </div>
           <div className="text-[10px] tabular-nums text-muted">
-            {v.toFixed(1)} → <span className="text-brand">{(v * 0.25).toFixed(2)}</span>
+            {v.toFixed(1)} → <span className="text-brand-fg">{(v * 0.25).toFixed(2)}</span>
           </div>
         </motion.div>
       ))}
@@ -487,14 +487,14 @@ export function HelpChat({ className }: { className?: string }) {
             transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }}
             className={cx(
               'w-fit max-w-[88%] rounded-3xl px-4 py-3 text-sm',
-              m.who === 'u' ? 'mr-auto rounded-bl-md bg-[#050b17] text-fg' : 'ml-auto rounded-br-md bg-brand font-medium text-[#050b17]',
+              m.who === 'u' ? 'mr-auto rounded-bl-md bg-well text-fg' : 'ml-auto rounded-br-md bg-brand font-medium text-on-brand',
             )}
           >
             {m.t}
           </motion.div>
         ))}
         {typing && (
-          <motion.div key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={cx('flex w-fit gap-1 rounded-3xl px-4 py-3', CHAT[n % CHAT.length]?.who === 'u' ? 'mr-auto bg-[#050b17]' : 'ml-auto bg-brand')}>
+          <motion.div key="typing" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className={cx('flex w-fit gap-1 rounded-3xl px-4 py-3', CHAT[n % CHAT.length]?.who === 'u' ? 'mr-auto bg-well' : 'ml-auto bg-brand')}>
             {[0, 1, 2].map((i) => (
               <motion.span key={i} className="h-1.5 w-1.5 rounded-full bg-current opacity-60" animate={{ y: [0, -4, 0] }} transition={{ duration: 0.8, repeat: Infinity, delay: i * 0.15 }} />
             ))}
@@ -520,27 +520,27 @@ export function PauseDemo({ className }: { className?: string }) {
   });
   return (
     <div ref={ref} className={cx('w-full max-w-sm space-y-3', className)}>
-      <div className="flex items-center justify-between rounded-2xl bg-[#050b17] px-4 py-3.5">
+      <div className="flex items-center justify-between rounded-2xl bg-well px-4 py-3.5">
         <div className="flex items-center gap-3">
-          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-xs font-bold text-[#050b17]">L</span>
+          <span className="grid h-9 w-9 place-items-center rounded-full bg-gradient-to-br from-brand to-accent text-xs font-bold text-on-brand">L</span>
           <div>
             <div className="text-sm font-medium text-fg">Leo Live Delta</div>
-            <div className={cx('flex items-center gap-1.5 text-[11px]', on ? 'text-up' : 'text-muted')}>
-              <span className={cx('h-1.5 w-1.5 rounded-full', on ? 'animate-pulse bg-up' : 'bg-white/30')} />
+            <div className={cx('flex items-center gap-1.5 text-[11px]', on ? 'text-up-fg' : 'text-muted')}>
+              <span className={cx('h-1.5 w-1.5 rounded-full', on ? 'animate-pulse bg-up' : 'bg-tint/30')} />
               {on ? 'Copying live' : 'Paused'}
             </div>
           </div>
         </div>
         {/* toggle */}
-        <button type="button" aria-pressed={on} onClick={() => { setOn(!on); setToast({ id: Date.now(), on: !on }); }} className={cx('relative h-8 w-14 rounded-full transition-colors', on ? 'bg-up' : 'bg-white/15')}>
+        <button type="button" aria-pressed={on} onClick={() => { setOn(!on); setToast({ id: Date.now(), on: !on }); }} className={cx('relative h-8 w-14 rounded-full transition-colors', on ? 'bg-up' : 'bg-tint/15')}>
           <motion.span layout transition={{ type: 'spring', stiffness: 500, damping: 32 }} className={cx('absolute top-1 h-6 w-6 rounded-full bg-white shadow', on ? 'left-7' : 'left-1')} />
         </button>
       </div>
       <div className="h-[64px]">
         <AnimatePresence mode="wait">
           {toast && (
-            <motion.div key={toast.id} initial={{ y: 14, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-3 rounded-2xl bg-[#050b17] px-4 py-3">
-              <span className={cx('grid h-9 w-9 place-items-center rounded-xl text-[#050b17]', toast.on ? 'bg-up' : 'bg-brand')}>{toast.on ? '▶' : '⏸'}</span>
+            <motion.div key={toast.id} initial={{ y: 14, opacity: 0, scale: 0.97 }} animate={{ y: 0, opacity: 1, scale: 1 }} exit={{ y: -10, opacity: 0 }} transition={{ duration: 0.4, ease: [0.16, 1, 0.3, 1] }} className="flex items-center gap-3 rounded-2xl bg-well px-4 py-3">
+              <span className={cx('grid h-9 w-9 place-items-center rounded-xl text-on-brand', toast.on ? 'bg-up' : 'bg-brand')}>{toast.on ? '▶' : '⏸'}</span>
               <div className="flex-1 text-sm">
                 <div className="flex items-center justify-between">
                   <span className="font-medium text-fg">{toast.on ? 'Copying resumed' : 'Copying paused'}</span>
@@ -577,7 +577,7 @@ export function RiskDemo({ className }: { className?: string }) {
   ];
   const risk = Math.round((st.amount * st.mult) / 1.2);
   return (
-    <div ref={ref} className={cx('w-full max-w-sm rounded-2xl bg-[#050b17] p-4', className)}>
+    <div ref={ref} className={cx('w-full max-w-sm rounded-2xl bg-well p-4', className)}>
       <div className="space-y-3.5">
         {rows.map((r) => (
           <div key={r.k}>
@@ -589,16 +589,16 @@ export function RiskDemo({ className }: { className?: string }) {
                 </motion.span>
               </AnimatePresence>
             </div>
-            <div className="relative mt-2 h-2 rounded-full bg-white/10">
+            <div className="relative mt-2 h-2 rounded-full bg-tint/10">
               <motion.div className="absolute inset-y-0 left-0 rounded-full bg-gradient-to-r from-brand to-accent" animate={{ width: `${Math.min(100, r.pct * 100)}%` }} transition={{ type: 'spring', stiffness: 160, damping: 22 }} />
-              <motion.span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-brand bg-[#050b17]" animate={{ left: `calc(${Math.min(100, r.pct * 100)}% - 8px)` }} transition={{ type: 'spring', stiffness: 160, damping: 22 }} />
+              <motion.span className="absolute top-1/2 h-4 w-4 -translate-y-1/2 rounded-full border-2 border-brand bg-well" animate={{ left: `calc(${Math.min(100, r.pct * 100)}% - 8px)` }} transition={{ type: 'spring', stiffness: 160, damping: 22 }} />
             </div>
           </div>
         ))}
       </div>
-      <div className="mt-4 flex items-center justify-between border-t border-white/5 pt-3 text-[12px]">
+      <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-[12px]">
         <span className="text-muted">Max risk per trade</span>
-        <span className="inline-flex items-center gap-1.5 rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up">
+        <span className="inline-flex items-center gap-1.5 rounded-full bg-up/15 px-2 py-0.5 font-semibold text-up-fg">
           <span className="h-1.5 w-1.5 rounded-full bg-up" /> ${risk} · protected
         </span>
       </div>
@@ -622,7 +622,7 @@ export function FillsMarquee({ className }: { className?: string }) {
     <div aria-hidden className={cx('group relative overflow-hidden py-2 [mask-image:linear-gradient(to_right,transparent,#000_12%,#000_88%,transparent)]', className)}>
       <div className="marquee-track slow gap-3 group-hover:[animation-play-state:paused]">
         {items.map((f, i) => (
-          <span key={i} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-white/[0.05] px-4 py-2 text-[13px] text-muted">
+          <span key={i} className="inline-flex shrink-0 items-center gap-2 rounded-full bg-tint/[0.05] px-4 py-2 text-[13px] text-muted">
             <span className={cx('h-1.5 w-1.5 rounded-full', f.side === 'Buy' ? 'bg-up' : 'bg-down')} />
             <span className="font-medium text-fg">{f.sym}</span> · {f.side} · mirrored in {(f.ms / 1000).toFixed(1)}s
             <span className="text-faint">→ {f.who}</span>
@@ -654,10 +654,10 @@ export function StickyCta({ href, label }: { href: string; label: string }) {
         >
           <Link
             href={href}
-            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand to-accent py-2.5 pl-5 pr-2 text-sm font-semibold text-[#050b17] shadow-[0_18px_50px_rgba(0,176,255,0.45)]"
+            className="inline-flex items-center gap-2 rounded-full bg-gradient-to-r from-brand to-accent py-2.5 pl-5 pr-2 text-sm font-semibold text-on-brand shadow-[0_18px_50px_rgba(0,176,255,0.45)]"
           >
             {label}
-            <span className="grid h-8 w-8 place-items-center rounded-full bg-[#050b17]">
+            <span className="grid h-8 w-8 place-items-center rounded-full bg-on-brand">
               <ArrowRight className="h-4 w-4 text-white" />
             </span>
           </Link>
@@ -684,7 +684,7 @@ export function Testimonials({ className }: { className?: string }) {
       <AnimatePresence mode="wait">
         <motion.div key={i} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -12 }} transition={{ duration: 0.45, ease: [0.16, 1, 0.3, 1] }} className="flex w-full flex-1 flex-col items-center justify-between">
           <div>
-            <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-white/10 text-lg font-semibold text-fg">{q.who[0]}</span>
+            <span className="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-tint/10 text-lg font-semibold text-fg">{q.who[0]}</span>
             <div className="mt-2 text-sm text-muted">{q.who}, {q.since}</div>
           </div>
           <div>
@@ -696,7 +696,7 @@ export function Testimonials({ className }: { className?: string }) {
       </AnimatePresence>
       <div className="flex gap-1.5">
         {QUOTES.map((_, k) => (
-          <button key={k} type="button" aria-label={`Quote ${k + 1}`} onClick={() => setI(k)} className={cx('h-1.5 rounded-full transition-all', k === i ? 'w-8 bg-fg' : 'w-1.5 bg-white/20')} />
+          <button key={k} type="button" aria-label={`Quote ${k + 1}`} onClick={() => setI(k)} className={cx('h-1.5 rounded-full transition-all', k === i ? 'w-8 bg-fg' : 'w-1.5 bg-tint/20')} />
         ))}
       </div>
     </div>
@@ -726,7 +726,7 @@ export function Milestones() {
       <div className="mt-2 flex items-start justify-center gap-6 text-xs">
         {MILESTONES.map((m, k) => (
           <button key={m.y} type="button" onClick={() => setI(k)} className={cx('transition-colors', k === i ? 'text-fg' : 'text-faint hover:text-muted')}>
-            <span className={cx('rounded-full px-3 py-1 font-semibold transition-colors', k === i ? 'bg-white text-[#050b17]' : 'bg-white/10')}>{m.y}</span>
+            <span className={cx('rounded-full px-3 py-1 font-semibold transition-colors', k === i ? 'bg-white text-on-brand light:bg-fg light:text-bg' : 'bg-tint/10')}>{m.y}</span>
             <div className="mt-2 max-w-[8rem]">{m.t}</div>
           </button>
         ))}
@@ -780,11 +780,11 @@ export function OrbitNotes({ className }: { className?: string }) {
               className="absolute w-56 xl:w-64"
               style={{ [slot.side === 'l' ? 'left' : 'right']: `${slot.x}%`, top: `${slot.y}%`, translate: '0 -50%' }}
             >
-              <div className="flex items-center gap-3 rounded-2xl border border-white/10 bg-[#0b1a33]/90 px-4 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.55)] backdrop-blur">
+              <div className="flex items-center gap-3 rounded-2xl border border-border bg-raised/90 px-4 py-3 shadow-[0_20px_50px_rgba(0,0,0,0.55)] light:elev-float backdrop-blur">
                 <span
                   className={cx(
                     'grid h-9 w-9 shrink-0 place-items-center rounded-xl text-base',
-                    note.tone === 'up' ? 'bg-up/15' : note.tone === 'warn' ? 'bg-warn/15' : note.tone === 'brand' ? 'bg-brand/15' : 'bg-white/[0.06]',
+                    note.tone === 'up' ? 'bg-up/15' : note.tone === 'warn' ? 'bg-warn/15' : note.tone === 'brand' ? 'bg-brand/15' : 'bg-tint/[0.06]',
                   )}
                 >
                   {note.icon}

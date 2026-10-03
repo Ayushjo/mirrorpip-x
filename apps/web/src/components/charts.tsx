@@ -1,7 +1,7 @@
 'use client';
 
 import { motion, useInView, useReducedMotion } from 'framer-motion';
-import { useMemo, useRef, useState } from 'react';
+import { useId, useMemo, useRef, useState } from 'react';
 import { cx, fmtUsd } from './ui';
 
 // ─── Lightweight, in-theme SVG charts with tasteful motion ──────────────────
@@ -263,7 +263,8 @@ export function DrawSparkline({ points, stroke, className, height = 56 }: { poin
   const range = max - min || 1;
   const step = W / (points.length - 1);
   const d = points.map((v, i) => `${i === 0 ? 'M' : 'L'} ${(i * step).toFixed(1)} ${(height - ((v - min) / range) * height).toFixed(1)}`).join(' ');
-  const id = `dsp-${stroke.replace('#', '')}-${points.length}-${Math.round(points[0]! * 100)}`;
+  // useId: the stroke may be a CSS var (theme-aware), which isn't a valid id fragment.
+  const id = `dsp${useId().replace(/:/g, '')}`;
   return (
     <svg ref={ref} viewBox={`0 0 ${W} ${height}`} className={className} fill="none" preserveAspectRatio="none">
       <defs>

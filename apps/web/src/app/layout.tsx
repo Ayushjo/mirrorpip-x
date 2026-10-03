@@ -1,4 +1,4 @@
-import type { Metadata } from 'next';
+import type { Metadata, Viewport } from 'next';
 import Link from 'next/link';
 import './globals.css';
 import { getSessionUser, isAdmin } from '@/lib/session';
@@ -11,12 +11,21 @@ import { NotificationBell } from '@/components/notification-bell';
 import { OnboardingGate } from '@/components/consent-gate';
 import { SmoothScroll } from '@/components/smooth-scroll';
 import { Toaster } from '@/components/toaster';
+import { ThemeProvider } from '@/components/theme-provider';
+import { ThemeToggle } from '@/components/theme-toggle';
 
 export const metadata: Metadata = {
   title: 'BelieveMeGuys — Copy the best crypto traders',
   description:
     'Connect your exchange, follow verified leaders, and mirror their trades automatically. Your funds stay in your own account.',
   icons: { icon: '/media/believemeguysjsutlogo.png', apple: '/media/believemeguysjsutlogo.png' },
+};
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#f5f8fd' },
+    { media: '(prefers-color-scheme: dark)', color: '#050b17' },
+  ],
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
@@ -36,7 +45,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   ];
 
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
@@ -46,23 +55,24 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         />
       </head>
       <body className="flex min-h-screen flex-col">
+        <ThemeProvider>
         <SmoothScroll />
         <Toaster />
-        <header className="sticky top-0 z-40 border-b border-border bg-[rgba(5,11,23,0.7)] backdrop-blur-xl">
+        <header className="sticky top-0 z-40 border-b border-border bg-bg/70 backdrop-blur-xl">
           <div className="mx-auto flex h-16 max-w-[88rem] items-center justify-between gap-3 px-6">
             <Link href="/" className="flex shrink-0 items-center gap-2">
               <BrandMark className="h-7 w-7" />
               <span className="text-lg font-semibold tracking-tight text-fg sm:text-xl">
-                BelieveMe<span className="text-brand">Guys</span>
+                BelieveMe<span className="text-brand-fg">Guys</span>
               </span>
             </Link>
 
-            <nav className="hidden items-center gap-1 rounded-2xl bg-white/[0.05] p-1.5 text-[15px] font-medium text-muted md:flex">
+            <nav className="hidden items-center gap-1 rounded-2xl bg-tint/[0.05] p-1.5 text-[15px] font-medium text-muted md:flex">
               {navLinks.map((l) => (
                 <Link
                   key={l.href}
                   href={l.href}
-                  className="rounded-xl px-4 py-2 transition-colors duration-200 hover:bg-white/[0.06] hover:text-fg"
+                  className="rounded-xl px-4 py-2 transition-colors duration-200 hover:bg-tint/[0.06] hover:text-fg"
                 >
                   {l.label}
                 </Link>
@@ -70,6 +80,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </nav>
 
             <div className="flex items-center gap-2">
+              <ThemeToggle className="hidden md:block" />
               {user && <NotificationBell />}
               <MobileNav links={navLinks} user={user ? { name: user.name, email: user.email } : null} />
               <div className="hidden md:block">
@@ -80,7 +91,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
         </header>
 
         {maintenance.enabled && (
-          <div className="border-b border-warn/30 bg-warn/15 px-6 py-2 text-center text-sm text-warn">
+          <div className="border-b border-warn/30 bg-warn/15 px-6 py-2 text-center text-sm text-warn-fg">
             {maintenance.message || 'BelieveMeGuys is under scheduled maintenance — copying may be paused.'}
           </div>
         )}
@@ -127,6 +138,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
             </nav>
           </div>
         </footer>
+        </ThemeProvider>
       </body>
     </html>
   );

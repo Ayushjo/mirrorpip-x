@@ -61,8 +61,8 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
             <div className="px-6 pt-6">
               <div className="flex items-center gap-3">
                 <div
-                  className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-fg ring-1 ring-white/10"
-                  style={{ background: 'radial-gradient(circle at 35% 30%, #163a70, #0a1e3a)' }}
+                  className="grid h-12 w-12 place-items-center rounded-full text-lg font-medium text-fg ring-1 ring-tint/10"
+                  style={{ background: 'radial-gradient(circle at 35% 30%, var(--color-surface-3), var(--color-surface))' }}
                 >
                   {leader.displayName.slice(0, 1)}
                 </div>
@@ -76,7 +76,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
                 </div>
               </div>
               <div className="-mx-2 mt-3">
-                <Sparkline points={sparkPoints(leader.equitySeries)} width={520} height={64} className="w-full text-brand" stroke="#00b0ff" />
+                <Sparkline points={sparkPoints(leader.equitySeries)} width={520} height={64} className="w-full text-brand-fg" stroke="var(--color-brand)" />
               </div>
             </div>
             <div className="grid grid-cols-2 gap-3 p-6 text-sm">
@@ -86,7 +86,7 @@ export default async function FollowPage({ params }: { params: Promise<{ leaderI
               </div>
               <div>
                 <div className="text-xs text-muted">30d ROI</div>
-                <div className="mt-0.5 font-medium tabular-nums text-up">{s.roiPct === 0 ? '—' : fmtPct(s.roiPct)}</div>
+                <div className="mt-0.5 font-medium tabular-nums text-up-fg">{s.roiPct === 0 ? '—' : fmtPct(s.roiPct)}</div>
               </div>
               <div>
                 <div className="text-xs text-muted">Followers</div>

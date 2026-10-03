@@ -71,11 +71,11 @@ export function LeaderTrades({ trades }: { trades: LeaderTrade[] }) {
           <div className="mt-5 grid grid-cols-2 gap-3 border-t border-border-soft pt-4">
             <div>
               <div className="text-xs text-muted">Buys</div>
-              <div className="mt-0.5 text-lg font-semibold tabular-nums text-up">{buys}</div>
+              <div className="mt-0.5 text-lg font-semibold tabular-nums text-up-fg">{buys}</div>
             </div>
             <div>
               <div className="text-xs text-muted">Sells</div>
-              <div className="mt-0.5 text-lg font-semibold tabular-nums text-down">{sells}</div>
+              <div className="mt-0.5 text-lg font-semibold tabular-nums text-down-fg">{sells}</div>
             </div>
           </div>
         </Card>
@@ -128,7 +128,7 @@ export function LeaderTrades({ trades }: { trades: LeaderTrade[] }) {
                     <span
                       className={cx(
                         'grid h-8 w-8 shrink-0 place-items-center rounded-lg text-[10px] font-bold',
-                        t.side === 'BUY' ? 'bg-up/15 text-up' : 'bg-down/15 text-down',
+                        t.side === 'BUY' ? 'bg-up/15 text-up-fg' : 'bg-down/15 text-down-fg',
                       )}
                     >
                       {t.side === 'BUY' ? 'B' : 'S'}
@@ -184,7 +184,7 @@ export function LeaderTrades({ trades }: { trades: LeaderTrade[] }) {
                   <button
                     type="button"
                     onClick={() => setShown((n) => n + PAGE)}
-                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-brand transition-colors hover:bg-brand/10"
+                    className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-medium text-brand-fg transition-colors hover:bg-brand/10"
                   >
                     Show {Math.min(PAGE, remaining)} more
                     <ChevronDown className="h-3.5 w-3.5" />

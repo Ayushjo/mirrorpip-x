@@ -109,10 +109,10 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
             <div className="flex items-start justify-between gap-2">
               <div className="text-xs text-muted">{s.label}</div>
               {'spark' in s && s.spark.some((v) => v > 0) && (
-                <Sparkline points={s.spark} width={72} height={22} className="text-brand" stroke="#00b0ff" />
+                <Sparkline points={s.spark} width={72} height={22} className="text-brand-fg" stroke="var(--color-brand)" />
               )}
             </div>
-            <div className={`mt-1 text-2xl font-semibold tabular-nums ${'tone' in s && s.tone === 'down' ? 'text-down' : ''}`}>{s.value}</div>
+            <div className={`mt-1 text-2xl font-semibold tabular-nums ${'tone' in s && s.tone === 'down' ? 'text-down-fg' : ''}`}>{s.value}</div>
             <div className="mt-1 text-[11px] text-faint">{s.sub}</div>
           </Card>
         ))}
@@ -125,7 +125,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
             <Card key={s.label} className="transition-all duration-300 hover:-translate-y-0.5 hover:border-border hover:shadow-[0_8px_30px_rgba(0,0,0,0.05)]">
               <div className="text-xs text-muted">{s.label}</div>
               <div
-                className={`mt-1 text-2xl font-semibold tabular-nums ${s.tone === 'down' ? 'text-down' : s.tone === 'up' ? 'text-up' : ''}`}
+                className={`mt-1 text-2xl font-semibold tabular-nums ${s.tone === 'down' ? 'text-down-fg' : s.tone === 'up' ? 'text-up-fg' : ''}`}
               >
                 {s.value}
               </div>
@@ -154,7 +154,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
                     </span>
                   </div>
                   <div className="h-2 overflow-hidden rounded-full bg-surface-2">
-                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.max(pct, 2)}%`, background: '#00b0ff' }} />
+                    <div className="h-full rounded-full transition-all duration-700 ease-out" style={{ width: `${Math.max(pct, 2)}%`, background: 'var(--color-brand)' }} />
                   </div>
                 </div>
               );
@@ -195,7 +195,7 @@ export function AdminOverview({ initial }: { initial: OverviewData }) {
                   <span className="text-xs text-muted">{c.side.toLowerCase()} · {c.leader}</span>
                 </div>
                 <div className="flex min-w-0 items-center gap-3">
-                  <span className="truncate text-xs text-down" title={c.error ?? ''}>{c.error ?? '—'}</span>
+                  <span className="truncate text-xs text-down-fg" title={c.error ?? ''}>{c.error ?? '—'}</span>
                   <span className="shrink-0 text-xs text-faint" suppressHydrationWarning>{new Date(c.requestedAt).toLocaleString()}</span>
                 </div>
               </div>
